@@ -1,7 +1,7 @@
 # HTTP/1.1
-Application 레이어에서 정의된 프로토콜
-연결 상태를 유지하지 않음(비연결성)
-HTTP/1.1의 구성
+Application 레이어에서 정의된 프로토콜\
+연결 상태를 유지하지 않음(비연결성)\
+HTTP/1.1의 구성\
 	* Header
 		* General Header (Cache, No-cache, etc)
 		* Request/Response Header (Host, User)
