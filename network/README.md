@@ -1,7 +1,7 @@
 # HTTP/1.1
 Application 레이어에서 정의된 프로토콜\
 연결 상태를 유지하지 않음(비연결성)\
-HTTP/1.1의 구성\
+HTTP/1.1의 구성
 * Header
 	* General Header (Cache, No-cache, etc)
 	* Request/Response Header (Host, User)
@@ -26,7 +26,7 @@ HTTP/1.1의 구성\
 # REST
 Resource의 이름이나 구분을 통해서 Resource에 대한 정보를 주고 받는 개발 패러다임\
 URI에 HTTP Method로 구분되는 Request를 보내고 그에 해당되는 Response 수신\
-특징\
+특징
 * Stateless - 상태에 구애받지 않고 들어오는 요청만 수행한다.
 * Cacheable - GET과 같은 Method에 한해서 expires 헤더를 설정하면 브라우저는 caching
 * Layered System - API Response 뿐만 아니라 Authentication 등의 계층 추가 용이
@@ -36,7 +36,7 @@ RPC의 경우 Resource의 이름/구분이 아닌 Function에 대해 Request를 
 
 # gRPC
 Protocol Buffer라는 Message라는 미리 설정된 (Static) Bytes 형식으로 Payload를 encoding하여 역시 미리 설정된 Service라는 RPC Function을 향해 HTTP/2 환경에서 통신하는 RPC 형태의 프레임워크\
-통신 순서\
+통신 순서
 * Client가 Stub Method (Parameter와 Return 타입, Service명)를 Call하면 Server는 Client의 Metadata를 전송받고, 바로 Metadata를 전송할지 Request Body를 전송받고 Metadata를 전송할지 결정한다.
 * Client의 Request를 전송받고 로직을 실행한 뒤 서버는 Trailing Metadata와 함께 Response를 전달한다.
 * gRPC Call이 발생하면 gRPC Client는 Server와의 Connection을 생성한다. 6~8개의 connection을 생성할 수 있는 HTTP와는 다르게 HTTP/2에서 한 개만 생성할 수 있는 Connection은 무제한한 갯수의 bi-directional stream을 생성할 수 있다.
@@ -44,7 +44,7 @@ Protocol Buffer라는 Message라는 미리 설정된 (Static) Bytes 형식으로
 ---
 
 # HTTP/2
-TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아래의 기능이 HTTP/1.1보다 향상되었다.\
+TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아래의 기능이 HTTP/1.1보다 향상되었다.
 * Header 압축을 통해서 latency 줄임
 * 한 개의 커넥션에서 Concurrent한 데이터 교환 가능
 * 기본 단위는 Frame으로 Header와 Data Frame은 HTTP/1.1의 Request, Response에 해당하며, 이를 제외한 Settings 등의 Frame은 HTTP/2의 Feature를 담당한다.
@@ -57,7 +57,7 @@ TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아�
 
 #JWT(Json Web Token)
 JSON Object를 Hash를 통해서 안전하게 전달하는 기술\
-Header, Payload, Signature로 구성된 JSON Object를 Base64형태로 치환하여 전달\
+Header, Payload, Signature로 구성된 JSON Object를 Base64형태로 치환하여 전달
 * Header에는 alg, typ(jwt)
 * Payload에는 데이터
 * Signature는 Header와 Payload를 Base64 encoding 후 private key(salt)를 이용하여 alg로 암호화
@@ -65,4 +65,28 @@ Header, Payload, Signature로 구성된 JSON Object를 Base64형태로 치환하
 
 ---
 
+# TCP/IP - OSI
+TCP/IP와 OSI는 모두 네트워크의 작동 방식을 설명하는 모델이다.\
+OSI는 네트워크의 각 단계를 7단계로 나눈 반면에, TCP/IP는 4단계로 나누어 설명한다. 계층을 나눔으로써 각 단계의 사양이 변경되었을 때, 구성을 변경하기 쉽다는 장점이 있다.\
+TCP/IP의 레이어
+* Application은 유저에게 제공되는 Application의 통신을 결정하는 레이어. FTP(파일 전송), HTTP, POP3(메일)등의 응용 레벨의 프로토콜을 제공한다.
+* Transport은 네트워크에 접속된 컴퓨터 사이의 데이터 흐름을 Application Layer에 제공하는 역할을 한다. TCP와 UDP라는 두 가지 프로토콜을 가진다.
+* Network는 네트워크 상에서 패킷의 이동, 어떤 경로를 통해 패킷을 전달할 것인가를 다룬다. 공유기 - 라우터 - 이더넷 - 파이버 - 이더넷 - 서버와 같은 특정 경로를 Session(세션)이라고 부른다.
+* Network Interface는 네트워크에 접속하는 하드웨어 계층을 담당한다.
+
+IP(Network Layer)는 패킷의 배송을 담당한다. 목적지의 위치 (IP와 MAC 주소)를 참조하여 그 다음 라우터로 데이터를 전송한다.\
+TCP(Transport Layer)는 신뢰성을 담당한다. 데이터를 TCP Segment라고 불리는 Packet으로 조각내고, 도착했는지를 3-Way Handshake을 통해서 확인한다.
+
+1. Sender는 Receiver에 'SYN' 신호와 함께 Packet을 전달한다.
+2. Receiver는 Packet을 수신하고 'SYN/ACK' 신호를 Sender에 전달하여, 패킷을 수신했다고 알린다.
+3. Sender는 Receiver에게 'ACK' 신호를 전달하여 'SYN/ACK' 신호를 수신했다고 알린다.
+
+TCP/IP로 보는 HTTP 통신의 순서는 아래와 같다.
+1. 클라이언트의 Application Layer에서 어느 웹페이지를 보고 싶다라는 HTTP Request를 생성한다.
+2. Transport Layer에서는 Application Layer의 Request를 통신하기 쉽도록 Packet으로 조각내어 안내 번호와 포트 번호를 붙여 Network Layer에 전달한다.
+3. Network Layer는 수신지의 고유 주소인 MAC 주소를 추가하여 Network Interface Layer로 전달한다. Network Interface Layer는 통신의 하드웨어를 담당하여 데이터를 전송한다.
+4. 수신하는 측(Server)는 위의 과정을 역순으로 실행하여 데이터를 수신한다.
+
+*IP 주소는 각 노드에 부여된 주소를 뜻하며, MAC주소는 각 네트워크 카드에 할당된 고유 주소를 뜻한다. IP주소는 변경 가능하지만, MAC주소는 변경할 수 없다*.
+*DNS는 Application에서 Domain Name의 실제 주소인 IP를 확인 할 수 있도록 돕는 역할을 한다.*
 
