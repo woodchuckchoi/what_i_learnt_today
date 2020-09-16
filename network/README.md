@@ -115,3 +115,8 @@ Socket 통신은 Request에 대한 Response 응답 후 연결을 끊는 HTTP 통
 HTTP는 Client만 Request를 보내고 Server는 이에 응답하는데 반해 Socket 통신은 Server가 Client에게로 먼저 데이터를 보낼 수 있으며, 연결을 해제하기 전까지 계속 연결을 유지하는 연결지향형 통신이기 때문에 실시간 통신이 필요한 게임, 채팅 등에 주로 사용된다.
 
 ---
+
+# Forward VS Redirect
+* Forward는 URI에 전달된 Request를 서버가 Target URI에 전달한다. 전달받은 URI에서 버는 클라이언트에게 Response를 리턴한다.
+* Redirect는 서버가 클라이언트에게 새로운 URI로 Request를 보내라는 신호를 전달한다. 클라이언트는 새로운 URI에 새로운 Request를 보낸다.
+*새로고침 등을 했을 때, 같은 데이터를 보내는 문제를 피하기 위해서 Redirect를 사용한다. 하지만 조회 등의 간단한 기능에는 Forward를 사용해도 된다*.
