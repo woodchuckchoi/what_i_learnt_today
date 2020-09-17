@@ -120,3 +120,14 @@ HTTP는 Client만 Request를 보내고 Server는 이에 응답하는데 반해 S
 * Forward는 URI에 전달된 Request를 서버가 Target URI에 전달한다. 전달받은 URI에서 버는 클라이언트에게 Response를 리턴한다.
 * Redirect는 서버가 클라이언트에게 새로운 URI로 Request를 보내라는 신호를 전달한다. 클라이언트는 새로운 URI에 새로운 Request를 보낸다.
 *새로고침 등을 했을 때, 같은 데이터를 보내는 문제를 피하기 위해서 Redirect를 사용한다. 하지만 조회 등의 간단한 기능에는 Forward를 사용해도 된다*.
+
+---
+
+# A Record & CNAME
+A 레코드는 DNS와 IPV4를 연결하는 방식이다. 이에 반해 CNAME은 DNS에 대한 또 다른 DNS라고 볼 수 있다. 
+	someURI.abc -> properURI.com
+CNAME을 사용하여 DNS나 IP가 바뀔 때마다 이에 맞춰 다른 사양 역시 변갱해야되는 일을 피할 수 있다.
+
+---
+
+
