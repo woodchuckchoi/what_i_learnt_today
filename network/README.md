@@ -130,4 +130,36 @@ CNAME을 사용하여 DNS나 IP가 바뀔 때마다 이에 맞춰 다른 사양 
 
 ---
 
+# Session을 Database를 사용하지 않고 유지하기
+HTTP 프로토콜은 연결의 상태를 유지하는 기능이 없다.\
+예를 들어 사용자가 로그인을 했다고 해도, 그 정보를 지속적으로 알고 있을 수 없다.\
+따라서 사용자가 서버에 접근할 때 사용자를 식별할 수 있는 정보를 URL 파라미터로 전달하거나, 브라우저에 쿠키를 심어서 사용자의 상태를 기억하게 할 수 있다.\
+물론 위의 방법은 파라미터 및 쿠키를 통해서 민감한 데이터에 접근할 수 있으므로 보안상의 이유로 Deprecate된 옛날 방식이므로, 최근에는 로그인했을 때, 의미가 없는 문자열(UUID)를 쿠키에 저장하게 하고 데이터베이스를 통해서 해당 문자열과 아이디 등의 정보를 조합하여 세션이 만료되었는지, 아직 효력이 있는지를 확인한다.\
+혹은 서버의 앞단에 Gateway Server를 구성하여 세션을 관리하도록한다.
 
+---
+
+# 다수의 클라이언트가 어떻게 한 서버의 한 포트에 접속할 수 있을까?
+Port를 사용한다는 뜻은 패킷의 헤더에 Destination Port를 명시했을 뿐이다.\
+Stateless Protocol(UDP)를 사용할 때는 문제가 없다. 왜냐하면 Connection을 설정, 해제하지 않으므로 연결이 겹치는 상황이 생기지 않으니까.\
+Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태의 튜플로 구성된다. 따라서 서로 다른 클라이언트가 동일한 서버에 접속한다고 Connection이 충돌하는 경우는 없다.\
+만약 같은 클라이언트 or 서로 다른 클라이언트가 NAT이나 공유기를 통해서 한 서버에 접속한다해도, 서버가 인식하는 Source Port는 NAT Gateway나 공유기의 서로 다른  Port가 되므로 Connection은 구분이 가능하다.\
+만약에 Connection의 Source IP, Source PORT가 같다면 이 Connection들은 같은 Connection으로 인식된다.
+
+---
+
+# HTTP/2 - More
+대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다.
+## Frame
+프레임은 HTTP의 Request와 Response를 대체하는 HTTP/2의 통신 단위이다. 각 프레임은 TCP/IP 네트워크 모델의 Application Layer에 추가된 HTTP/2 Binary Framing Layer에서 Binary로 인코딩된다.\
+이 방법의 장점은 Header를 Body와 같은 독립적인 프레임으로 취급하면서, 헤더 압축이 가능해졌다는 점이다. HTTP/1.1에서 헤더와 바디는 한 요청을 구성하면서, 압축이 되지 않았기 때문에 각 요청의 크기가 컸다. 이는 TCP Protocol의 Slow Start 기능과 만나 HTTP/1.1에서 페이지 로드 속도가 심각하게 느려지는 원인이 됐다.\
+TCP의 Slow Start는 Sender가 아주 작은 패킷을 보내고, Receiver가 이것을 받아들여 ACK 신호를 보내면 보내는 패킷의 크기를 조금 더 키우는 방식으로 패킷을 얼마나 크게 보낼 수 있는가에대한 지침을 제공한다.\
+네트워크 상의 각 호스트가 같은 크기의 버퍼를 제공하지 않기 때문에 고안된 방식이지만, 요청이 헤더와 바디를 모두 포함하며, 압축 기능도 제공하지 않는 HTTP/1.1 스펙에서는 요청 응답 시간을 느리게 하는 주범이 되었다.
+## Stream
+스트림은 어떠한 실체가 있지 않은, Bi-Directional한 Frame의 Identifier이다. Stream의 개수에는 제한이 없어서 사실상 무한정으로 생성할 수 있다.\
+여기에서 Stream이 Bi-directional하다는 뜻은 요청에 대한 응답이 같은 stream identifier를 사용하기 때문에 양방향성을 띈다는 뜻이다.\
+HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 새로운 Connection을 생성하여 처리했지만, Stream은 한 Connection 내에서 무한정으로 생성할 수 있으므로 Stream 생성에 대한 부담이 적다.\
+모든 Frame은 Session내에 Unique한 Stream ID를 갖는데, 충돌을 피하기 위해서 Client가 Push하는 Frame은 홀수, Server가 Push하는 Frame은 짝수 Stream ID를 갖는다.\
+서로 다른 Stream ID를 가지더라도, 한 뭉치로 뭉쳐서 보내질 수 있다. Frame의 Header는 최소한 Stream ID 헤더를 항상 가지고 있으므로, 이를 기반으로 어떤 Stream에 속하는지 알 수 있다.
+
+---

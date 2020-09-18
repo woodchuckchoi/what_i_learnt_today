@@ -43,3 +43,22 @@ Transaction의 All-or-Nothing이라는 조건을 위해서 Rollback을 지원하
 SQL 언어를 직접 사용하지 않도록 객체와 DB를 매칭시켜서 사용할 수 있도록 돕는 프레임워크
 
 ---
+
+# Connection Pool
+데이터베이스 커넥션 캐시를 구현한 것이다.\
+보통 Minimum/Maximum Pool Size가 있어서 Maximum Pool Size에 도달하면 사용 가능 한 커넥션이 생길 때까지 기다린다. Time-out 시간 안에 사용 가능한 커넥션이 생기지 않는다면 에러를 발생시킨다.\
+데이터베이스는 커넥션 풀의 커넥션들에 주기적으로 헬스 체크를 하여 커넥션이 유지되고 있는지를 확인한다.
+
+---
+
+# MySQL DB Engine
+* InnoDB - MyISAM에서 지원하지 않는 커밋, 롤백, 복구 등 다양한 기능을 지원하지만 전체적인 속도는 MyISAM보다 느리다.
+* MyISAM - ISAM을 보완한 엔진. 데이터 모델 디자인이 단순하지만 전체적인 속도는 InnoDB보다 빠르다.
+
+---
+
+# NOSQL
+기존 SQL과 다른 스키마, 기능을 제공하는 데이터베이스. 테이블 형식으로 데이터를 저장하는 RDB와 다르게 데이터를 저장하며, 확장성이 좋기 때문에 비정형 데이터를 다루는데 널리 사용된다. 대표적으로 MongoDB, Redis가 있다.\
+MongoDB의 경우 스키마가 유연한 Document(JSON과 같다)형식으로 데이터를 저장하며, Redis는 Key-Value 스토어로 값을 저장하는 In-Memory 데이터 스토어이다.
+
+---
