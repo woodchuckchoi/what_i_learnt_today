@@ -163,3 +163,19 @@ HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 �
 서로 다른 Stream ID를 가지더라도, 한 뭉치로 뭉쳐서 보내질 수 있다. Frame의 Header는 최소한 Stream ID 헤더를 항상 가지고 있으므로, 이를 기반으로 어떤 Stream에 속하는지 알 수 있다.
 
 ---
+
+# Session VS Session
+세션에는 두 가지 의미가 있다.\
+우리가 웹 애플리케이션에서 상태 유지를 위해서 사용하는 것도 세션이고, TCP/IP 모델에서 Network Layer가 결정하는 Logical한 경로도 Session이다.\
+앞의 세션은 로그인 혹은 상태 유지 시에 클라이언트의 쿠키에 의미 없는 데이터를 주고, 이를 서버 사이드의 데이터베이스와 비교하는 방식으로 작동한다.\
+뒤의 세션은 Network Layer에서 패킷을 보낼 경로를 결정하고 Connection이 유지되는 동안 이 경로를 유지한다. (연결을 유지할 것인가는 Transport Layer가 결정하지만, 경로를 설정하는 것은 Network Layer가 담당한다.)\
+뒤의 세션의 경우 OS Level에서 작동하므로 보통 개발자가 다루는 경우는 드물다.\
+
+---
+
+# Load Balancing Techniques
+* Round Robin - 연결되어 있는 노드에 순서대로 돌아가면서 트래픽을 전달하는 방식
+* Weighted Round Robin - 각각의 노드에 Weight를 주어 우선 순위를 배정하는 것
+* Least Connection - 현재 가장 적은 수의 커넥션이 연결되어 있는 노드에 트래픽 전달
+* Weighted Least Connection - Least Connection 방식에 Weight 적용
+* Resource Based - 노드에 서비스를 설치하여 현재 사용 중인 리소스에 따라서 트래픽을 배정한다.

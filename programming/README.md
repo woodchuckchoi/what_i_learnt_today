@@ -221,3 +221,57 @@ OOP 원칙
 스트림은 추상화된 장치이다. 여러가지 주변 장치(모니터, 키보드 등)을 추상화 시켜서 사용자가 마치 동일한 장치에 접근하는 것처럼 사용할 수 있게 만들기 때문.\
 
 ---
+
+# TDD Pros and Cons
+장점
+1. 코드의 품질 향상 - 지속적으로 테스트를 하면서 QA를 거치지 않고도 어느정도 테스트를 보장할 수 있음
+2. 테스팅 코드를 작성하며 문서화 작성도 도움
+단점
+1. 높은 러닝 커브
+2. 테스트 코드를 만드는 비용(시간) 소요
+널리 사용되는 TDD Framework는 Junit(JAVA), DocTest(Python) 등이 있다.
+C에서 사용하기 위해서는 직접 만들어서 사용할 수도 있다.
+	#include <stdio.h>
+	int tests_run = 0;
+	
+	#define FAIL() printf("\nfailure in %s() line %d\n", __func__, __LINE__)
+	#define _assert(test) do {if (!(test)) { FAIL(); return 1; } } while(0)
+	#define _verify(test) do {int r=test(); tests_run++; if(r) return r; } while(0)
+	
+	int square(int x);
+	
+	int square_01() {
+		int x = 5;
+		_assert(square(x) == 25);
+		return 0;
+	}
+	
+	int square_02() {
+		int x = 3;
+		_assert(square(x) == 33);
+		return 0;
+	}
+	
+	
+	int all_tests() {
+		_verify(square_01);
+		_verify(square_02);
+		return 0;
+	}
+	
+	int main(int argc, char **argv) {
+		int result = all_tests();
+		if (result == 0)
+			printf("PASSED\n");
+		printf("Tests run: %d\n", tests_run);
+	
+		return result != 0;
+	}
+	
+	int square(int x) {
+		return x*x;
+	}
+
+---
+
+
