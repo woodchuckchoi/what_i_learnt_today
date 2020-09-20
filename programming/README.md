@@ -173,7 +173,8 @@ Hash 함수라는 함수를 통해서 어떠한 데이터를 Index화 하여 해
 Python, Go 등에서는 어떠한 기능을 가지고 있는 Obj를 그 type으로 취급할 수 있다.\
 예를 들어 Python에서는 type을 알 수 없지만, .append라는 기능이 있다면 그 기능을 사용하도록 할 수 있다.\
 Go의 경우에는 Interface를 사용하여 어떠한 함수가 있는 Type에 대해 공통적으로 사용할 함수를 선언 할 수 있다.\
-이처럼 Looks like a duck, sounds like a duck. Then it is a duck. 이라는 철학에 따른 방식을 Ducktyping이라 한다.
+이처럼 Looks like a duck, sounds like a duck. Then it is a duck. 이라는 철학에 따른 방식을 Ducktyping이라 한다.\
+Go와 같은 Statically Typed Language에서 Interface 등을 사용하여 기능을 구현하는 것을 Generics라고 한다.
 
 ---
 
@@ -274,4 +275,109 @@ C에서 사용하기 위해서는 직접 만들어서 사용할 수도 있다.
 
 ---
 
+# IoC & DI
+Inversion of Control은 사용자가 생성하는 애플리케이션이 프레임워크의 메소드를 Call하지 않고, 오히려 프레임워크가 애플리케이션이 제공하는 로직을 사용하는 것이다.
+	# Python Example
+	Class SomeClass:
+		def __init__(self):
+			self.some_obj = SomeObject()
+		...
 
+	# 위의 예에서 SomeClass 객체는 SomeObject 객체를 만들게 된다.
+	# IoC를 적용한 코드는 아래와 같다.
+	Class SomeClass:
+		def __init__(self, some_obj):
+			self.some_obj = some_obj
+이름처럼 flow control의 주체를 역전할 수 있다.\
+첫번째 예시는 SomeObject와 SomeClass 사이에 의존성을 만듦으로써 기존에 존재하는 코드에 필요한 Logic을 주입하는 것을 어렵게 만든다.\
+대부분의 Framework는 두번째 예시와 같은 방식으로 어떠한 객체를 생성하고 이를 Flow를 제어하는 객체에 넘겨주는 형태를 가지고 있다.
+
+Dependency Injection은 IoC의 한 형태이다.\
+위의 예시와 같이 constructor/setter를 통해서 로직을 제공하는 것을 뜻한다.\
+DI가 아닌 IoC의 예는 XML 등의 파일을 사용하여 프레임워크에 로직을 제공하거나(NginX), Child Class를 생성함으로써 프레임워크에 로직을 제공하는 행위(Web Frameworks like Flask, etc) 등이 있다.
+
+---
+
+# Multiprocessing Pros and Cons
+장점
+* 동시성을 구현해서 리소스를 더 효과적으로 사용할 수 있다.
+단점
+* 멀티프로세싱의 경우 메모리의 주소가 같게 나오더라도 사실 다른 주소에 밸류가 저장되어 있다. 메모리를 배로 사용하며, 접근하기 힘들다. 이를 막기위해서는 Multiprocessing을 위한 메모리를 따로 구성하고 이를 통해서 멀티프로세싱을 해야한다.
+* 효과적인 멀티프로세싱을 구현하는 것은 악명이 있을만큼 어렵다.
+
+	import os
+	import time
+	glob = 0
+	
+	def main():
+		global glob
+		target = 0
+		print('It should be only printed once')
+		pid = os.fork()
+		if pid == 0:
+			for _ in range(100000):
+				target += 1
+				glob += 1
+			print('PID:0 Address of Target: {}'.format(hex(id(target))))
+		else:
+			for _ in range(100000):
+				target -= 1
+				glob -= 1
+			print('PID:{} Address of Target: {}'.format(pid, hex(id(target))))
+		print('Address of Target: {} Target Status: {}'.format(hex(id(target)), target))
+	
+	if __name__ == '__main__':
+		main()
+		print('Global Value: {}'.format(glob))
+
+위의 예시에 대한 출력값은 항상 같게 나타난다.
+	It should be only printed once
+	PID:13251 Address of Target: 0x7f4b70715d10
+	Address of Target: 0x7f4b70715d10 Target Status: -100000
+	Global Value: -100000
+	PID:0 Address of Target: 0x7f4b70715c30
+	Address of Target: 0x7f4b70715c30 Target Status: 100000
+	Global Value: 100000
+
+반면 스레드는 공유 메모리와 개인 메모리가 있다. 스레드는 지역변수가 존재하는 Stack을 제외한 모든 부분을 공유한다.
+
+	from threading import Thread
+	target = 0
+	
+	def plus_one():
+		global target
+		for _ in range(100000):
+			target += 1
+	
+	def minus_one():
+		global target
+		for _ in range(100000):
+			target -= 1
+	
+	def main():
+		threads = []
+		threads.append(Thread(target=plus_one))
+		threads.append(Thread(target=minus_one))
+		for thread in threads:
+			thread.start()
+		for thread in threads:
+			thread.join()
+		print(target)
+	
+	if __name__ == '__main__':
+		main() 
+
+위 코드의 출력값은 0이 나올 수도 있지만 일반적으로 계속해서 다른 값이 나오게 된다.\
+이를 막기위해서 Mutex, Semaphore 등의 Lock을 사용한다.
+
+---
+
+# Traffic Overflow
+예를 들어 서버가 초당 10만건의 요청을 수행할 수 있는데, 현재 서비스의 피크 타임에는 초당 100만건의 요청이 들어온다. 어떻게 처리할 것인가?\
+*가장 쉬운 방법은 인프라 레벨에서 처리하는 것일 것 같음*
+* 서버의 스냅샷을 만들어서 오토스케일링한다. 서버의 앞단에는 로드밸런서를 두어서 트래픽을 각 서버에 분산할 수 있도록 설정한다.
+* BE를 컨테이너로 만들어서 K8S 클러스터를 설정하고 그 안에 띄운다. 쿠버네티스는 서비스의 이름으로 (기본적으로 Round Robin 방식) 로드밸런싱이 되며, 서비스의 갯수를 자동으로 오토스케일 할 수 있으므로 위의 사항을 모두 만족할 수 있다.
+*리소스에 제한이 있다면 소프트웨어적으로 처리한다*
+* 반드시 실시간(0~1초 응답)이 아니라면 Rabbit MQ, Redis를 사용하거나 AWS SQS와 같은 서비스를 이용하여  큐를 만들어서 서버가 순차적으로 요청을 처리할 수 있도록 한다.
+* 코드의 로직을 Async로 바꾸면 요청의 블로킹 부분에서 의미없이 낭비되는 시간을 줄여서 더 많은 Request를 처리할 수 있다.
+* HTTP/2는 Stream Priority를 다룰 수 있다. 더 중요한 요청을 처리하는 Stream을 따로 관리한다.
