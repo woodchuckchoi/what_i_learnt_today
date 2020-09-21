@@ -381,3 +381,12 @@ DI가 아닌 IoC의 예는 XML 등의 파일을 사용하여 프레임워크에 
 * 반드시 실시간(0~1초 응답)이 아니라면 Rabbit MQ, Redis를 사용하거나 AWS SQS와 같은 서비스를 이용하여  큐를 만들어서 서버가 순차적으로 요청을 처리할 수 있도록 한다.
 * 코드의 로직을 Async로 바꾸면 요청의 블로킹 부분에서 의미없이 낭비되는 시간을 줄여서 더 많은 Request를 처리할 수 있다.
 * HTTP/2는 Stream Priority를 다룰 수 있다. 더 중요한 요청을 처리하는 Stream을 따로 관리한다.
+
+---
+
+# Stack Overflow
+메모리의 스택 영역에 참조된 주소값이 주어진 영역 밖으로 나갈 때 발생하는 에러 (Stack Overflow는 해당 스코프의 지역 변수를 관리한다.)
+* 재귀 함수의 End Condition을 잘못 설정해서 무한대로 재귀를 하게 되면 Stack Overflow 발생
+* double test[10000000000]; (size = 8bytes\*10000000000 = 80Gb)와 같이 메모리를 너무 많이 사용하게 될 때도 Stack Overflow 발생
+
+---
