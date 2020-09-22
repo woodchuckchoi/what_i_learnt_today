@@ -191,7 +191,7 @@ HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 �
 
 ---
 
-#HTTPS SECURITY - 2
+# HTTPS SECURITY - 2
 인터넷 사이트는 CA에 공개키를 제공한다.\
 CA는 CA의 개인키로 인터넷 사이트의 정보를 암호화하여 인증서를 발급한 후, 자신의 공개키를 웹브라우저에 제공한다.\
 사용자가 인터넷 사이트에 접속하면 인증서를 웹 브라우저에 보내고, 사용자는 CA의 공개키로 인증서를 복호화하여 사이트의 정보와 공개키를 받는다.\
@@ -206,9 +206,67 @@ HTTPS를 사용할 경우 암호화, 복호화에 시간이 소요되므로 속�
 
 ---
 
+# CORS 에러
 
+CORS(Cross-Origin Resource Sharing) 정책을 위반하면 발생하는 에러.\
+https://www.google.com/path?sort=asc&page=1#fragment 와 같은 URI가 있을 때, Origin은 https://www.google.com/path, Protocol, Host, Port를 합친 값이다.\
+CORS는 같은 Origin에서만 리소스를 공유할 수 있다는 보안 정책이다.\
+하지만 다른 Origin의 리소스를 가져와서 사용하는 것이 기본적으로 HTML, 웹이기 때문에 CORS를 따른다면 다른 Origin의 리소스를 가져와서 사용하는 것을 용납한다.\
+*CORS가 없다면 CSRF나 XSS와 같은 공격에 취약해진다.*
+Origin이 같다고 판단하는 로직은 Protocol, Host, Port의 값이 일치하는가?이다.\
+*https://my-site.com 이라는 웹 사이트가 있을 때, Origin을 비교해보면*
+	같은 Origin
+	https://my-site.com/hello
+	https://my-site.com/hello?query=val
+	https://user:password@my-site.com
+	
+	다른 Origin
+	http://my-site.com
+	https://my-site.co.kr
+	https://something.my-site.com
 
+	브라우저에 따라 다름
+	https://my-site.com:443 Origin에 포트가 명시되지 않았다면 브라우저마다 다른 로직을 사용하여 비교한다.
 
+CORS는 브라우저에서 구현되기 때문에, 브라우저를 통하지 않고 통신을 할 때는 해당 정책이 적용되지 않는다.\
+또한 서버 사이드에서는 정상적으로 Response를 줬다고 출력되기 때문에, CORS를 알지 못하면 에러 처리가 힘들다.\
+
+	브라우저는 Request 헤더의 Origin 필드에 해당 Origin을 넣어 보낸다.
+	Origin: https://my-site.com
+
+	서버는 Response 헤더의 Access-Control-Allow-Origin 필드에 해당 리소스에 접근을 허용할 출처를 넣어서 응답한다.
+	예를 들어 https://my-site.com라는 Origin에서 오는 Request만 접근을 허용하고 싶다면 Access-Control-Allow-Origin: https://my-site.com 과 같은 방식이다.	
+	브라우저는 Origin과 Access-Control-Allow-Origin을 비교하여 유효한지 확인한다.
+
+실제 CORS가 동작하는 방식은 아래 세 가지 시나리오에서 확인한다.
+1. Preflight Request
+일반적으로 웹 앱을 개발할 때 마주치는 시나리오. 브라우저는 Request를 한번에 보내지 않고 Preflight와 실제 Request로 나누어서 전송한다.\
+Preflight Request에 OPTIONS 메소드가 사용된다. 실제 Request를 보내기 전 해당 Request를 보내는 것이 안전한지 확인한다.\
+Preflight에는 Origin에 대한 정보 뿐만 아니라 Access-Control-Requeset-Headers나 Access-Control-Request-Method와 같은 실제 Request에서 사용할 요청에 대한 정보도 함께 포함되어 있다.\
+이에 대한 Response의 Access-Control-Allow-Origin 필드의 값과 Request의 Origin이 다르다면 실제 Request는 CORS를 위반하여 CORS에러를 출력한다.
+2. Simple Request
+어떤 경우에는 Preflight를 보내지 않고 실제 Request를 전송하고, 이에 대한 Response의 Access-Control-Allow-Origin과 비교하여 CORS 위반을 확인하기도 한다.\
+* 이 때 Request의 Method는 GET, HEAD, POST 중 하나여야 하며,\
+* Accept, Accept-Language, Content-Language, Content-Type, DPR, Downlink, Save-Data, Viewport-Width, Width를 제외한 헤더를 사용하면 안된다.\
+* 만약 Content-Type 헤더를 사용하는 경우에는 application/x-www-form-urlencoded, multipart/form-data, text/plain만 사용할 수 있다.\
+위의 세 조건을 만족하는 경우에는 Preflight없이 실제 Request만 전송한 후 CORS 위반 여부를 판별한다.
+3. Credentialed Request
+브라우저가 제공하는 비동기 요청 API인 XMLHttpRequest나 fetch는 별도의 옵션 없이 브라우저의 쿠키 정보나 인증 관련 헤더를 Request에 추가하지 않는데, 이를 가능하게 해주는 옵션이 credentials 옵션이다.\
+credentials에 같은 출처에서만 인증 정보를 담을 수 있는 기본값인 same-origin이나 모든 요청에 인증 정보를 담지않는 omit이 아닌, 항상 인증정보를 담는 include를 했을 경우, Access-Control-Allow-Origin과 함께 아래 두 가지 조건을 만족해야 한다.\
+* Access-Control-Allow-Origin에는 와일드카드(\*)를 사용할 수 없다.
+* Response Header는 반드시 Allow-Control-Allow-Credentials: true를 포함해야 한다.
+
+## CORS 해결
+가장 간단하게는 Response에서 Access-Control-Allow-Origin 헤더에 알맞은 값을 세팅해주는 것이다.\
+와일드카드를 사용하면 모든 Request에 CORS를 해결하므로 편리하지만, 보안상으로 매우 안좋다.\
+혹은 FE에서 프록시를 설정하여 데이터를 BE에서 직접 가져다가 유저에게 전달하는 방법도 있다.
+
+검색 엔진에서는 CORS에 얽메이지 않는, SOP의 예외 조항을 통해서 Request를 처리하고 있다. \<img\>, \<script\> 스크립트, 이미지, 스타일시트 등과 같이 말이다.\
+이러한 방식으로 Request를 처리하면 CORS를 위반하지 않고, Request를 성공한다. 이 Request의 Header에는 sec-fetch-mode: no-cors라는 값이 포함되어 있으며, 이 필드를 통해서 CORS 검사를 skip하는 것이다.\
+다만 브라우저는 이 Request의 응답을 JS에 보여주지 않기 때문에, 코드 레벨에서 이 응답에 담긴 내용에 접근 할 수 없다.\
+Front에서 다루기 정말 힘들 것 같은데, 코드에서 해당 값에 접근을 못하게 한다는 점이 보안적으로는 굉장히 +인 것 같다.
+
+---
 
 
 
