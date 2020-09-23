@@ -71,16 +71,16 @@ Python은 OS를 제어하는 스크립트 언어이기도 하면서, 프로그�
 Python에서 일반적으로 Garbage Collection에 사용되는 방법은 Reference Counting이다.\
 변수의 Reference 횟수를 기억하고 있다가, 더 이상 등장하지 않으면 해당 메모리를 해제하는 것이다.
 
-	a = 5 			# ref a = 1
+	a = 5 		# ref a = 1
 	b = {'key': a} 	# ref a = 2
 
 하지만 Reference Counting 시 Reference Cycle이 발생하기도 해서  General Garbage Collection 기법을 사용하기도 한다.
 
-	a = TmpClass() 	# ref a = 1
+	a = TmpClass() 		# ref a = 1
 	a.key = a		# ref a = 2
 	del a			# ref a = 1, 지워진 a.key에 해당하는 a의 reference counting은 절대 0이 될 수 없다.
 
-그렇기 때문에 어느 시점(Generation)에서 Reference의 갯수가 일정 수치(Threshold)를 넘는 순간 Garbage Collecting을 하는 General Garbage Collection을 병행한다.\
+그렇기 때문에 어느 시점(Generation)에서 Reference의 갯수가 일정 수치(Threshold)를 넘는 순간 Garbage Collecting을 하는 General Garbage Collection을 병행한다.
 
 GIL은 Python Global Interpreter Lock을 뜻한다. 한 번에 한 개의 스레드만 Python 인터프리터를 사용할 수 있도록 뮤텍스가 설정되어 있기 때문에, 멀티 스레드 환경에서 보틀넥이 발생한다.
 
@@ -101,7 +101,7 @@ Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수
 --- 
 
 # Closure
-클로저는 함수가 그 밖의 스코프에 접근하는 행위를 가리킨다. Python에서 Decorator와 같다.\ 
+클로저는 함수가 그 밖의 스코프에 접근하는 행위를 가리킨다. Python에서 Decorator와 같다.\
 예를 들어 JS에서 for loop 안에 Timer를 설정해두고 for loop의 i값을 호출한다면, Timer가 실행되기전 모든 loop가 지나가서 마지막 i의 value만 출력이 될 것이다.\ 
 하지만 closure를 이용하여 i를 변수로 받는 함수를 Timer가 호출하게 된다면 i를 그대로 출력할 수 있다.
 
