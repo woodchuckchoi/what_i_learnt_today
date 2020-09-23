@@ -29,8 +29,8 @@ URI에 HTTP Method로 구분되는 Request를 보내고 그에 해당되는 Resp
 특징
 * Stateless - 상태에 구애받지 않고 들어오는 요청만 수행한다.
 * Cacheable - GET과 같은 Method에 한해서 expires 헤더를 설정하면 브라우저는 caching
-* Layered System - API Response 뿐만 아니라 Authentication 등의 계층 추가 용이
-RPC의 경우 Resource의 이름/구분이 아닌 Function에 대해 Request를 보내는 차이가 있을 뿐, 어느 패러다임이 더 우수/열등하다고 할 수 없다.
+* Layered System - API Response 뿐만 아니라 Authentication 등의 계층 추가 용이\
+*RPC의 경우 Resource의 이름/구분이 아닌 Function에 대해 Request를 보내는 차이가 있을 뿐, 어느 패러다임이 더 우수/열등하다고 할 수 없다.*
 
 ---
 
@@ -39,7 +39,7 @@ Protocol Buffer라는 Message라는 미리 설정된 (Static) Bytes 형식으로
 통신 순서
 * Client가 Stub Method (Parameter와 Return 타입, Service명)를 Call하면 Server는 Client의 Metadata를 전송받고, 바로 Metadata를 전송할지 Request Body를 전송받고 Metadata를 전송할지 결정한다.
 * Client의 Request를 전송받고 로직을 실행한 뒤 서버는 Trailing Metadata와 함께 Response를 전달한다.
-* gRPC Call이 발생하면 gRPC Client는 Server와의 Connection을 생성한다. 6~8개의 connection을 생성할 수 있는 HTTP와는 다르게 HTTP/2에서 한 개만 생성할 수 있는 Connection은 무제한한 갯수의 bi-directional stream을 생성할 수 있다.
+* gRPC Call이 발생하면 gRPC Client는 Server와의 Connection을 생성한다. 다수의 Connection을 생성하여 보틀넥의 피해를 줄이는 HTTP와는 다르게 HTTP/2에서는 한 개의 Connection에 사실상 무한한 bi-directional Stream을 생성하여 Multiplexing이 가능하다.
 
 ---
 
@@ -48,14 +48,28 @@ TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아�
 * Header 압축을 통해서 latency 줄임
 * 한 개의 커넥션에서 Concurrent한 데이터 교환 가능
 * 기본 단위는 Frame으로 Header와 Data Frame은 HTTP/1.1의 Request, Response에 해당하며, 이를 제외한 Settings 등의 Frame은 HTTP/2의 Feature를 담당한다.
-* Connection은 양방향으로 Stream을 가지고 있기 때문에, Blocked, Stalled로 인해서 Progress에 영향을 끼칠 염려가 적다.
+* Stream은 양방향으로 통신하기때문에, Blocked, Stalled로 인해서 Progress에 영향을 끼칠 염려가 적다.
 * Flow Control은 각 Stream이 서로에게 영향을 끼치지 않도록 제어하는 역할을 한다. 예를 들어 의존성이 있는 스트림의 순서 정렬, 중요도에 의한 리소스 배정과 같은 것이다.
 * Prioritisation은 Headers Frame의 priority attribute에 따라 Resource 점유에 우선순위를 두는 것이다.
-* Multiplexing: Multiple different server requests are allowed simultaneously, on the same connection. With HTTP/1.1, each additional requests for assets would have to wait until the previous transfer in the queue completed. This decreases complexity in development, not necessitating things like asset bundling to decrease to number of server requests. 한 스트림 내에서 다수의 Request를 Frame으로 분할하여 다수의 Request/Response를 동시에 처리
+* Multiplexing: Multiple different server requests are allowed simultaneously, on the same connection. With HTTP/1.1, each additional requests for assets would have to wait until the previous transfer in the queue completed. This decreases complexity in development, not necessitating things like asset bundling to decrease to number of server requests.\ 
+한 스트림 내에서 다수의 Request를 Frame으로 분할하여 다수의 Request/Response를 동시에 처리\
+\
+대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다.
+## Frame
+프레임은 HTTP의 Request와 Response를 대체하는 HTTP/2의 통신 단위이다. 각 프레임은 TCP/IP 네트워크 모델의 Application Layer에 추가된 HTTP/2 Binary Framing Layer에서 Binary로 인코딩된다.\
+이 방법의 장점은 Header를 Body와 같은 독립적인 프레임으로 취급하면서, 헤더 압축이 가능해졌다는 점이다. HTTP/1.1에서 헤더와 바디는 한 요청을 구성하면서, 압축이 되지 않았기 때문에 각 요청의 크기가 컸다. 이는 TCP Protocol의 Slow Start 기능과 만나 HTTP/1.1에서 페이지 로드 속도가 심각하게 느려지는 원인이 됐다.\
+TCP의 Slow Start는 Sender가 아주 작은 패킷을 보내고, Receiver가 이것을 받아들여 ACK 신호를 보내면 보내는 패킷의 크기를 조금 더 키우는 방식으로 패킷을 얼마나 크게 보낼 수 있는가에대한 지침을 제공한다.\
+네트워크 상의 각 호스트가 같은 크기의 버퍼를 제공하지 않기 때문에 고안된 방식이지만, 요청이 헤더와 바디를 모두 포함하며, 압축 기능도 제공하지 않는 HTTP/1.1 스펙에서는 요청 응답 시간을 느리게 하는 주범이 되었다.
+## Stream
+스트림은 어떠한 실체가 있지 않은, Bi-Directional한 Frame의 Identifier이다. Stream의 개수에는 제한이 없어서 사실상 무한정으로 생성할 수 있다.\
+여기에서 Stream이 Bi-directional하다는 뜻은 요청에 대한 응답이 같은 stream identifier를 사용하기 때문에 양방향성을 띈다는 뜻이다.\
+HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 새로운 Connection을 생성하여 처리했지만, Stream은 한 Connection 내에서 무한정으로 생성할 수 있으므로 Stream 생성에 대한 부담이 적다.\
+모든 Frame은 Session내에 Unique한 Stream ID를 갖는데, 충돌을 피하기 위해서 Client가 Push하는 Frame은 홀수, Server가 Push하는 Frame은 짝수 Stream ID를 갖는다.\
+서로 다른 Stream ID를 가지더라도, 한 뭉치로 뭉쳐서 보내질 수 있다. Frame의 Header는 최소한 Stream ID 헤더를 항상 가지고 있으므로, 이를 기반으로 어떤 Stream에 속하는지 알 수 있다.
 
 ---
 
-#JWT(Json Web Token)
+# JWT(Json Web Token)
 JSON Object를 Hash를 통해서 안전하게 전달하는 기술\
 Header, Payload, Signature로 구성된 JSON Object를 Base64형태로 치환하여 전달
 * Header에는 alg, typ(jwt)
@@ -75,7 +89,7 @@ TCP/IP의 레이어
 * Network Interface는 네트워크에 접속하는 하드웨어 계층을 담당한다.
 
 IP(Network Layer)는 패킷의 배송을 담당한다. 목적지의 위치 (IP와 MAC 주소)를 참조하여 그 다음 라우터로 데이터를 전송한다.\
-TCP(Transport Layer)는 신뢰성을 담당한다. 데이터를 TCP Segment라고 불리는 Packet으로 조각내고, 도착했는지를 3-Way Handshake을 통해서 확인한다.
+TCP(Transport Layer)는 신뢰성을 담당한다. 데이터를 TCP Segment라고 불리는 Packet으로 조각내고, 연결이 설정되었는지를 3-Way Handshake을 통해서 확인한다.
 
 1. Sender는 Receiver에 'SYN' 신호와 함께 Packet을 전달한다.
 2. Receiver는 Packet을 수신하고 'SYN/ACK' 신호를 Sender에 전달하여, 패킷을 수신했다고 알린다.
@@ -92,9 +106,9 @@ TCP/IP로 보는 HTTP 통신의 순서는 아래와 같다.
 
 OSI의 레이어
 * Application - 사용자가 Interact하는 Layer
-* Presentation - OS가 Application Layer의 데이터를 받아서 변환, 암호화 등을 담당하는 Layer
+* Presentation - OS가 Application Layer의 데이터를 받아서 인코딩, 암호화 등을 담당하는 Layer
 * Session - Connection의 일부인 Session을 구축하는 Layer
-* Transport - 데이터를 Packet으로 자르고, 어떤 크기의 Packet으로 데이터 통신을 할 것인지 담당하는 Layer
+* Transport - 데이터를 Packet으로 자르고, 어떤 크기의 Packet으로 데이터 통신을 할 것인지 담당하는 Layer, Connection을 구축한다.
 * Network - 노드 사이의 논리적인 경로를 결정하는 Layer
 * Network Link - 하드웨어 + 소프트웨어적으로 데이터 운송을 담당하는 Layer
 * Physical - 하드웨어 레벨에서 데이터 운송을 담당하는 Layer
@@ -102,6 +116,20 @@ OSI의 레이어
 ---
 
 # HTTPS
+* 대칭키 방식
+인터넷 사이트는 CA에 공개키를 제공한다.\
+CA는 CA의 개인키로 인터넷 사이트의 정보를 암호화하여 인증서를 발급한 후, 자신의 공개키를 웹브라우저에 제공한다.\
+사용자가 인터넷 사이트에 접속하면 인증서를 웹 브라우저에 보내고, 사용자는 CA의 공개키로 인증서를 복호화하여 사이트의 정보와 공개키를 받는다.\
+공개키로 대칭키를 암호화하여 사이트에 보낸다.\
+사이트는 개인키로 데이터를 복호화하여 대칭키를 생성하고, 이제 대칭키를 통해서 통신한다.\
+세션이 종료되면 대칭키를 폐기한다.\
+*대칭키는 매번 사용할 때마다 다른 키가 생성되므로 비교적 안전하고, 공개키보다 속도가 빠르다는 장점도 있다.*
+
+HTTPS를 사용할 경우 암호화, 복호화에 시간이 소요되므로 속도가 느려지게 되며, CA의 인증서를 생성하고 유지하는데 비용이 필요하다.\
+암호화된 데이터를 캐싱할 수 없기 때문에 이를 위한 별도의 스텝이 필요하다.\
+특정 프레임워크에서 지원하지 않는다면 기존에 존재하는 URI를 HTTPS 프로토콜로 변경해야한다.\
+
+* 공개키-개인키 방식
 TLS(Transport Layer Security)를 사용한 HTTP 통신 암호화 기법이다. SSL(Secure Socket Layer)는 2015년 Deprecated.\
 암호화는 Public-Private Key를 통해서 진행된다. Public으로 암호화 된 데이터는 Private으로만 복호화 할 수 있으며, Private으로 암호화 된 데이터는 Public으로 복호화 할 수 있다.\
 이 중 Public Key를 신뢰할 수 있는 공개키 저장소(CA)에 등록한다. Server는 Server만 알고있는 Private Key를 소유하고 있는다.\
@@ -114,8 +142,8 @@ Response를 받은 Client는 Public Key를 이용하여 암호화된 HTTPS 데�
 
 # TCP/UDP
 TCP/IP 네트워크 모델의 Transport Layer에서 지원하는 프로토콜이다.
-* TCP는 가상 회선 방식을 제공하여 논리적인 경로(Session)을 배정한다. 연결형 서비스이며, Packet이 전달되었는지를 확인하고, 전달이 되지 않았다면 다시 전달 하는 등 신뢰성을 보장하지만, 연결 설정, 해제에 자원이 필요하여 UDP에 비해 속도가 느리다.
-* UDP는 논리적인 경로를 설정하지 않기 때문에, 전달하는 각각의 Packet은 다른 경로로 전달된다. 비연결형 서비승기 때문에 연결을 설정, 해제하는 과정이 없다. 신뢰성보다 속도가 더 중요한 Streaming 서비스에 주로 사용된다.
+* TCP는 가상 회선 방식을 제공하여 논리적인 경로를 배정한다. 연결형 서비스이며, Packet이 전달되었는지를 확인하고, 전달이 되지 않았다면 다시 전달 하는 등 신뢰성을 보장하지만, 연결 설정, 해제에 자원이 필요하여 UDP에 비해 속도가 느리다.
+* UDP는 논리적인 경로를 설정하지 않기 때문에, 전달하는 각각의 Packet은 다른 경로로 전달된다. 비연결형 서비스이기 때문에 연결을 설정, 해제하는 과정이 없다. 신뢰성보다 속도가 더 중요한 Streaming 서비스에 주로 사용된다.
 
 ---
 
@@ -127,7 +155,7 @@ HTTP는 Client만 Request를 보내고 Server는 이에 응답하는데 반해 S
 
 # Forward VS Redirect
 * Forward는 URI에 전달된 Request를 서버가 Target URI에 전달한다. 전달받은 URI에서 버는 클라이언트에게 Response를 리턴한다.
-* Redirect는 서버가 클라이언트에게 새로운 URI로 Request를 보내라는 신호를 전달한다. 클라이언트는 새로운 URI에 새로운 Request를 보낸다.
+* Redirect는 서버가 클라이언트에게 새로운 URI로 Request를 보내라는 신호를 전달한다. 클라이언트는 새로운 URI에 새로운 Request를 보낸다.\
 *새로고침 등을 했을 때, 같은 데이터를 보내는 문제를 피하기 위해서 Redirect를 사용한다. 하지만 조회 등의 간단한 기능에는 Forward를 사용해도 된다*.
 
 ---
@@ -135,7 +163,7 @@ HTTP는 Client만 Request를 보내고 Server는 이에 응답하는데 반해 S
 # A Record & CNAME
 A 레코드는 DNS와 IPV4를 연결하는 방식이다. 이에 반해 CNAME은 DNS에 대한 또 다른 DNS라고 볼 수 있다. 
 	someURI.abc -> properURI.com
-CNAME을 사용하여 DNS나 IP가 바뀔 때마다 이에 맞춰 다른 사양 역시 변갱해야되는 일을 피할 수 있다.
+CNAME을 사용하여 DNS나 IP가 바뀔 때마다 이에 맞춰 다른 사양 역시 변경해야되는 일을 피할 수 있다.
 
 ---
 
@@ -151,25 +179,11 @@ HTTP 프로토콜은 연결의 상태를 유지하는 기능이 없다.\
 # 다수의 클라이언트가 어떻게 한 서버의 한 포트에 접속할 수 있을까?
 Port를 사용한다는 뜻은 패킷의 헤더에 Destination Port를 명시했을 뿐이다.\
 Stateless Protocol(UDP)를 사용할 때는 문제가 없다. 왜냐하면 Connection을 설정, 해제하지 않으므로 연결이 겹치는 상황이 생기지 않으니까.\
-Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태의 튜플로 구성된다. 따라서 서로 다른 클라이언트가 동일한 서버에 접속한다고 Connection이 충돌하는 경우는 없다.\
+Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태의 튜플로 구성된다.\ 
+따라서 서로 다른 클라이언트가 동일한 서버에 접속한다고 Connection이 충돌하는 경우는 없다.\
+\
 만약 같은 클라이언트 or 서로 다른 클라이언트가 NAT이나 공유기를 통해서 한 서버에 접속한다해도, 서버가 인식하는 Source Port는 NAT Gateway나 공유기의 서로 다른  Port가 되므로 Connection은 구분이 가능하다.\
-만약에 Connection의 Source IP, Source PORT가 같다면 이 Connection들은 같은 Connection으로 인식된다.
-
----
-
-# HTTP/2 - More
-대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다.
-## Frame
-프레임은 HTTP의 Request와 Response를 대체하는 HTTP/2의 통신 단위이다. 각 프레임은 TCP/IP 네트워크 모델의 Application Layer에 추가된 HTTP/2 Binary Framing Layer에서 Binary로 인코딩된다.\
-이 방법의 장점은 Header를 Body와 같은 독립적인 프레임으로 취급하면서, 헤더 압축이 가능해졌다는 점이다. HTTP/1.1에서 헤더와 바디는 한 요청을 구성하면서, 압축이 되지 않았기 때문에 각 요청의 크기가 컸다. 이는 TCP Protocol의 Slow Start 기능과 만나 HTTP/1.1에서 페이지 로드 속도가 심각하게 느려지는 원인이 됐다.\
-TCP의 Slow Start는 Sender가 아주 작은 패킷을 보내고, Receiver가 이것을 받아들여 ACK 신호를 보내면 보내는 패킷의 크기를 조금 더 키우는 방식으로 패킷을 얼마나 크게 보낼 수 있는가에대한 지침을 제공한다.\
-네트워크 상의 각 호스트가 같은 크기의 버퍼를 제공하지 않기 때문에 고안된 방식이지만, 요청이 헤더와 바디를 모두 포함하며, 압축 기능도 제공하지 않는 HTTP/1.1 스펙에서는 요청 응답 시간을 느리게 하는 주범이 되었다.
-## Stream
-스트림은 어떠한 실체가 있지 않은, Bi-Directional한 Frame의 Identifier이다. Stream의 개수에는 제한이 없어서 사실상 무한정으로 생성할 수 있다.\
-여기에서 Stream이 Bi-directional하다는 뜻은 요청에 대한 응답이 같은 stream identifier를 사용하기 때문에 양방향성을 띈다는 뜻이다.\
-HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 새로운 Connection을 생성하여 처리했지만, Stream은 한 Connection 내에서 무한정으로 생성할 수 있으므로 Stream 생성에 대한 부담이 적다.\
-모든 Frame은 Session내에 Unique한 Stream ID를 갖는데, 충돌을 피하기 위해서 Client가 Push하는 Frame은 홀수, Server가 Push하는 Frame은 짝수 Stream ID를 갖는다.\
-서로 다른 Stream ID를 가지더라도, 한 뭉치로 뭉쳐서 보내질 수 있다. Frame의 Header는 최소한 Stream ID 헤더를 항상 가지고 있으므로, 이를 기반으로 어떤 Stream에 속하는지 알 수 있다.
+*만약에 Connection의 Source IP, Source PORT가 같다면 이 Connection들은 같은 Connection으로 인식된다.*
 
 ---
 
@@ -186,21 +200,6 @@ Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태�
 * Least Connection - 현재 가장 적은 수의 커넥션이 연결되어 있는 노드에 트래픽 전달
 * Weighted Least Connection - Least Connection 방식에 Weight 적용
 * Resource Based - 노드에 서비스를 설치하여 현재 사용 중인 리소스에 따라서 트래픽을 배정한다.
-
----
-
-# HTTPS SECURITY - 2
-인터넷 사이트는 CA에 공개키를 제공한다.\
-CA는 CA의 개인키로 인터넷 사이트의 정보를 암호화하여 인증서를 발급한 후, 자신의 공개키를 웹브라우저에 제공한다.\
-사용자가 인터넷 사이트에 접속하면 인증서를 웹 브라우저에 보내고, 사용자는 CA의 공개키로 인증서를 복호화하여 사이트의 정보와 공개키를 받는다.\
-공개키로 대칭키를 암호화하여 사이트에 보낸다.\
-사이트는 개인키로 데이터를 복호화하여 대칭키를 생성하고, 이제 대칭키를 통해서 통신한다.\
-세션이 종료되면 대칭키를 폐기한다.\
-*대칭키는 매번 사용할 때마다 다른 키가 생성되므로 비교적 안전하고, 공개키보다 속도가 빠르다는 장점도 있다.*
-
-HTTPS를 사용할 경우 암호화, 복호화에 시간이 소요되므로 속도가 느려지게 되며, CA의 인증서를 생성하고 유지하는데 비용이 필요하다.\
-암호화된 데이터를 캐싱할 수 없기 때문에 이를 위한 별도의 스텝이 필요하다.\
-특정 프레임워크에서 지원하지 않는다면 기존에 존재하는 URI를 HTTPS 프로토콜로 변경해야한다.
 
 ---
 
@@ -259,16 +258,27 @@ credentials에 같은 출처에서만 인증 정보를 담을 수 있는 기본�
 와일드카드를 사용하면 모든 Request에 CORS를 해결하므로 편리하지만, 보안상으로 매우 안좋다.\
 혹은 FE에서 프록시를 설정하여 데이터를 BE에서 직접 가져다가 유저에게 전달하는 방법도 있다.
 
-검색 엔진에서는 CORS에 얽메이지 않는, SOP의 예외 조항을 통해서 Request를 처리하고 있다. \<img\>, \<script\> 스크립트, 이미지, 스타일시트 등과 같이 말이다.\
-이러한 방식으로 Request를 처리하면 CORS를 위반하지 않고, Request를 성공한다. 이 Request의 Header에는 sec-fetch-mode: no-cors라는 값이 포함되어 있으며, 이 필드를 통해서 CORS 검사를 skip하는 것이다.\
+검색 엔진에서는 CORS에 얽메이지 않는, SOP의 예외 조항을 통해서 Request를 처리하고 있다.\
+\<img\>, \<script\> 스크립트, 이미지, 스타일시트 등과 같이 말이다.\
+이러한 방식으로 Request를 처리하면 CORS를 위반하지 않고, Request를 성공한다.\
+이 Request의 Header에는 sec-fetch-mode: no-cors라는 값이 포함되어 있으며, 이 필드를 통해서 CORS 검사를 skip하는 것이다.\
 다만 브라우저는 이 Request의 응답을 JS에 보여주지 않기 때문에, 코드 레벨에서 이 응답에 담긴 내용에 접근 할 수 없다.\
 Front에서 다루기 정말 힘들 것 같은데, 코드에서 해당 값에 접근을 못하게 한다는 점이 보안적으로는 굉장히 +인 것 같다.
 
 ---
 
+# TTL
+Time-to-live, Network Layer에서 0~255의 값을 가진 패킷의 유효 기간을 설정한다.\
+한 라우터를 지날 때마다 값에서 1을 제하며, 0 이하의 값이 되면 더 이상 패킷이 유효하지 않다고 판단하여 패킷을 버리고, Host에게 이를 알린다.
 
+---
 
+# Keep-Alive
+HTTP/1에서 사용하는 Request Header\
+Connection을 재사용하기 위해서 비연결형인 HTTP/1 연결을 일정 시간동안 유지해달라는 의미\
+연결은 유지하지만 HTTP/2처럼 멀티플렉싱이 되지 않으므로 보틀넥을 겪게 된다.
 
+---
 
 
 
