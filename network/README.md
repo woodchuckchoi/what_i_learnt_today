@@ -1,6 +1,6 @@
 # HTTP/1.1
 Application 레이어에서 정의된 프로토콜\
-연결 상태를 유지하지 않음(비연결성)\
+연결 상태를 유지하지 않음(비연결성)/TCP는 연결형이지만 TCP위에 구성된 HTTP/1.1은 아니다.\
 HTTP/1.1의 구성
 * Header
 	* General Header (Cache, No-cache, etc)
@@ -71,7 +71,7 @@ OSI는 네트워크의 각 단계를 7단계로 나눈 반면에, TCP/IP는 4단
 TCP/IP의 레이어
 * Application은 유저에게 제공되는 Application의 통신을 결정하는 레이어. FTP(파일 전송), HTTP, POP3(메일)등의 응용 레벨의 프로토콜을 제공한다.
 * Transport은 네트워크에 접속된 컴퓨터 사이의 데이터 흐름을 Application Layer에 제공하는 역할을 한다. TCP와 UDP라는 두 가지 프로토콜을 가진다.
-* Network는 네트워크 상에서 패킷의 이동, 어떤 경로를 통해 패킷을 전달할 것인가를 다룬다. 공유기 - 라우터 - 이더넷 - 파이버 - 이더넷 - 서버와 같은 특정 경로를 Session(세션)이라고 부른다.
+* Network는 네트워크 상에서 패킷의 이동, 어떤 경로를 통해 패킷을 전달할 것인가를 다룬다. 공유기 - 라우터 - 이더넷 - 파이버 - 이더넷 - 서버와 같은 특정 경로.
 * Network Interface는 네트워크에 접속하는 하드웨어 계층을 담당한다.
 
 IP(Network Layer)는 패킷의 배송을 담당한다. 목적지의 위치 (IP와 MAC 주소)를 참조하여 그 다음 라우터로 데이터를 전송한다.\
@@ -173,12 +173,10 @@ HTTP/1.1에서 어떠한 Request의 비용이 비쌀 경우 다른 Request는 �
 
 ---
 
-# Session VS Session
-세션에는 두 가지 의미가 있다.\
-우리가 웹 애플리케이션에서 상태 유지를 위해서 사용하는 것도 세션이고, TCP/IP 모델에서 Network Layer가 결정하는 Logical한 경로도 Session이다.\
-앞의 세션은 로그인 혹은 상태 유지 시에 클라이언트의 쿠키에 의미 없는 데이터를 주고, 이를 서버 사이드의 데이터베이스와 비교하는 방식으로 작동한다.\
-뒤의 세션은 Network Layer에서 패킷을 보낼 경로를 결정하고 Connection이 유지되는 동안 이 경로를 유지한다. (연결을 유지할 것인가는 Transport Layer가 결정하지만, 경로를 설정하는 것은 Network Layer가 담당한다.)\
-뒤의 세션의 경우 OS Level에서 작동하므로 보통 개발자가 다루는 경우는 드물다.\
+# Session VS Connection
+Session은 Connection의 Superset이다.\
+Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태로 이루어진 튜플이지만, Session은 App Control, Identity 등의 정보를 포함하고 있다.\
+세션 유지는 로그인 혹은 상태 유지 시에 클라이언트의 쿠키에 의미 없는 데이터를 주고, 이를 서버 사이드의 데이터베이스와 비교하는 방식으로 작동한다.\
 
 ---
 
