@@ -38,14 +38,15 @@ if - else만큼 CMP를 수행하는 것과 다르게 jump table의 크기만 커
 
 # Framework VS Library
 * Framework는 소프트웨어의 특정 문제를 해결하기 위해서 상호 협력하는 클래스와 인터페이스, 함수의 집합이다.
-* Library는 활용 가능한 도구의 집합으로 사실상 Framework와 같은 것을 가르킨다고 볼 수 있다.\
+* Library는 활용 가능한 도구의 집합으로 사실상 Framework와 같은 것을 가르킨다고 볼 수 있다.
+
 *Framework는 개발자가 Framework의 Flow에 필요한 Logic을 추가하며, Library는 도구로써 개발자가 원하는 기능을 만드는데 도움을 준다. Flow의 주체가 누구인가에 따라 구분할 수 있다*.
 
 ---
 
 # OS Run Level
 OS에서 시스템 관리를 편하게 하기 위해서 서비스의 실행을 각 단계별로 나눈 것이다.\
-\
+
 * 0 Halt - 시스템 종료를 의미한다. Run Level을 0으로 변경하라는 명령을 내리면 시스템을 종료한다.
 * 1 Single User Mode - 시스템 복원 모드라고도 하며, 관리자 권한의 쉘을 얻게된다. 주로 파일 시스템을 점검하거나 관리자 암호를 변경할 때 사용한다.
 * 2 Multi-User Mode, without NFS - NFS(Network File System)을 지원하지 않는 다중 사용자 모드이다. 네트워크를 사용하지 않는 텍스트 유저 모드라고 할 수 있다.
@@ -62,19 +63,23 @@ OS에서 시스템 관리를 편하게 하기 위해서 서비스의 실행을 �
 Python은 OS를 제어하는 스크립트 언어이기도 하면서, 프로그램을 만들기도 하는 범용 프로그래밍 언어이다.\
 또한 Python은 인터프리터 언어이다. 컴파일러 언어는 전체 소스코드를 읽은 후, 기계어로 컴파일하는 반면에, 인터프리터 언어는 한 줄 한 줄에 대해서 Intermediate 언어로 변환하여 Runtime이 해당 코드를 실행하게 한다. 일반적으로 컴파일 언어가 인터프리터 언어보다 코드의 실행 속도가 빠르다는 장점이 있지만, 컴파일에 시간이 걸린다는 단점도 있다.\
 일반적으로 Python은 설치 시 CPython이라는 Python 환경으로 설치되지만, Pypy Implementation을 사용하여 성능 향상을 기대할 수 있다. Pypy는 JIT(Just-in-Time) 방식으로 동작하기 때문이다. JIT은 인터프리터가 Intermediate 언어로 바꾸던 방식을, 프로그램이 실행될 때 불러오는 Method를 JIT을 통해서 기계어로 컴파일하고, 이후에 해당 Method 요청이 들어오면 컴파일 된 Implementation을 사용하여 4~6배 정도 빠른 속도를 기대할 수 있다.\
-데이터는 빠른 접근을 위해서 메모리에 저장된다. C 언어에서는 메모리를 할당하고, 해제하는 기능을 개발자가 직접하기도 하지만, Python과 같은 High-Level 언어에서는 메모리 관리를 Runtime이 스스로 한다.\
+데이터는 빠른 접근을 위해서 메모리에 저장된다. C 언어에서는 메모리를 할당하고, 해제하는 기능을 개발자가 직접하기도 하지만, Python과 같은 High-Level 언어에서는 메모리 관리를 Runtime이 스스로 한다.
 
 *Runtime은 프로그램이 동작하는 동안 사용되는 라이브러리, 프레임워크, 플랫폼의 집합을 뜻한다.*
 
 이것을 Garbage Collection이라고 한다. GC는 개발 생산성을 높여주며, 에러의 위험을 줄인다. GC가 동작하는데 메모리와 Computing Power가 필요하다는 단점이 있지만, Computing Power가 충분한 현대에는 크게 문제가 되지 않는다.\
 Python에서 일반적으로 Garbage Collection에 사용되는 방법은 Reference Counting이다.\
 변수의 Reference 횟수를 기억하고 있다가, 더 이상 등장하지 않으면 해당 메모리를 해제하는 것이다.
+
 	a = 5 			# ref a = 1
 	b = {'key': a} 	# ref a = 2
+
 하지만 Reference Counting 시 Reference Cycle이 발생하기도 해서  General Garbage Collection 기법을 사용하기도 한다.
+
 	a = TmpClass() 	# ref a = 1
 	a.key = a		# ref a = 2
 	del a			# ref a = 1, 지워진 a.key에 해당하는 a의 reference counting은 절대 0이 될 수 없다.
+
 그렇기 때문에 어느 시점(Generation)에서 Reference의 갯수가 일정 수치(Threshold)를 넘는 순간 Garbage Collecting을 하는 General Garbage Collection을 병행한다.\
 
 GIL은 Python Global Interpreter Lock을 뜻한다. 한 번에 한 개의 스레드만 Python 인터프리터를 사용할 수 있도록 뮤텍스가 설정되어 있기 때문에, 멀티 스레드 환경에서 보틀넥이 발생한다.
@@ -91,12 +96,15 @@ Mutex와 같이 Thread-safe한 기능을 갖추지 않은 상태로 여러 스�
 *변수에 어떤 연산을 하고 저장할 때, 다른 스레드가 해당 변수에 접근해서 연산을 무시하거나 예상하지 못한 결과를 가져올 수 있다*.
 \
 이를 막기위한 방법으로 한 번에 한 스레드만 일을 할 수 있도록 GIL을 설정한 것이다.\
-Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수 있다.\
+Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수 있다.
 
 --- 
 
 # Closure
-클로저는 함수가 그 밖의 스코프에 접근하는 행위를 가리킨다. Python에서 Decorator와 같다. 예를 들어 JS에서 for loop 안에 Timer를 설정해두고 for loop의 i값을 호출한다면, Timer가 실행되기전 모든 loop가 지나가서 마지막 i의 value만 출력이 될 것이다. 하지만 closure를 이용하여 i를 변수로 받는 함수를 Timer가 호출하게 된다면 i를 그대로 출력할 수 있다.
+클로저는 함수가 그 밖의 스코프에 접근하는 행위를 가리킨다. Python에서 Decorator와 같다.\ 
+예를 들어 JS에서 for loop 안에 Timer를 설정해두고 for loop의 i값을 호출한다면, Timer가 실행되기전 모든 loop가 지나가서 마지막 i의 value만 출력이 될 것이다.\ 
+하지만 closure를 이용하여 i를 변수로 받는 함수를 Timer가 호출하게 된다면 i를 그대로 출력할 수 있다.
+
 	var obj = {};
 	var items = ["click", "keypress"];
 	for (var i = 0; i < items.length; i++) {
@@ -106,8 +114,10 @@ Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수
 			};
 		})();
 	}
+
 위의 JS를 실행하면 obj.onclick()이나 obj.keypress()는 "thanks for your undefined"라는 값을 출력하게 된다.\
 이는 for loop에서 i를 가장 안쪽의 스코프에 생성된 함수가 접근할 수 없기 때문이다. 그러므로 아래와 같이 변경하여, 함수가 만들어지는 환경에서 i에 접근할 수 있도록 해주면 함수가 정상적으로 작동한다.
+
 	for (var i = 0; i < items.length; i++) {
 		(function(i) {
 			obj["on" + items[i] = function() {
@@ -115,6 +125,7 @@ Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수
 			};
 		})(i);
 	}
+
 클로저는 자기 자신에 대한 접근, 외부 함수의 변수에 대한 접근, 그리고 전역 변수에 대한 접근 3단계로 구분할 수 있다.\
 위의 예시에서 외부 함수에서 선언된 변수가 아니며, 전역 변수도 아니기 때문에 접근이 불가능 했다.\
 클로저를 통해 변수를 참조하는 동안에는 내부 변수가 차지하는 메모리를 GC가 회수하지 않기 때문에, 클로져의 사용이 끝나면 참조를 제거하는 편이 좋다.
@@ -133,7 +144,7 @@ Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수
 AJAX 통신은 브라우저가 지원하는 XMLHTTPRequest를 이용하여 HTML Document 전체를 reload하지 않고 필요한 부분만 비동기적으로 처리하는 방식이다.\
 JS라면 일반적으로 request.then().catch()와 같은 방식으로 callback을 설정하여 비동기적 함수 호출을 처리한다.\
 이러한 비동기 처리에서 발생하는 문제 중 하나는 callback hell이다. Function이 종료되었을 때, 실행될 함수를 줄줄이 늘어놓아서 알아보기도, 개발하기도 힘든 상황을 뜻한다.\
-\
+
 이를 해결하기 위한 방법으로는
 1. 함수의 패턴을 분리하여 A함수가 종료되면서 B함수를 실행시키도록 처리
 2. JS의 Promise, Python의 Async Task처럼 아직 완료되지 않은 객체를 반환하는 방식으로 function.then() 내부의 callback function이 무한정 길어지는 callback hell을 해결할 수 있다.\
@@ -160,7 +171,8 @@ DB에 저장된 파일은 (아마도) 토픽을 추출하여, 해당 키워드�
 ---
 
 # HEAP
-HEAP은 부모 노드가 항상 자식 노드보다 크거나 (Max Heap), 작은 (Min Heap) 데이터 구조이다. 한 부모 노드가 두 자식 노드를 가지는 Binary Heap이 널리 사용된다.\
+HEAP은 부모 노드가 항상 자식 노드보다 크거나 (Max Heap), 작은 (Min Heap) 데이터 구조이다.\
+한 부모 노드가 두 자식 노드를 가지는 Binary Heap이 널리 사용된다.\
 부모 노드의 Index가 n일 때, 자식 노드의 Index는 각각 2n+1, 2n+2이 되어 연산이 편하다는 장점도 있고.
 
 ---
@@ -194,7 +206,7 @@ Go와 같은 Statically Typed Language에서 Interface 등을 사용하여 기�
 * 서버의 처리가 완료될 때까지 기다리지 않고 처리 가능
 * 서버에서 Data만 전송하면 되므로 전체적인 코딩 양 감소
 * 기존 웹에서 불가능했던 반응성 구현 가능
-\
+
 단점
 * 히스토리 관리 불가
 * 서버의 부하 증가 가능
