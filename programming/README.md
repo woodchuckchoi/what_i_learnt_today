@@ -467,3 +467,20 @@ poll은 pollfd라는 구조체를 통해서 모니터하며, poll 함수 자체�
 근래에는 poll이 select의 기능을 모두 대체하므로 select는 deprecate 되야 한다는 의견이 있다.\
 epoll을 사용하여 waiting 중에도 fd를 추가하거나 제거할 수 있다.\
 또한 epoll은 O(1)로 접근가능하지만, Linux에서만 epoll API를 제공한다.
+
+---
+
+# Use of sockaddr\_in.sin\_zero
+짧게 말해서 struct sockaddr과 같은 사이즈를 유지하기 위해서 zero padding이 필요하다.\
+대부분의 네트워크에 사용되는 코드는 sockaddr\_in이 아닌 sockaddr 구조체를 사용한다.\
+POSIX의 sendto 같은 function을 사용할 때도 sockaddr로 타입캐스트 후 sockaddr\_in을 사용한다.\
+앞의 이유로 sin\_zero가 필요하다. 크기를 맞춰야 형 변환을 했을 때 이상한 값이 들어가지 않을테니까.\
+어떤 시스템에서는 zero padding을 하지 않아도 문제가 없지만, 어떤 시스템에서는 문제를 일으킬 수 있으므로 반드시 필요하다.\
+sockaddr은 unsigned short sa\_family와 char sa\_data[14]를 가지므로 16바이트를 맞추기 위해서 char sin\_zero[8]이 필요한 것이다.
+
+---
+
+# TDD Tool의 중요성
+UNIX socket programming을 연습하려고 로드밸런서 예제를 만드는데, TDD를 위해서 테스트 코드를 만들다보니 C에서 테스트코드를 직접 다루기가 상당히 불편하다는 사실을 배웠다.\
+이미 만들어진 소켓 서버에 소켓 클라이언트를 연결하고 제대로 동작하는지 보려는 Module 단위?의 테스트인데, C안에서 구현하려다 보니 테스트코드가  실제 코드만큼 길어지는 걸 보고 중지했다. 퍼포먼스의 문제는 있겠지만 테스트는 Doctest(Python) 같이 외부의 프레임워크를 사용하는게 편의성 면에서 더 나을 것이라고 생각한다.\
+지금까지는 테스트코드를 직접 만들어서 사용하고, TDD Tool을 잘 사용하지 않았는데 코드의 크기가 클수록 tool을 사용하는게 나을 것 같다.
