@@ -54,8 +54,8 @@ TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아�
 * Multiplexing: Multiple different server requests are allowed simultaneously, on the same connection. With HTTP/1.1, each additional requests for assets would have to wait until the previous transfer in the queue completed. This decreases complexity in development, not necessitating things like asset bundling to decrease to number of server requests.\ 
 한 스트림 내에서 다수의 Request를 Frame으로 분할하여 다수의 Request/Response를 동시에 처리\
 \
-대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다./
-HTTP/2 역시 TCP를 기반으로 하기 때문에, Packet 레벨에서 문제가 생겨서 이 데이터를 Parsing 할 수 없다면 Blocking이 생기게 된다.\
+대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다.\
+HTTP/2 역시 TCP를 기반으로 하기 때문에, Packet 레벨에서 문제가 생겨서 이 데이터를 Parsing 할 수 없다면 Blocking이 생기게 된다.
 
 	GET Req packet #1 O
 	Get Req packet #2 O
@@ -115,6 +115,8 @@ TCP/IP로 보는 HTTP 통신의 순서는 아래와 같다.
 
 *IP 주소는 각 노드에 부여된 주소를 뜻하며, MAC주소는 각 네트워크 카드에 할당된 고유 주소를 뜻한다. IP주소는 변경 가능하지만, MAC주소는 변경할 수 없다*.\
 *DNS는 Application에서 Domain Name의 실제 주소인 IP를 확인 할 수 있도록 돕는 역할을 한다*.
+
+Request를 수신하면 Receiver는 ACK를 기다린다. Sender의 TCP는 ACK가 올 때까지 일정 시간을 기다리다가 ACK가 도착하지 않은채 타이머가 울리면 패킷을 다시 보낸다.(Retransmit)
 
 OSI의 레이어
 * Application - 사용자가 Interact하는 Layer
@@ -300,5 +302,14 @@ GeoFencing (지리적으로 사이트 접근 차단 가능) \
 
 Reverse Proxy를 사용하는 경우 Client는 어떤 서버에 접속하는지 알 수 없다.\
 Load Balancer의 역할을 하는 것을 제외한다면 Proxy와 같다.\
+
+---
+
+# Stateful VS Stateless
+Stateful은 클라이언트가 요청을 전송한 뒤, 서버가 응답을 하길 잠시 기다린다. 응답이 없다면 계속해서 요청을 전송한다.\
+TCP, FTP 등\
+
+Stateless는 클라이언트 요청의 State에 따라, 서버가 응답한다. 서버가 클라이언트에 대한 정보(세션)을 기억할 필요가 없다.\
+UDP, HTTP/1, HTTP/2 등
 
 ---
