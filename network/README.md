@@ -58,12 +58,12 @@ TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아�
 HTTP/2 역시 TCP를 기반으로 하기 때문에, Packet 레벨에서 문제가 생겨서 이 데이터를 Parsing 할 수 없다면 Blocking이 생기게 된다.
 
 """
-GET Req packet #1 O
-Get Req packet #2 O
-Get Req packet #3 X Packet 실종, Retransmit X
-POST Req packet #1 O
-POST Req packet #2 O
-POST Req packet #3 O
+GET Req packet 1 O
+Get Req packet 2 O
+Get Req packet 3 X // Packet 실종, Retransmit X
+POST Req packet 1 O
+POST Req packet 2 O
+POST Req packet 3 O
 // HTTP2에서 위와 같이 Multiplex가 이루어졌다면, POST Request도 멈춰버리게된다.
 """
 
