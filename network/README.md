@@ -280,8 +280,13 @@ Connection을 재사용하기 위해서 비연결형인 HTTP/1 연결을 일정 
 
 ---
 
+# Proxy VS Reverse Proxy
+Request의 Identity를 숨기기는 서버 (= 그와 동시에 해당 프록시에 연결된 사람을 인증하는 도구가 될 수도 있음)\
+Proxy가 Caching을 돕기도 한다.\
+Traffic Control (Unwanted Sites Blocking) 가능\
+GeoFencing (지리적으로 사이트 접근 차단 가능) \
 
+Reverse Proxy를 사용하는 경우 Client는 어떤 서버에 접속하는지 알 수 없다.\
+Load Balancer의 역할을 하는 것을 제외한다면 Proxy와 같다.\
 
-
-
-
+---
