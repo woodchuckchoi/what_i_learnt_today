@@ -204,7 +204,7 @@ Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, 
 # Session VS Connection
 Session은 Connection의 Superset이다.\
 Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태로 이루어진 튜플이지만, Session은 App Control, Identity 등의 정보를 포함하고 있다.\
-세션 유지는 로그인 혹은 상태 유지 시에 클라이언트의 쿠키에 의미 없는 데이터를 주고, 이를 서버 사이드의 데이터베이스와 비교하는 방식으로 작동한다.\
+세션 유지는 로그인 혹은 상태 유지 시에 클라이언트의 쿠키에 의미 없는 데이터를 주고, 이를 서버 사이드의 데이터베이스와 비교하는 방식으로 작동한다.
 
 ---
 

@@ -18,7 +18,7 @@ Deadlock의 해결 방안은
 
 ---
 
-# Sephamore & Mutex
+# Semaphore & Mutex
 여러 프로세스나 스레드가 공유 자원에 접근하는 것을 제어하기 위한 수단이다.\
 범용 Semaphore의 경우 Pool의 크기를 의미하는 Value가 양수이면 Resource를 할당하고, 음수이면 대기 Queue에 할당한다.\
 이진 Semaphore는 뮤텍스와 흡사하게 Boolean Value라고 볼 수 있는 Lock을 설정했다, 해제했다 하며 자원을 관리한다. 차이는 Semaphore는 현재 Resource를 사용 중이지 않은 다른 프로세스가 Semaphore를 제어할 수 있지만, Mutex는 Resource를 가지고 Task를 수행중인 대상만이 Mutex를 제어할 수 있다는 점이다.
@@ -45,7 +45,7 @@ if - else만큼 CMP를 수행하는 것과 다르게 jump table의 크기만 커
 ---
 
 # OS Run Level
-OS에서 시스템 관리를 편하게 하기 위해서 서비스의 실행을 각 단계별로 나눈 것이다.\
+OS에서 시스템 관리를 편하게 하기 위해서 서비스의 실행을 각 단계별로 나눈 것이다.
 
 * 0 Halt - 시스템 종료를 의미한다. Run Level을 0으로 변경하라는 명령을 내리면 시스템을 종료한다.
 * 1 Single User Mode - 시스템 복원 모드라고도 하며, 관리자 권한의 쉘을 얻게된다. 주로 파일 시스템을 점검하거나 관리자 암호를 변경할 때 사용한다.
@@ -156,7 +156,7 @@ JS라면 일반적으로 request.then().catch()와 같은 방식으로 callback�
 근래에 HTTPS를 사용하는 서비스는 HTTP/1.1에서 HTTP/2로 전환하려는 움직임이 있다.\
 예를 들어 Naver와 Google. curl --http2 -I URI 를 해보면 헤더에 HTTP/2 OK가 명시되어 있는 것을 볼 수 있다.\
 HTTP/2 환경은 Client의 Request에 대해 서버가 Response를 보내고 연결을 끊는 HTTP/1.1과 다르게 bi-directional한 다수의 Stream을 생성할 수 있다.\
-HTTP/1.1은 단방향 통신을 여러 Connection을 열고, 소켓 통신을 연결해서 Server Push가 가능한 실시간 양방향 통신을 했지만, HTTP/2는 기본적으로 이런 기능들의 상위 호환을 제공하는 것이다.\ 
+HTTP/1.1은 단방향 통신을 여러 Connection을 열고, 소켓 통신을 연결해서 Server Push가 가능한 실시간 양방향 통신을 했지만, HTTP/2는 기본적으로 이런 기능들의 상위 호환을 제공하는 것이다.\
 각 검색어는 한 글자 한 글자가 쳐질 때마다 Request를 보내고, 이에 대한 Request를 화면에 렌더링한다. (HTTP/2이므로 매번 연결을 생성, 해제하지 않아도 되서 Overhead가 적다.)\
 검색 엔진의 경우 인터넷 상에서 데이터를 수집하는 Crawler 로봇을 사용하며, 이 로봇이 방문한 사이트는 인덱싱되어 DB에 저장된다.\
 DB에 저장된 파일은 (아마도) 토픽을 추출하여, 해당 키워드가와 검색어가 얼마나 일치하는가를 각 검색 엔진의 알고리즘을 통해서 계산한다.\
@@ -211,13 +211,6 @@ Go와 같은 Statically Typed Language에서 Interface 등을 사용하여 기�
 * 히스토리 관리 불가
 * 서버의 부하 증가 가능
 * XMLHttpRequest를 이용하여 사용자에게 요청 진행상황에 대한 정보가 주어지지 않음
-
----
-
-# Hashmap
-해쉬 함수를 통해서 키를 인덱스로 변경하여 해당 인덱스에 값을 저장하는 데이터 구조.\
-이 때, 해쉬 함수는 출력 값이 제한되어 있어서, 해쉬 충돌이 일어날 수 밖에 없는 구조이다.\
-이를 처리하기 위한 방법으로 해쉬의 Value에 Linked List를 연결한 체이닝 방식이 있다.
 
 ---
 
