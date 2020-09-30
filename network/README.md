@@ -319,6 +319,6 @@ Unix의 /proc/sys/fs/file-max는 OS에서 동시에 사용할 수 있는 fd의 �
 따라서 C10M의 문제가 되는 것은 Kernel의 문제가 아니다.\
 실제로 문제가 되는 것은 CPU와 Memory이다. 프로그램 작성 시 1M+의 커넥션을 관리하기 위해서 수 GB의 메모리가 필요하다.\
 또한 Outbound TCP Connection은 한 IP에서 PORT \~65000까지로 제한되어 있으므로 이 또한 서버의 Scalability에 걸림돌이된다. *OS Kernel의 문제가 아니라, TCP의 문제이다.*\
-이 문제에 대해 자세히 설명된 (링크)[http://highscalability.com/blog/2013/5/13/the-secret-to-10-million-concurrent-connections-the-kernel-i.html]
+이 문제에 대해 자세히 설명된 [링크](http://highscalability.com/blog/2013/5/13/the-secret-to-10-million-concurrent-connections-the-kernel-i.html)
 
 ---
