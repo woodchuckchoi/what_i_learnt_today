@@ -478,3 +478,16 @@ sockaddr은 unsigned short sa\_family와 char sa\_data[14]를 가지므로 16바
 UNIX socket programming을 연습하려고 로드밸런서 예제를 만드는데, TDD를 위해서 테스트 코드를 만들다보니 C에서 테스트코드를 직접 다루기가 상당히 불편하다는 사실을 배웠다.\
 이미 만들어진 소켓 서버에 소켓 클라이언트를 연결하고 제대로 동작하는지 보려는 Module 단위?의 테스트인데, C안에서 구현하려다 보니 테스트코드가  실제 코드만큼 길어지는 걸 보고 중지했다. 퍼포먼스의 문제는 있겠지만 테스트는 Doctest(Python) 같이 외부의 프레임워크를 사용하는게 편의성 면에서 더 나을 것이라고 생각한다.\
 지금까지는 테스트코드를 직접 만들어서 사용하고, TDD Tool을 잘 사용하지 않았는데 코드의 크기가 클수록 tool을 사용하는게 나을 것 같다.
+
+---
+
+# epoll
+* Level-triggered는 watched file descriptor가 ready state가 아니게 될 때까지 계속해서 이벤트를 받는다. (default)
+* Edge-triggered는 watched file descriptor의 state가 변했을 때만 이벤트를 받는다.
+
+기본 흐름\
+epoll instance는 file descriptor이다.\
+해당 epoll instance에 epoll\_ctl call을 통해서 어떤 fd의 어떤 이벤트를 어떻게 할 것인지를 설정한다.\
+이후 epoll\_wait call을 통해서 epoll instance에서 한 번에 최대 몇 개의 이벤트를 받고 얼마의 Timeout을 줄 것인지 설정한다.\
+
+*epoll을 통해서 서버를 구성한다면, 무슨 장점이 있을까? Socket 역시 fd이므로 listen을 하는 서버는 한 번에 한 event만 다루는게 아닌가? 하지만 예시를 보면 한 서버의 socket에 대해 epoll_wait을 할 때도 많은 event를 받는 것으로 나와있다. socket fd에 오는 모든 event를 epoll instance가 "다" 기억하는 것으로 예상된다. 그렇다면 epoll을 쓰는 데 확실히 장점이 있다. epoll을 쓰지않은 서버는 동시에 다수의 연결이 동시에 구성되고 쓰레드를 만들어서 연결을 전해주고 다시 accept하기 전에 모든 요청이 왔다 갔다면 그 중 한 개만 수행될테니까. 반면 epoll을 사용한다면 현재 랩톱에서도 (file-max에 따르면, 리소스가 충분하다면) 수천조 이상의 fd를 관리할 수 있을 것이다.*
