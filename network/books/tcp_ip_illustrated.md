@@ -60,3 +60,27 @@ TCP/IP Application에 주로 사용되는 API는 Socket과 TLI가 있다.
 ---
 
 # Link Layer
+## Loopback Interface
+대부분의 TCP/IP implementation은 같은 호스트의 서버/클라이언트와 연결할 수 있도록 Loopback interface를 지원한다.\
+클래스 A Network ID 127은 loopback interface로 지정되어 있으며, 대부분의 시스템은 127.0.0.1(localhost)에 loopback을 할당한다.\
+Loopback에 전달된 IP datagram은 어떠한 네트워크에서도 보이지 않아야한다.\
+Transport Layer가 요청을 보내는/요청을 받는 대상이 같은 host라는 것을 알고 Network와 Network Link Layer를 건너뛸 것이라고 생각하는 경우가 많지만, 실제로는 모든 레이어를 지나가며 다른 IP에 요청을 발신/수신하는 것과 같은 방식으로 작동한다.
+
+---
+
+## MTU
+Maximum Transmission Unit은 Network Link Layer의 특징이다.\
+TCP의 Fragmentation과 마찬가지로 IP(Network Layer)에서도 IP Datagram이 MTU보다 크다면 작은 조각으로 쪼갠다.
+
+---
+
+## Path MTU
+같은 네트워크의 두 호스트가 서로 통신할 때는 해당 네트워크의 MTU에 의해 한 번에 보낼 수 있는 데이터의 크기가 정해진다.\
+하지만 다른 네트워크에 있는 두 호스트가 통신할 때는, 두 호스트 사이의 최소 MTU에 의해 결정되고, 이것을 Path MTU라고 한다.\
+Path MTU는 정해진 상수가 아니며, 통신이 이루어지는 루트에 의해서 결정된다.
+
+---
+---
+
+# Internet Protocol
+

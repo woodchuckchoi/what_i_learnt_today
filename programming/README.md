@@ -491,3 +491,23 @@ epoll instance는 file descriptor이다.\
 이후 epoll\_wait call을 통해서 epoll instance에서 한 번에 최대 몇 개의 이벤트를 받고 얼마의 Timeout을 줄 것인지 설정한다.\
 
 *epoll을 통해서 서버를 구성한다면, 무슨 장점이 있을까? Socket 역시 fd이므로 listen을 하는 서버는 한 번에 한 event만 다루는게 아닌가? 하지만 예시를 보면 한 서버의 socket에 대해 epoll_wait을 할 때도 많은 event를 받는 것으로 나와있다. socket fd에 오는 모든 event를 epoll instance가 "다" 기억하는 것으로 예상된다. 그렇다면 epoll을 쓰는 데 확실히 장점이 있다. epoll을 쓰지않은 서버는 동시에 다수의 연결이 동시에 구성되고 쓰레드를 만들어서 연결을 전해주고 다시 accept하기 전에 모든 요청이 왔다 갔다면 그 중 한 개만 수행될테니까. 반면 epoll을 사용한다면 현재 랩톱에서도 (file-max에 따르면, 리소스가 충분하다면) 수천조 이상의 fd를 관리할 수 있을 것이다.*
+
+*epoll은 커널에서 이벤트 데이터를 보관한다. 만약 MAX_FD를 실제 이벤트보다 낮게 설정했더라도 이벤트는 Queue에 남아 다음 번 wait에서 불러오게된다. 또한 다른 스레드가 epoll_wait을 하고 있더라도 epoll_ctl을 통해서 수정이 가능하다.*
+
+---
+
+# File Descriptor
+FD는 UNIX 계열 OS의 열린 파일을 identify하는 unique한 숫자로, 데이터 소스와 액세스 방식에 대한 데이터를 포함한다.\
+어떠한 프로그램이 데이터 소스를 열거나, 네트워크 소켓을 생성하면 커널은 아래와 같은 순서로 작업을 수행한다.
+
+1. Access를 승인한다.
+2. Global File Table에 entry를 생성한다.
+3. 프로그램에 entry의 주소를 제공한다.
+
+FD는 음수가 아닌 unique한 정수의 형태를 띄며, 시스템 상의 모든 열린 파일에 대해 최소 한 개 이상의 FD가 존재한다.\
+Global File Table의 Entry는 inode(Index Node, 파일에 대한 정보를 포함), byte offset(바이트의 사이즈), access restriction(read-only, write-only, etc) 정보를 제공한다.\
+기본적으로 0(stdin), 1(stdout), 2(stderr)은 할당되어 있다.
+
+---
+
+
