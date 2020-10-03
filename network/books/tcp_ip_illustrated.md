@@ -83,4 +83,16 @@ Path MTU는 정해진 상수가 아니며, 통신이 이루어지는 루트에 �
 ---
 
 # Internet Protocol
+## IP Routing
+IP Routing은 hop-by-hop basis로 실행된다.\
+IP Layer는 (호스트의 네트워크에 목표가 직접 연결된 상태가 아니라면) 항상 Router로 전송을 할 뿐이다.\
+그러면 Router는 해당 데이터를 다음 라우터의 주소에 수신한 Datagram을 전송한다.
+1. Routing Table을 뒤져서 목표의 IP Address(Network ID와 HOST ID)를 확인한다. 만약 Routing Table에 목표 IP Address가 있다면, 해당 Router 혹은 Network Interface에 패킷을 전달한다.
+2. Routing Table을 뒤져서 목표의 Network ID를 확인한다. 만약 Routing Table에 목표 Network ID가 있다면, 해당 Router 혹은 Network Interface에 패킷을 전달한다. 이후 과정은 해당 Router 혹은 Local Ethernet에서 수행된다.
+3. Routing Table에서 "default"를 찾아 해당 Router에 패킷을 전달한다.
+
+*위의 과정 중 어떤 과정에도 해당하지 않으면 Datagram을 발송할 수 없으며, host unreachable/network unreachable 에러가 발생한다.*
+
+---
+
 

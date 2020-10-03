@@ -510,4 +510,10 @@ Global File Table의 Entry는 inode(Index Node, 파일에 대한 정보를 포�
 
 ---
 
+# Maximum Number of Connections in TCP
+Whatsapp의 경우 한 서버에서 삼백만 Connection을 다룸.\
+클라이언트는 약 2^16개의 Connection이라는 한게가 있지만, 서버의 경우 리소스만 충분하다면 제한된 Connection의 수는 없다.\
+Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy가 클라이언트의 역할을 하기 때문에, 문제가 생길 수 밖에 없음(소켓을 사용한 Layer4 Proxy의 경우)\
+해결책으로 Proxy/Reverse Proxy가 HTTP2를 사용하게 한다.(Eg. Envoy Proxy) Connection 안에서 많은 Stream을 생성하여 백과 통신하게 한다.\
+
 

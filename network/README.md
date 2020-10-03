@@ -322,3 +322,40 @@ Unix의 /proc/sys/fs/file-max는 OS에서 동시에 사용할 수 있는 fd의 �
 이 문제에 대해 자세히 설명된 [링크](http://highscalability.com/blog/2013/5/13/the-secret-to-10-million-concurrent-connections-the-kernel-i.html)
 
 ---
+
+# Active/Active VS Active/Passive
+High Availability를 위한 서버 세팅\
+* Active/Passive
+같은 VIP를 공유하는 두 Reverse Proxy(Load Balancer)를 이용하는 서버에 접근할 때, 한 RP가 ARP 요청을 수신하는 Active 역할, 다른 RP가 Passive 상태가 되는 것.\
+만약 Master RP가 죽으면, 기존의 Worker RP가 Master(Active) 역할을 하게 된다.\
+Bottle neck이 생기기 쉽지만, 설정하기 쉽다.
+
+* Active/Active
+N개의 VIP를 가진 DNS가 동일한 VIP를 공유하는 모든 RP(각각의 RP는 한 VIP의 마스터로, 한 VIP의 Backup으로 설정)에 1:1로 요청을 전달하는 것.\
+모든 RP는 Active하게 요청을 수행한다.\
+DNS에서 여러 VIP를 가진 Active/Active구조는 더 높은 Availability를 보인다.\
+Request가 균등하게 분배되지만, 설정이 어렵고, 비용이 더 소모된다.
+
+---
+
+# Failover
+클라이언트가 서버에 연결할 때, 서버가 죽으면 클라이언트가 즉시 다른 서버로 연결하는 것\
+개발자는 IP 주소를 통해서 통신하지만, Lower Level에서는 실제로 MAC을 사용하여 통신한다.\
+개발자가 사용하는 IP와 MAC 주소 변환을 돕는 것이 ARP (Address Resolution Protocol)이다.\
+MAC이 진행되는 방식은 아래와 같다.
+
+1. 사용자가 10.0.0.1이라는 가상의 주소에 요청을 보낸다.
+2. 클라이언트는 10.0.0.1이라는 주소를 찾기위해 모든 네트워크에 10.0.0.1이 있는지를 체크한다.
+3. 서버(10.0.0.1)은 자신의 MAC 주소를 알려준다.
+
+VIP가 사용되는 시나리오는 아래와 같다.
+
+1. 10.0.0.1(MAC Address: AAA)와 10.0.0.2(MAC Address: BBB)가 있을 때, 어떠한 에이전트 소프트웨어를 설치하여 Master와 Backup Node를 설정한다.
+2. 두 노드는 가상의 IP인 VIP를 10.0.0.100으로 설정한다.
+3. 클라이언트에서 10.0.0.100을 찾기위해 네트워크 상의 모든 호스트에 10.0.0.100에 대한 정보를 찾을 때, 실제 IP는 10.0.0.100이 아닌 두 노드 중 Master는 이 요청에 응답한다.
+
+*마스터가 죽는다면, 꾸준히 헬스체크를 하던 백업 노드는 마스터가 응답이 없다는 것을 알게되고 10.0.0.100에 대한 요청에 대해 대신 응답한다. 하지만 헬스체크를 위한 시간이 소요되기 때문에 그 사이에 도착한 클라이언트의 요청은 제대로 응답되지 않을 수 있다.*
+
+위와 같이 동작하는 Protocol을 VRRP(Virtual Router Redundency Protocol)이라고 한다.
+
+---
