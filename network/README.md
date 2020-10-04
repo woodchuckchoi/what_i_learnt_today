@@ -359,3 +359,33 @@ VIP가 사용되는 시나리오는 아래와 같다.
 위와 같이 동작하는 Protocol을 VRRP(Virtual Router Redundency Protocol)이라고 한다.
 
 ---
+
+# ARP
+Layer Level 2 (Data Link Layer)에서 Frame을 어디로 전송할지 (Machine의 주소)를 알기위해서 MAC을 사용한다.\
+대부분의 경우 (DNS를 통해 얻은) IP 주소를 알고 있지만, MAC을 아는 경우는 극히 드물다.\
+ARP Table은 cached IP-MAC mapping으로, 이전에 ARP Request를 통해서 알게된 IP-MAC Mapping을 저장한다.
+
+---
+
+# Load Balancing in Layer 4 VS Layer 7
+* Layer 4 Load-balancing
+Transport Layer는 IP, PORT에 대한 정보를 다룬다\
+따라서 Layer 4 Load Balancer는 Transport Layer에서 Request의 Source, Destination의 IP, PORT를 각각 Load Balancer와 Destination으로 바꿔서 전달한다.\
+
+**클라이언트/로드밸런서 -> 로드밸런서/서버**
+
+로드밸런스 방식이 간단하며, 데이터를 decrypt하지 않으므로 더 효율적이고 안전할 수 있다. 그리고 하나의 TCP Connection을 사용한다.\
+하지만 데이터에 따른 Load Balancing이 불가능하다. 따라서 Micro Service Architecture에 적합하지 않다. 또한 만약 Request가 Segmentation되어 있다면 이를 설정해주는 로직이 필요하다. Caching이 불가능하다.
+
+* Layer 7 Load-balancing
+Application Layer에서 동작하므로, Request의 데이터를 읽을 수 있다.\
+클라이언트로부터 Request를 수신하고 새로운 Request를 서버로 전송한다.\
+서버로부터 응답을 받으면 그 응답을 클라이언트로 전달한다.\
+(내가 만든 로드밸런서가 이 역할을 하는 Reverse-Proxy이다.)
+
+데이터에 접근할 수 있으므로, smart load balancing이 가능하며, caching 역시 가능하다. 앞의 이유로 micro service에 적합하다.\
+리소스 expensive하다. 데이터를 decrypt하기위해 certificate을 가지고 있어야한다.(TLS를 사용하는 경우) 새로운 TCP Connection을 생성한다.
+
+---
+
+
