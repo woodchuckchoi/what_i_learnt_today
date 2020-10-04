@@ -95,4 +95,18 @@ IP Layer는 (호스트의 네트워크에 목표가 직접 연결된 상태가 �
 
 ---
 
+# ARP
+## Introduction
+IP는 TCP/IP Protocol에서 사용되지만 Data Link Layer의 Ethernet이나 Token Ring은 고유의 주소 Scheme을 사용한다.\
+이 전환을 위해서 32bit Internet Address를 48bit Ethernet Address 등으로 ARP를하며, 그 반대 전환을 RARP를 사용한다.\
+ARP에 대한 데이터에 접근하기 위해서 arp command를 사용한다.
 
+## ARP Cache
+매 Request에 생기는 ARP Request의 Overhead를 줄이기 위해서 클라이언트는 IP-MAC (Physical Address)의 Mapping Cache를 생성한다.
+
+## Proxy ARP
+Proxy ARP를 설정하면 Router가 해당 네트워크 안의 Host 대신 ARP Request에 응답한다. Router가 클라이언트의 Request를 Host에 전달하는 Proxy의 역할을 하는 것이다.
+
+---
+
+# RARP
