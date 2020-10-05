@@ -516,4 +516,24 @@ Whatsapp의 경우 한 서버에서 삼백만 Connection을 다룸.\
 Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy가 클라이언트의 역할을 하기 때문에, 문제가 생길 수 밖에 없음(소켓을 사용한 Layer4 Proxy의 경우)\
 해결책으로 Proxy/Reverse Proxy가 HTTP2를 사용하게 한다.(Eg. Envoy Proxy) Connection 안에서 많은 Stream을 생성하여 백과 통신하게 한다.\
 
+---
+
+# Signal
+프로세스에게 어떤 조건/이벤트의 발생을 알리는데 사용되는 테크닉\
+예를 들어 프로세스가 division by 0를 실행하면 SIGFPE signal이 해당 프로세스에 전달된다.\
+시그널을 전달받은 프로세스는 아래 세 가지 방식으로 시그널에 대처한다.
+
+1. 시그널을 무시한다.
+2. Default 행동을 실행한다. 예를 들어 division by 0의 default action은 프로세스를 죽이는 것이다.
+3. 시그널을 catch할 함수를 제공한다.
+
+일반적으로 kill 명령어를 사용하여 프로세스에 시그널을 전달할 수 있으며, Ctrl\+C 같은 interrupt key 역시 시그널이다.
+
+---
+
+# System Call VS Kernel
+모든 운영체제는 프로그램이 Kernel에 명령을 전달하도록 서비스 포인트를 제공한다.\
+유닉스 기반의 운영체제에서 이러한 서비스 포인트를 System Call이라고 부르며 C로 커널 명령어 - C 함수가 1대 1로 매칭되도록 짜여져 있다.\
+일반적인 라이브러리 함수와 시스템 콜의 차이는 라이브러리는 대체할 수 있는 반면, 시스템 콜은 (일반적으로) 대체할 수 없다는 점이다.\
+예를 들어 메모리 할당을 위한 malloc은 다른 방법으로 대체될 수 있지만, UNIX System Call인 sbrk(2)는 대체할 수 없다.
 

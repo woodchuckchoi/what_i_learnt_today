@@ -109,4 +109,12 @@ Proxy ARP를 설정하면 Router가 해당 네트워크 안의 Host 대신 ARP R
 
 ---
 
-# RARP
+# ICMP
+## Introduction
+ICMP(Internet Control Message Protocol)는 Network Layer(IP)의 일부로 여겨지지만, IP Layer와 Transport Layer(TCP/UDP) 모두에서 동작한다.\
+데이터가 지정된 목적지에 시간 내 도착하는지 측정하는 것과 같이, 네트워크 장비에 의해 네트워크 통신 이슈를 진단하는데 사용된다.
+
+## Message Types
+ICMP Message의 type, code field를 통해서 메세지 타입이 결정된다.
+
+---
