@@ -583,7 +583,15 @@ Descriptor가 non-blocking 모드일 때, 해당 descriptor에 대한 IO system 
 * entire result: IO 전체가 완전히 수행될 수 있을 때
 
 descriptor는O\_NONBLOCK flag를 설정함으로써 non-blocking 모드로 열린다.\
-descriptor는 IO operation을 블록없이 수행할 수 있을 때, ready 상태로 여겨진다.\
+descriptor는 IO operation을 블록없이 수행할 수 있을 때, ready 상태로 여겨진다.
+
+---
+
+# Edge Trigger VS Level Trigger (Simple)
+* Level Trigger: 언제든 fd가 read-available하다면 이벤트를 받는다.
+* Edge Trigger: fd가 read-available하게 된 순간 이벤트를 받는다.
+ET-System에서는 fd가 available하지 않다가 available하게 된 순간 이벤트를 받는다. 제공받은 이벤트에서 일부분을 읽었다면, (아직 읽지 않은 부분이 있어도) 이벤트를 다시 전달받지 않는다. 모든 데이터를 읽고 다른 데이터가 fd에 전송되었다면 그 때 다시 이벤트를 전달받는다.\
+반면 LT에서는 데이터가 available 할 때는 언제나 이벤트를 전달받는다.
 
 ---
 
