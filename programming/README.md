@@ -554,3 +554,36 @@ Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy�
 * Write Tests, TDD에 따른 코딩이 더 나은 코드를 만든다.
 
 ---
+
+# Nonblocking I/O
+프로세스는 File Descriptor를 통해서 Pipe, File, Event Queue 등의 I/O를 참조한다. 데이터의 전달은 모두 Descriptor의 read/write를 통해 이뤄지기 때문에 이에 대한 이해가 중요하다.\
+이러한 Descriptor는 부모 프로세스로부터 상속받거나 open, pipe, socket과 같은 system call을 통해서 생성한다.\
+생성된 Descriptor는 아래와 같은 상황에서 release된다.
+1. 프로세스 exit
+2. close system call 호출
+3. descriptor가 close on exec로 설정되었을 경우 exec system call 후 implicitly
+
+프로세스가 fork를 하면 모든 descriptor는 복사되어 child에게 전달된다.\
+만약 어떠한 descriptor가 close-on-exec으로 설정되었다면 부모가 fork를 호출하고, 자식이 exec되기 전에 자식에게 전달된 descriptor는 close되고, 따라서 자식은 해당 descriptor를 사용할 수 없게 된다.\
+Descriptor는 File Entry라는 데이터구조를 가르키며, open system call이 새로운 file entry를 생성한다.\
+Fork system call을 사용할 경우 부모와 자식 프로세스는 descriptor를 share by reference 형태로 공유한다.\
+이렇듯 여러 file descriptor가 한 file entry를 공유할 수 있으므로, file entry는 각각의 file descriptor를 위한 file offset(cursor의 위치)를 기억해야 한다.
+
+File Entry는 아래와 같은 데이터를 포함한다.
+* 타입
+* 함수 포인터들의 배열 (fd에 대한 ops를 file-specific으로 전환한다.)
+
+기본적으로 어떠한 descriptor에 read, write, send를 할 경우 데이터가 없다면 block이 된다. disk files를 제외한 fd에 대한 대부분의 ops는 block된다. (disk files의 경우 kernel buffer cache를 통해서 이루어지기 때문에 block되지 않는다.)\
+disk write이 sync하게 작동할 때는 disk file을 open시 O\_SYNC flag가 주어졌을 때이다.\
+Pipe, FIFO, socket을 포함한 모든 descriptor는 nonblocking mode로 사용될 수 있다.\
+Descriptor가 non-blocking 모드일 때, 해당 descriptor에 대한 IO system call은 즉시 완수할 수 없더라도 바로 return된다.\
+이 때 반환되는 값은 아래 중 하나이다.
+* error: ops가 전혀 수행될 수 없을 때
+* partial count: ops가 일부분 수행될 수 있을 때
+* entire result: IO 전체가 완전히 수행될 수 있을 때
+
+descriptor는O\_NONBLOCK flag를 설정함으로써 non-blocking 모드로 열린다.\
+descriptor는 IO operation을 블록없이 수행할 수 있을 때, ready 상태로 여겨진다.\
+
+---
+
