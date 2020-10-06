@@ -537,3 +537,20 @@ Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy�
 일반적인 라이브러리 함수와 시스템 콜의 차이는 라이브러리는 대체할 수 있는 반면, 시스템 콜은 (일반적으로) 대체할 수 없다는 점이다.\
 예를 들어 메모리 할당을 위한 malloc은 다른 방법으로 대체될 수 있지만, UNIX System Call인 sbrk(2)는 대체할 수 없다.
 
+---
+
+# Simple Rules of Cleaner Code
+* Variable의 이름을 명확하게 짓는다.
+
+	int e; // elapsed time in days
+	int elapsed_time_in_days; // 명확한 변수의 이름
+
+* Comment에 의지하는 것보다 코드를 한 눈에 알아볼 수 있도록 짜는 게 중요하다.
+
+* Boyscout Rule, Code를 처음 접했을 때 보다 더 clean하게 만들어야한다.
+
+* Single Responsibility, it does one thing well, and it only does that thing.
+
+* Write Tests, TDD에 따른 코딩이 더 나은 코드를 만든다.
+
+---
