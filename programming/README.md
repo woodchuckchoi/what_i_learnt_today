@@ -595,3 +595,13 @@ ET-System에서는 fd가 available하지 않다가 available하게 된 순간 �
 
 ---
 
+# FILE I/O in UNIX
+UNIX 시스템에서 대부분의 file io는 open, read, write, lseek, close 5개의 함수로 수행할 수 있다.\
+프로세스는 process table entry에 fd와 file pointer를 저장하고, file pointer는 다시 file table entry에 있는 file status flags, current file offset, v-node pointer를 가리킨다. 여기서 v-node는 i-node를 i-node는 v-node를 가리킨다.\
+만약 서로 다른 두 프로세스가 한 파일을 open한다면, 서로 다른 file table entry가 같은 v-node table entry를 가리키는 방식으로 실행된다.\
+dup, dup2 함수를 통해서 기존의 fd를 복사할 수 있다. 이렇게 복사된 fd는 같은 프로세스에서 하나의 file table entry를 공유한다. 이것은 fcntl을 F\_DUPFD를 사용하여 같은 결과를 낼 수 있다.\
+*fcntl은 두 번의 함수 호출이 필요하지만, dup은 atomic하다. 따라서 컨텍스트 스위치 등으로부터 안전하게 프로세스가 진행된다.*
+
+---
+
+# I-NODE VS V-NODE
