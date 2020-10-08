@@ -605,3 +605,35 @@ dup, dup2 함수를 통해서 기존의 fd를 복사할 수 있다. 이렇게 �
 ---
 
 # I-NODE VS V-NODE
+V-node는 모든 파일 시스템에 대해서 추상화를 제공하여 커널이 모든 파일시스템을 지원하지 않아도 OS가 해당 파일시스템과 상호작용 할 수 있도록 돕기위해 만들어졌으며 In-memory에 저장된다. 또한 V-node에 저장되는 정보는 파일에 대한 정보를 저장하지만, 파일의 lifespan에 변경되지 않는 데이터만 저장한다.(inode에 대한 정보 등)\
+반면 I-node는 on-disk에 저장되며, 사용되는 파일 시스템에 종속된다. Inode는 파일 사이즈, 소유자, 파일의 물리적  주소(포인터) 등 파일에 대한 메타데이터를 포함한다.
+
+---
+
+# Hard Link VS Symbolic Link
+파일 시스템의 파일은 기본적으로 inode를 가리키는 링크이다.\
+하드링크는 original 파일이 가리키는 inode를 가리키는 새로운 파일이다. 같은 file system 안에서만 유효하다.\
+따라서 하드링크는 original의 데이터가 바뀌어도, 위치가 바뀌어도, 심지어 original이 삭제되어도 원래 inode가 가리키는 데이터를 보존한다.(original을 수정하면 hard 역시 수정된다. 모든 링크가 삭제되기 전에는 inode는 삭제되지 않는다.)\
+반면 심볼릭 링크는 파일시스템의 다른 파일 이름에 대한 링크이다.\
+따라서 original의 이름이 바뀌면 심볼릭 링크는 더 이상 해당 파일을 가리키지 못한다. inode가 아닌 다른 파일의 이름을 가리키므로, 다른 file system 안에서도 동작한다.
+
+---
+
+# Files and Directory in UNIX
+* Regular File: 가장 일반적인 파일 타입. 데이터의 형태가 텍스트/바이너리인지에 대한 구분이 없다. 데이터에 처리는 Application에 따라 다르다. Binary Executable인 경우에는 커널이 인식할 수 있는 format을 따른다.
+* Directory File: 다른 파일들의 이름과 정보에 대한 포인터를 포함한 **파일**
+* Block Special File: 디스크 드라이브 등의 device에게 buffered I/O를 제공하는 파일 형식
+* Character Special File: device에게 unbuffered I/O를 제공하는 파일 형식. 모든 device는 block special 혹은 character special file 중 하나이다.
+* FIFO: 프로세스간의 communocation에 사용되는 파일의 타입. Pipe라고 불리기도 한다.
+* Socket: 프로세스 사이의 네트워크 통신에 사용되는 파일 타입.
+* Symbolic Link: 다른 파일을 가리키는 파일 타입.
+POSIX는 message queue, semaphore, shared memory object 같은 IPC\(interprocess communication\) 객체도 파일 타입으로 명시해두었지만, UNIX System implementation에 따라 IPC 객체를 실제로 file로 나타내는지는 다르다.
+
+어떠한 파일을 파일 이름을 통해서 열 때, 항상 이름에 포함되어 있는 모든 dir에 execute 권한을 가지고 있어야된다.\
+하지만 디렉토리에서 read와 execute 권한은 서로 다르다.\
+read 권한은 directory를 읽고 dir내의 모든 파일이름을 읽는데 사용되며, execute 권한은 directory 내에서 활동을 가능하게 한다.(rw-인 경우에는 ls 허용, cd dir 불가/ -wx인 경우에는 cd dir 허용, ls 불가/ write를 위해서는 w와 x 모두 필요)\
+sticky bit을 설정하면 첫 실행 후 파일을 swap area에 복사하여 보관한다. 일반적인 UNIX file system의 랜덤한 데이터 블록에 저장되는 성질과는 반대로 swap area의 파일들은 연속적인 파일로 인식되므로 더 빠르게 실행할 수 있다. sticky bit은 유닉스 시스템의 버젼이 높아지면서 saved-text bit(svtx)로 이름이 바뀌게 되었으며, virtual memory system과 효율적인 file system 덕분에 saved-text bit은 자주 사용되지 않게 되었다.\
+최근에는 sticky bit을 dir에 설정하게 되면 dir내의 파일은 사용자가 dir에 대해 쓰기 권한을 가지고 있으며, 파일의 owner이거나, dir의 owner이거나, root 일때만 지우거나 rename 할 수 있는 설정이  추가되었다.\
+
+
+
