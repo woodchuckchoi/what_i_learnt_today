@@ -633,7 +633,19 @@ POSIX는 message queue, semaphore, shared memory object 같은 IPC\(interprocess
 하지만 디렉토리에서 read와 execute 권한은 서로 다르다.\
 read 권한은 directory를 읽고 dir내의 모든 파일이름을 읽는데 사용되며, execute 권한은 directory 내에서 활동을 가능하게 한다.(rw-인 경우에는 ls 허용, cd dir 불가/ -wx인 경우에는 cd dir 허용, ls 불가/ write를 위해서는 w와 x 모두 필요)\
 sticky bit을 설정하면 첫 실행 후 파일을 swap area에 복사하여 보관한다. 일반적인 UNIX file system의 랜덤한 데이터 블록에 저장되는 성질과는 반대로 swap area의 파일들은 연속적인 파일로 인식되므로 더 빠르게 실행할 수 있다. sticky bit은 유닉스 시스템의 버젼이 높아지면서 saved-text bit(svtx)로 이름이 바뀌게 되었으며, virtual memory system과 효율적인 file system 덕분에 saved-text bit은 자주 사용되지 않게 되었다.\
-최근에는 sticky bit을 dir에 설정하게 되면 dir내의 파일은 사용자가 dir에 대해 쓰기 권한을 가지고 있으며, 파일의 owner이거나, dir의 owner이거나, root 일때만 지우거나 rename 할 수 있는 설정이  추가되었다.\
+최근에는 sticky bit을 dir에 설정하게 되면 dir내의 파일은 사용자가 dir에 대해 쓰기 권한을 가지고 있으며, 파일의 owner이거나, dir의 owner이거나, root 일때만 지우거나 rename 할 수 있는 설정이  추가되었다.
+
+---
+
+# Standard I/O
+Buffering은 세가지로 분류할 수 있다.
+* Fully Buffered: Disk의 파일들은 일반적으로 Standard IO Lib에 의해 fully buffered 된다. Buffer는 Standard IO function인 malloc을 통해서 설정된다. Buffer의 write는 flush에 의해서 결정된다. Standard IO Lib에서 flush는 buffer의 내용을 write하는 것이지만, terminal driver에서는 buffer의 내용을 버린다.
+* Line Buffered: Input 혹은 Output에서 \\n(newline char)이 발생하면 IO를 수행한다. Line Buffer는 주로 터미널과 연결되었을 때, stdin, stdout, stderr 등에 사용된다. 하지만 Line Buffer의 크기가 fixed 되어있으므로 \\n를 만나기 전에 IO가 실행될 수도 있다.
+* Unbuffered: Standard IO Lib이 buffer를 수행하지 않는다. fputs에 string을 입력하면, buffer없이 write function을 통해서 바로 데이터가 출력된다.
+
+*terminal devices = line buffered, unbuffered = stderr*
+
+---
 
 
 
