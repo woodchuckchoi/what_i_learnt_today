@@ -388,4 +388,26 @@ Application Layer에서 동작하므로, Request의 데이터를 읽을 수 있�
 
 ---
 
+# ALPN is critical for HTTP/2 Backends
+HTTP2를 지원하지 않는 서버에 HTTP/2 Request를 보내면 fail!\
+클라이언트는 HTTP/1로 다시 Request를 보내지만, 이미 시간/리소스의 낭비이다.\
+그렇다면 "HTTP/2 Request를 요청하고, 만약 서버가 HTTP/2를 지원하지 않는다면 HTTP/1 Response를 요청한다."를 어떻게 효율적으로 나타낼 수 있는가?\
+이 때 사용되는 것이 ALPN(Application Layer Protocol Negotiation)이다.\
+TCP Handshake 후, TLS Handshake가 진행될 때(CA로부터 공개키를 건네 받고, 대칭키를 만들어서 서버에게 돌려줄 때) HTTP/2로 통신을 원하고, 만약에 지원하지 않는다면 HTTP/1로 통신을 할 것임을 알린다.\ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
