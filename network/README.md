@@ -395,19 +395,10 @@ HTTP2를 지원하지 않는 서버에 HTTP/2 Request를 보내면 fail!\
 이 때 사용되는 것이 ALPN(Application Layer Protocol Negotiation)이다.\
 TCP Handshake 후, TLS Handshake가 진행될 때(CA로부터 공개키를 건네 받고, 대칭키를 만들어서 서버에게 돌려줄 때) HTTP/2로 통신을 원하고, 만약에 지원하지 않는다면 HTTP/1로 통신을 할 것임을 알린다.\ 
 
+---
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Chromium supports HTTP/3!
+크롬이 HTTP/3 지원을 시작했다.\
+크롬 내부적으로 어떤 방식으로 작동하는지는 아직 모르겠으나, ALPN을 DNS에 적용하고있다고 한다.\
+그래서 google.com에 접속하겠다고하면, DNS가 google은 udp를 쓴다고 알려주고 브라우저는 자연스럽게 tcp가 아닌 udp를 사용하는 것이다.\
+google은 이미 상당 부분을 HTTP/3로 포팅한 상태이다.\
