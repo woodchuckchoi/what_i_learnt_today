@@ -401,4 +401,8 @@ TCP Handshake 후, TLS Handshake가 진행될 때(CA로부터 공개키를 건�
 크롬이 HTTP/3 지원을 시작했다.\
 크롬 내부적으로 어떤 방식으로 작동하는지는 아직 모르겠으나, ALPN을 DNS에 적용하고있다고 한다.\
 그래서 google.com에 접속하겠다고하면, DNS가 google은 udp를 쓴다고 알려주고 브라우저는 자연스럽게 tcp가 아닌 udp를 사용하는 것이다.\
-google은 이미 상당 부분을 HTTP/3로 포팅한 상태이다.\
+google은 이미 상당 부분을 HTTP/3로 포팅한 상태이다.
+
+---
+
+
