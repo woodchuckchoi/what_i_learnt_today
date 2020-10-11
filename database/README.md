@@ -26,6 +26,33 @@ Database에 저장된 데이터에 접근하는데에는 탐색 시간 + 회전 
 데이터가 많아지면 Query에 시간이 많이 소요되므로 Table에서 한 개 이상의 속성을 이용하여 Index를 설정한다. Binary Tree 형태로 이루어진 Index를 설정하면 검색이 빠르고 효율적으로 레코드를 관리할 수 있다. Index는 WHERE와 JOIN에서 자주 등장하는 속성일 때 효과적이다. 하지만 Table에 Index가 너무 많다면 오히려 Index 추가, 정리 등의 Overhead가 발생해서 효율이 낮아질 수 있다. 따라서 적당한 수의, 가공하지 않는 Domain을 Index로 설정하는 것이 중요하다.\
 Index를 선택할 때는 위의 조건들을 이용하여 직접 선택하거나, InnoDB 등의 DB 엔진에서 제공하는 Optimizer를 사용하여 Indexing을 한다.
 
+* In Depth
+일반적으로 B-Tree와 LSM-Tree로 인덱스를 설정한다.\
+Index와 Table은 서로 다른 data structure로 서로 다른 곳에 저장된다.\
+
+	// describe test;
+	// id INT AUTO INCREMENT NOT NULL PRIMARY KEY // PRIMARY KEY는 Index로 설정된다.
+	// name VARCHAR(10) NOT NULL 
+	
+	select id from test where id = 1;
+	// 위의 query는 index인 id를 찾은 후, 해당 index value를 반환하므로 소요되는 시간이 적다.
+	
+	select name from test where id = 1;
+	// 위의 query는 index인 id를 찾은 후, table을 뒤져 id = 1인 tuple의 n번째 object인 name을 찾아 반환하므로 시간이 상대적으로 오래 걸린다.
+	
+	select name from test where id = 1;
+	// 위의 query는 db가 query를 인식하고, cache에 저장되어있는 데이터를 불러오므로 소요되는 시간이 적다.
+	
+	select id from test where name = 'test';
+	// index가 아닌 name column을 조건절로 주었기때문에, 모든 데이터에 대해서 sequential search를 수행한다. 시간이 아주 오래 걸린다.
+	
+	create index INDEX NAME on TABLE(COLUMN);
+	// index를 설정한다. 위의 예시에 해당하는 예는 create index test_name on test(name);이다. DB는 내부적으로 b tree(default)를 사용한다.
+	
+	select id, name from test where name = 'new test';
+	// index가 없는 table보다 훨씬 더 빠른 속도를 보인다. 하지만 int형 unique인 PRIMARY KEY id를 조건절로 주는 query보다는 느리다. 또한 일반적으로 PRIMARY KEY는 다른 index와 함께 저장되는 경우가 많으므로, id와 name을 출력하는 것은 다른 column을 query하는 것보다 훨씬 더 빠를 것이다.
+	
+
 ---
 
 # Transaction
