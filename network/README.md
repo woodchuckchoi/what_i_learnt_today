@@ -426,11 +426,29 @@ TLS를 대체할 QUIC의 Transport Layer에서의 보안은 기존의 three-way 
 	CLIENT		HTTP Request->		SERVER
 	CLIENT		<-HTTP Response		SERVER
 
+* HTTP/2와 마찬가지로 Stream을 추가 (Tranport Layer에서 처리)
+
 * Head-of-line Blocking
 HTTP/2에 있던 Transport Layer의 head-of-line blocking 제거
 
+* Connection 개념을 접목
+
+* Reliability
+
 * NAT Gateway에서의 단점
 NAT Router는 아직 QUIC 프로토콜과 호환되지 않는 경우가 많음
+
+*Method, headers, body 등 HTTP의 req, res 구성은 동일하게 가져가지만, binary data over multiplexed QUIC이라는 점에서 HTTP1(ASCII over TCP), HTTP2(binary multiplexed over TCP)와 차이를 보인다.*
+
+따라서 HTTP3는 아래의 모델로 구성된다.
+
+	HTTP/3
+	QUIC(+TLS 1.3)	// Stream을 담당, HTTP/2는 Application Layer에서 Stream을 담당
+	UDP
+	IP
+
+단점은 3-7%의 QUIC 통신은 실패하는 것으로 보이며, 이에 대한 fallback이 필요함\
+Linux에서 UDP의 optimization이 되어있지 않아서 2~3배의 CPU 사용량을 보인다.
 
 ---
 
@@ -477,3 +495,10 @@ Explorer를 제외한 브라우져들은 두 cookie를 혼용 가능하며, expl
 
 ---
 
+# alt-svc VS ALPN
+내 답변
+Depending on what you want, 'alt-svc' header might do. 
+At first, I thought you meant a TCP client (web-browser) trying to connect to a UDP server. Which doesn't work. But I just realised there is another scenario, in which a TCP client (web-browser) connects to a TCP server, then the server responds with some 'alt-svc' headers, such as 'alt-svc: h3-Q050=":443"; ma=2592000'. This header triggers the client's web-browser to try to connect to the host using the given protocol and port.
+
+
+I'm not sure whether this can be considered ALPN, since this alt-svc header is included in the application-data(response), not in one of those TLS handshake messages. Anyway, it does the job. If you want to know more about it, check out RFC7301, RFC7639.
