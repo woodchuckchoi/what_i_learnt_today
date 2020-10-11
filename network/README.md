@@ -405,4 +405,75 @@ google은 이미 상당 부분을 HTTP/3로 포팅한 상태이다.
 
 ---
 
+# QUIC
+* Built-in Security
+TLS를 대체할 QUIC의 Transport Layer에서의 보안은 기존의 three-way handshake를 포함한다. 하지만 TCP/TLS1.3과는 다르게 1번의 round-trip으로 완성된다.\
+
+	// TCP + TLS HTTP Request
+	CLIENT		TCP SYN->			SERVER
+	CLIENT		<-TCP SYN + ACK		SERVER
+	CLIENT		TCP ACK->			SERVER
+	CLIENT		TCP ClientHello->	SERVER
+	CLIENT		<-TCP ServerHello	SERVER
+	CLIENT		TCP Finished->		SERVER
+	CLIENT		HTTP Request->		SERVER
+	CLIENT		<-HTTP Response		SERVER
+	
+	// QUIC HTTP Request
+	CLIENT		QUIC->				SERVER
+	CLIENT		<-QUIC				SERVER
+	CLIENT		QUIC->				SERVER
+	CLIENT		HTTP Request->		SERVER
+	CLIENT		<-HTTP Response		SERVER
+
+* Head-of-line Blocking
+HTTP/2에 있던 Transport Layer의 head-of-line blocking 제거
+
+* NAT Gateway에서의 단점
+NAT Router는 아직 QUIC 프로토콜과 호환되지 않는 경우가 많음
+
+---
+
+# Cookie
+## Creating Cookies
+1. JS - Document.cookie를 통해서 mapping
+2. Web Server - Set-cookie header를 통해서 browser가 server 대신 cookie를 설정
+
+## Cookie Properties
+1. Sent with every request
+2. Cookie Scope
+
+	// Domain
+	document.cookie = "test=test; domain=.test.com;";
+	// 위 코드는 .test.com과 패턴 매칭되는 모든 도메인에 test=test 쿠키를 설정한다.
+	
+	// Path
+	document.cookie = "test=test; path=/testpath";
+	// 위 코드는 코드의 path와 접근하는 웹페이지의 path가 같을 때에 쿠키를 설정한다.
+
+3. Expires, Max-age
+Browser Process가 종료되면 사라지는 Session Cookie VS Browser를 종료하고 다시 실행해도 유지되는 Permanent Cookie를 구분하는 cookie\
+expires는 cookie가 만료될 날짜를, max-age는 만료될 때까지의 시간을 millisecond로 환산해서 입력받는다.\
+Explorer를 제외한 브라우져들은 두 cookie를 혼용 가능하며, explorer는 expires만 인식한다.\
+일반적으로 max-age를 사용한다.
+
+4. Same site
+과거에는 cookie에 session이 저장된 상태에서 3rd party에서 링크를 통해서 다른 도메인에 request를 보내는 형태의 해킹을 할 수 있었다. -> CORS를 통해서 block!\
+하지만 cookie에서도 samesite=strict를 통해서 같은 사이트에 접속할 때만 쿠키를 설정하도록 할 수 있다.
+
+## Cookie Types
+* (Session Cookie)[#cookie-properties]
+* (Permanent Cookie)[#cookie-properties]
+* Httponly Cookie - httponly; 를 포함하여 document.cookie로부터 접근할 수 없는 쿠키, browser가 document.cookie에게 해당 쿠키를 보여주지 않고 보관하다가 server에 제공.
+* Secure Cookie - secure flag를 사용하여 HTTPS scheme에게만 해당 쿠키 제공
+* Third Party Cookie - 다른 도메인에서 설정하는 쿠키, SOP object의 src에서 쿠키를 설정할 수도 있다. 이 경우에는 다른 도메인으로 쿠키를 건네주는 tracking이 가능하다. 실제로 ads, statistics에서 주로 사용한다.
+* Zombie Cookie - 쿠키를 삭제하더라도 스스로 재생성하는 쿠키. 일반적으로 쿠키를 삭제하고 같은 도메인에 재접속할 때, 기존의 세션은 없어져야하지만, 쿠키가 아닌 다른 정보(connection, indexed db, etag 등)을 통해서 사용자를 인식하고 다시 같은 쿠키를 제공할 경우, 이를 Zombie cookie라고 한다.
+
+*e-tags: 클라이언트가 서버에 request를 보냈을 때, 서버는 etag를 생성하여 client에 전달한다. 쿠키와 동일한 기능을 수행하지만 쿠키와 다른 형태로 저장된다.*
+
+## Cookie Security
+* Stealing Cookie - document.cookie를 읽고 이 쿠키를 다른 서버에 전송
+* Cross Site Request Forgery - A 도메인에서 B.com/transfer?account=someone%amount=999999 와 같은 방식으로 사용자의 쿠키를 사용
+
+---
 
