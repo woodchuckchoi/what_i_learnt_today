@@ -647,5 +647,24 @@ Buffering은 세가지로 분류할 수 있다.
 
 ---
 
+# ABC(Abstract Class) in Python
+상속받는 다른 class를 위한 blueprint.\
+동일한 API를 여러 interface에 적용하기위해서 사용된다.
+
+	import abc
+	class Thing(metaclass=abc.ABCMeta):
+		@abc.abstractmethod
+		def test(self):
+			pass
+	
+	>>> a = Thing()
+	Traceback (most recent call last):
+	  File "<stdin>", line 1, in <module>
+	TypeError: Can't instantiate abstract class Thing with abstract methods test
+
+위에서는 test 메소드를 implement하지 않은 abstract class인 Thing을 직접 사용하려했으므로 런타임 에러가 발생한다.
+
+---
+
 
 
