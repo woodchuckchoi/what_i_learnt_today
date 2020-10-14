@@ -41,7 +41,8 @@ ISR이 종료되면 원래의 대기상태 또는 사용자 프로그램으로 �
 따라서 사용자 프로그램은 STOP등 치명적인 명령을 사용할 수 없도록 사용자(user) 모드와 관리자(supervisor/previleged) 모드를 분리한 것이 이중 모드이다.
 
 CPU의 구성요소인 Register, ALU, CU 중에 Register는 Carry, Negative, Zero, Overflow 등의 flag를 가진다. 여기에 하나의 flag를 더 추가하여 previleged mode / user mode를 구분한다.\
-운영체제의 서비스를 실행할 때는 privileged mode에서, 사용자 프로세스를 실행할 때는user mode에서 동작한다. 사용자 프로세스가 OS에 Software Interrupt를 g혹은 하드웨어가 Interrupt를 보내면, OS가 프로세스의 주도권을 가져오고, CPU의 user mode flag는 true값을 가진다. OS가 작업을 수행한 후, 다시 사용자 프로세스를 실행할때는 user mode flag가 false가 된다.
+운영체제의 서비스를 실행할 때는 privileged mode에서, 사용자 프로세스를 실행할 때는user mode에서 동작한다. 사용자 프로세스가 OS에 Software Interrupt를 g혹은 하드웨어가 Interrupt를 보내면, OS가 프로세스의 주도권을 가져오고, CPU의 user mode flag는 true값을 가진다. OS가 작업을 수행한 후, 다시 사용자 프로세스를 실행할때는 user mode flag가 false가 된다.\
+이와 같이 운영체제는 각 리소스를 보호한다.
 
 ## 입출력장치 보호, 메모리 보호, CPU 보호
 
@@ -57,7 +58,63 @@ Modern 컴퓨터에서는 메인 메모리에 하나의 프로그램이 아닌 O
 
 다른 메모리 영역을 침범할 때 Segmentation Error를 나타낸다.
 
-* 
+* CPU 보호
+한 사용자가 실수 또는 고의로 CPU 시간을 독점하는 경우 다른 사용자의 프로그램을 실행 할 수 없는 상태가 된다.\
+따라서 OS에 Timer를 두어서 일정 시간 경과 시 Timer가 Interrupt 하도록 한다.\
+Interrupt된 운영체제는 CPU 작업을 다른 프로그램으로 강제로 전환한다.
+
+---
+
+# 운영체제 서비스
+OS는 Application이 요구하는 HW 리소스를 효율적으로 나눌 수 있게 해준다.\
+* Process Management - CPU 자원을 관리
+* Main Memory Management - 메인 메모리를 관리
+* File Management - 하드디스크 내의 파일을 관리
+* IO Management - IO 장치를 관리
+* Networking - 네트워크 관리
+* Protection - IO, 메모리, 프로세서 보호를 관리
+등의 여러 서비스를 제공한다.
+
+## Process Management
+프로세스는 메모리에서 실행 중인 프로그램을 가리킨다.\
+주요 기능은 아래와 같다.
+
+1. 프로세스의 생성, 소멸
+2. 프로세스 활동 일시 중단, 재개
+3. 프로세스간 통신(IPC)
+4. 프로세스간 동기화
+5. 교착상태 처리
+
+## Main Memory Management
+1. 프로세스에 메모리 할당
+2. 메모리 추적 및 감시
+3. 메모리 회수
+4. 메모리 효과적 사용
+5. 가상 메모리 관리
+
+## File Management
+Track과 Sector로 구성된 디스크를 파일로 추상화
+1. 파일의 생성과 삭제
+2. 디렉토리 생성과 삭제
+3. open, close, read, write 등 기본 동작 지원
+4. Track, Sector와 File의 매핑
+5. 백업
+
+## Secondary Storage Management
+하드디스크, 플래시 메모리등 보조기억장치를 관리
+1. 빈 공관 관리
+2. 저장공간 할당
+3. 디스크 스케쥴링
+
+## IO Device Management
+1. Device Driver 관리
+2. IO Device 성능 향상: buffering, caching, spooling
+
+---
+
+## System Call
+운영체제 서비스를 받기 위한 호출\
+인터럽트는 CPU(프로세서)와 OS Kernel 사이에서 전달되며, 시스템 콜은 프로세스와 OS Kernel 사이에서 전달된다.\
 
 
 
