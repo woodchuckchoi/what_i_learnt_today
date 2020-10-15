@@ -116,6 +116,33 @@ Track과 Sector로 구성된 디스크를 파일로 추상화
 운영체제 서비스를 받기 위한 호출\
 인터럽트는 CPU(프로세서)와 OS Kernel 사이에서 전달되며, 시스템 콜은 프로세스와 OS Kernel 사이에서 전달된다.\
 
+---
+
+# Process
+Process는 Program in Execution, 하드디스크에 저장되어있는 프로그램을 메모리에 탑재해서 실행되는 상태를 뜻한다.\
+프로세스의 상태는 아래와 같다.
+
+* New - 하드디스크의 프로그램이 메모리에 적재된 상태
+* Ready - CPU에서 실행할 준비 완료, New 혹은 Waiting을 거쳐 Ready 된다. Time Sharing 시스템일 경우 Running에서 Ready가 될 수도 있다.
+* Running - CPU가 실행 중인 프로세스의 상태
+* Waiting - CPU가 IO 혹은 다른 프로세스를 실행하는 동안 기다리는 프로세스의 상태
+* Terminated - 프로세스 종료
+
+## PCB(Process Control Block)
+하나의 프로세스에는 한 개의 PCB가 할당되어 프로세스에 대한 모든 정보를 저장한다.\
+저장되는 정보는 아래와 같다.
+
+* 프로세스의 상태
+* 프로세스 카운터 - CPU가 프로세스를 실행하는 순서를 저장
+* MMU - CPU가 접근 가능한 메모리의 범위를 명시
+* PID - Process의 ID
+* Open Files - 프로세스가 open한 파일들의 집합을 저장
+
+프로세스가 동작하는 거의 모든 행동은 Queue를 통해서 순서에 따라 처리된다.\
+Queue를 통해서 순서를 지정하는 Job Scheduler는 OS의 Process Management에서 돌아간다.\
+Job Scheduler가 지정한 Queue를 항상 순서대로 실행하지는 않는다.(Long-term Scheduler) CPU Scheduler가 어떤 프로세스를 CPU가 먼저 실행할지를 정한다.(Short-term Scheduler)\
+ Medium-term Scheduler는 Swapping을 통해서 현재 메모리에 탑재된 프로세스 중 사용되지 않는 프로세스를 리소스를 효과적으로 사용하기 위해 디스크에 보관한다.
+
 
 
 
