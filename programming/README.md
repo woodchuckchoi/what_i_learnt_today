@@ -666,5 +666,33 @@ Buffering은 세가지로 분류할 수 있다.
 
 ---
 
+# Python Super and List Comprehension Imcompatibility
+
+	class Base:
+		def __init__(self):
+			# do something
+	
+	class Child(Base):
+		def __init__(self):
+			super().__init__()
+			# do something
+
+위의 코드에서 Child는 super()를 통해서 Base를 상속받는다. 이때 super는 아무런 parameter가 필요하지 않다. 왜냐하면 인터프리터는 super가 있는 위치가 Child 클래스의 __init__ 메소드의 스코프인 것을 알고 자동으로 입력해주기 때문이다.\
+
+	class Base:
+		def __init__(self):
+			# do something
+	
+	class Child(Base):
+		def __init__(self):
+			tmp = [super().__init__() for _ in range(5)]
+			# do something
+	
+	>> super(type, obj): obj must be an instance or subtype of type
+
+하지만 위와 같이, list comprehension과 같은 자신의 스코프를 가지는 블록 안에 super를 호출하면 인터프리터가 어떤 값을 넣어야되는지 몰라서 에러가 발생하게 된다.
+
+---
+
 
 
