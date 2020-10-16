@@ -89,3 +89,10 @@ SQL 언어를 직접 사용하지 않도록 객체와 DB를 매칭시켜서 사�
 MongoDB의 경우 스키마가 유연한 Document(JSON과 같다)형식으로 데이터를 저장하며, Redis는 Key-Value 스토어로 값을 저장하는 In-Memory 데이터 스토어이다.
 
 ---
+
+# Partitioning
+Table에 Tuple이 많아짐에 따라 key,  index를 설정하더라도 query의 속도는 느려지게 된다.\
+따라서 Table을 partition key를 기준으로 작은 query table로 분리하는 것을 partitioning이라고 한다.\
+하지만 partition query를 잘못 설정할 경우, 모든 partition을 탐색하므로 오히려 시간 복잡도가 더 높아질 수 있다.
+
+---
