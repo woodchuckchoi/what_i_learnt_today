@@ -96,3 +96,65 @@ Table에 Tuple이 많아짐에 따라 key,  index를 설정하더라도 query의
 하지만 partition query를 잘못 설정할 경우, 모든 partition을 탐색하므로 오히려 시간 복잡도가 더 높아질 수 있다.
 
 ---
+
+# RDS Engineering by H.N.
+## Transaction
+Collection of queries\
+RDS의 규칙인 ACID를 (일부) 지켜야한다.
+Atomicity - Transaction의 query는 모두 실행되거나, 모두 실행되지 않아야 한다.
+
+	SELECT balance FROM Bank WHERE id == 'sender';
+	UPDATE Bank SET balance = balance - 100 WHERE id == 'sender';
+	// Error!
+	UPDATE Bank SET balance = balance + 100 WHERE id == 'receiver';
+
+위와 같은 시나리오에서 100은 누구에게도 전달되지 않고 사라진다. 따라서 Rollback을 통해서 모든 query가 실행되지 않도록 관리해야한다.
+
+Isolation - Transaction이 다른 Transaction에 의해 영향을 받을지, 받지 않을지, 받는다면 어떤 Level(isolation level)까지 받을 것인지 설정이 필요하다. 아래와 같은 read phenomena가 발생할 수 있다.
+
+	SELECT quantity, price FROM inventory;
+	// UPDATE inventory SET price = price + 10 WHERE id == 'something'; Query run from another connection
+	SELECT quantity, price FRoM inventory;
+
+위의 시나리오에서 첫번째와 두번째 SELECT는 서로 다른 값을 출력하게 된다. 이를 dirty read라고 한다.
+
+	SELECT quantity, price FROM inventory;
+	// UPDATE inventory SET price = price + 10 WHERE id == 'something'; TRANSACTION COMMITTED from another connection
+	SELECT quantity, price FRoM inventory;
+
+앞선 시나리오와 같이 서로 다른 값을 출력하게 되지만, 이번엔 transaction의 commit으로 인해 출력된 값이 valid하다는 점에 차이가 있다. 이를 Non-repeatable Read라고 한다.
+
+	SELECT quantity, price FROM inventory;
+	// INSERT INTO inventory (id, quantity, price) VALUES ('something', 5, 100); Transaction committed from another connection
+	SELECT quantity, price FROM inventory;
+
+새로운 Entry가 생겼을 때 Phantom Read라고 한다.
+
+앞의 시나리오들을 막고, 필요에 따라 조절하기 위해서 Isolation Level이 있다. Level이 높을수록 isolation이 잘 되지만, 그만큼의 cost가 발생한다.
+
+1. Read uncommmitted - Isolation 하지 않는다, 모든 변경은 transaction 중에 확인 가능하다.
+2. Read committed - Commited된 transaction이 현재 transaction의 query에 반영된다.
+3. Repeatable Read - Transaction이 시작되었을 때 Table의 상태를 Transaction의 모든 query이 기억한다. Versioning, Lock을 통해 구현한다.
+4. Serializable - 모든 Transaction이 순서에 따라 실행된다.
+
+## Consistency
+* Consistency in Data
+User-defined하며 primary key, foreign key 등을 사용하여 정의된다. Atomicity와 Isolation을 통해 지켜진다.
+
+eg) IG에서 query를 통해 합산한 likes와 실제 table의 likes가 다를 수 있다.
+
+* Consistency in Reads
+어떤 transaction을 commit하면 새로운 transaction은 즉시 변경을 확인할 수 있는가?\
+RDS, NoSQL 모두 inconsistency in reads 문제를 가지고 있다. (Eventual Consistency)\
+
+eg) DB가 한 서버만 있다면, 문제가 생기지 않는다. 하지만 만약 server-replica가 구성되었을 때, server에 commit된 transaction이 바로 다음 순간에 replica로 전송된 transaction에 반영될 수 있는가?
+
+이러한 문제를 해결하기 위해서 각 property 사이의 trade-off를 한다.
+
+*NoSQL은 scalability를 위해서 consistency를 희생한다.*
+ 
+## Durability
+Committed Transaction은 persistent해야한다. Redis는 in-memory이므로 durable하지 않다. 
+
+---
+
