@@ -143,7 +143,33 @@ Queue를 통해서 순서를 지정하는 Job Scheduler는 OS의 Process Managem
 Job Scheduler가 지정한 Queue를 항상 순서대로 실행하지는 않는다.(Long-term Scheduler) CPU Scheduler가 어떤 프로세스를 CPU가 먼저 실행할지를 정한다.(Short-term Scheduler)\
  Medium-term Scheduler는 Swapping을 통해서 현재 메모리에 탑재된 프로세스 중 사용되지 않는 프로세스를 리소스를 효과적으로 사용하기 위해 디스크에 보관한다.
 
+## Context Switch
+* Scheduler - 어떤 Process를 실행할지 결정하는 OS의 프로그램
+* Dispatcher - Scheduler가 선택한 Process를 실행하기 위해서 현재 프로세스의 상태(register, MMU)를 저장하고, 실행할 프로세스의 상태를 불러오는 프로그램
+* Context Switching Overhead - 위의 프로세스들이 실행되기 때문에 context switch가 일어날 때는 overhead가 발생한다. 이를 막기위해서 scheduler, dispatcher는 보통 C같은 high-level programming language가 아닌, low-level로 만들어진다.
 
+---
+
+# CPU 스케쥴링 알고리즘
+*Preemptive(선점) VS Non-preemptive(비선점)*
+선점 방식은 CPU에서 프로세스가 동작 중이어도 다음 프로세스가 프로세서를 선점하고, 이전 프로세스를 쫓아낼 수 있다.\
+이와 반대로 비선점 방식은 CPU에서 프로세스가 동작 중이면 다른 프로세스가 해당 리소스를 점유할 수 없다.
+
+eg) 병원에서 응급환자가 도착하면 Preemptive 방식으로 기존 환자가 아닌 응급환자를 보살핀다. 반면 은행에서는 (대체로) Non-preemptive 방식으로 순서대로 고객을 응대한다.
+
+Scheduling Criteria(Scheduling 방식 비교를 위한 척도)의 예시는 아래와 같다.
+* CPU Utilisation(%)
+* Throughput(jobs/time)
+* Turnaround Time(time) - 작업이 Process Ready Queue에 들어가고, 완료되어 나오기 까지 걸린 시간
+* Waiting Time(time) - Process Ready Queue에서 CPU에서 처리되기까지 걸리는 대기 시간
+* Response Time(time) - Input 후, Output까지 걸리는 시간
+
+## CPU Scheduling Algorithms
+* First-Come, First-Serve(FCFS) : 시간이 오래 걸리는 프로세스가 먼저 실행될 경우, 평균 대기시간이 늘어나게 된다.
+* Shortest-Job-First(SJF) : 시간이 적게 걸리는 프로세스를 먼저 실행하여 대기시간을 줄인다.
+* Priority
+* Round-Robin
+* Multilevel Queue
 
 
 
