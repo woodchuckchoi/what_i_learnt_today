@@ -694,5 +694,51 @@ Buffering은 세가지로 분류할 수 있다.
 
 ---
 
+# Go Mod
+
+	$ go mod init [module name] // init go module in the current dir, making go.mod file
+	$ go get [package] // get pkg and add it to go.mod, which tracks pkgs, and go.sum will be created, which tracks pkgs' dependencies
+	$ go mode tidy // remove un-used pkgs, add missing pkgs
+
+go module은 v0(unstable)과 v1(stable)만 기본적으로 지원한다. 따라서 Major Version은 아래와 같은 사용법을 가진다.
+
+	$ go get rsc.io/quote@v1.3.0 // correct
+	$ go get rsc.io/quote@v3.0.0 // incorrect
+	$ go get rsc.io/quote/v3 //correct
+
+---
+
+# Go Vendor
+vendor dir은 $GOPATH/src와 같은 structure를 가진다.\
+vendor dir내에 src에서 사용하는 pkg가 있을 경우, $GOPATH보다 vendor의 pkg를 먼저 사용한다.\
+만약 vendor가 recursive하게 구성되어 있다면, 가장 안에 있는 vendor dir의 pkg를 사용하게된다. 하지만 nested vendor dir은 권장하지 않으므로, 되도록 사용하지 않는다.
+
+go get은 vendor를 update하지 않는다. 따라서 3rd party app을 사용하여 vendor dir을 관리한다.
+
+---
+
+ 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
