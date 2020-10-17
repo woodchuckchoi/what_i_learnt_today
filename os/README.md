@@ -161,16 +161,35 @@ Scheduling Criteria(Scheduling 방식 비교를 위한 척도)의 예시는 아�
 * CPU Utilisation(%)
 * Throughput(jobs/time)
 * Turnaround Time(time) - 작업이 Process Ready Queue에 들어가고, 완료되어 나오기 까지 걸린 시간
-* Waiting Time(time) - Process Ready Queue에서 CPU에서 처리되기까지 걸리는 대기 시간
+* Waiting Time(time) - Process Ready Queue에서 CPU에서 처리되기까지 대기하는 시간
 * Response Time(time) - Input 후, Output까지 걸리는 시간
 
 ## CPU Scheduling Algorithms
 * First-Come, First-Serve(FCFS) : 시간이 오래 걸리는 프로세스가 먼저 실행될 경우, 평균 대기시간이 늘어나게 된다.
-* Shortest-Job-First(SJF) : 시간이 적게 걸리는 프로세스를 먼저 실행하여 대기시간을 줄인다.
-* Priority
-* Round-Robin
-* Multilevel Queue
+* Shortest-Job-First(SJF) : 작업 시간이 적게 걸리는 프로세스를 먼저 실행하여 대기시간을 줄인다. 평균 대기시간을 줄이는데 최적이지만, 작업 시간을 예측하는 것은 사실상 불가능하다. Preemptive와 Non-preemprive 모두 구현가능하다.(Shortest-remaining-time 기법)
+* Priority : 우선순위(int)가 낮은 값을 먼저 처리한다. internal한 요인(time limit, memory requirement 등), external한 요인(amount of funds, political factors 등)에 따라 우선순위를 정하며, preemptive, non-preemptive 모두 구현가능하다. Starvation(우선순위에 계속 밀려서 CPU에 처리되지 않음)이 생길 수 있다.Aging을 통해서 우선순위에 보정값을 줘서 Starvation을 해결한다.
+* Round-Robin : Time-sharing 방식으로 각 프로세스에 같은 양의 CPU Time(일반적으로 10~100msec)을 할당한다. CPU Time을 0으로 수렴시키면 다수의 Process가 Parallel하게 동작하는 Process Sharing을 경험할 수 있지만, context switching에 따른 overhead가 과다해진다.
+* Multilevel Queue : Process를 System Process Group, Interactive Process Group, Batch Process Group 등으로 나누고 각각의 Queue에 절대적인 우선순위 설정하거나 CPU Time을 차등배분한다. 각 Queue는 독립된 Scheduling 정책을 가진다. * Multilevel Feedback Queue : Group으로 분리된 Process가 특정 조건 내에 작업을 완료하지 못하면, 다른 우선순위, CPU 할당을 받은 다른 Group으로 옮겨서 작업을 이어간다.
 
+---
+
+# Process Creation
+## Process Creation
+프로세스는 프로세스에 의해 만들어진다.\
+Parent Process -> Child Process 형식을 띄는 Process Tree로 나타내진다.\
+각각의 Process는 Unique한 PID를 가지며, Parent Process ID(PPID) 역시 Process 정보에 포함된다.\
+프로세스의 생성은 fork() System Call을 통해서 부모 프로세스를 복사하고 exec()를 통해서 복사된 프로세스를 대체할 프로세스를 메모리에 로드한다.\
+
+## Process Termination
+exit()을 통해서 Memory와 열린 File과 같은 모든 자원을 반납한다.
+
+---
+
+# Thread
+## Multithread
+한 프로세스에 2개 이상의 Thread가 존재하는 경우\
+다중 Thread가 빠르게 Context Switch되면서 동시에 실행되는 것처럼 보인다.(Concurrency)\
+Thread는 Process의 메모리 공간을 공유한다. 하지만 지역변수가 저장되는 Stack은 공유하지 않는다.
 
 
 
