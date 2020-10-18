@@ -191,6 +191,77 @@ exit()을 통해서 Memory와 열린 File과 같은 모든 자원을 반납한�
 다중 Thread가 빠르게 Context Switch되면서 동시에 실행되는 것처럼 보인다.(Concurrency)\
 Thread는 Process의 메모리 공간을 공유한다. 하지만 지역변수가 저장되는 Stack은 공유하지 않는다.
 
+---
+
+# Process Synchronisation
+Independent VS Cooperative로 나뉜다.\
+Cooperative의 경우 시스템의 다른 Process에 영향을 받는 Process를 뜻한다.\
+Concurrent Access to Shared Data는 Inconsistency를 유발할 수 있다. -> BankAccount Problem
+
+High-level language에서는 한 줄의 코드라도, 실제 컴퓨터가 동작하는 코드는 여러 줄로 구성되어 시간지연이 생기기 때문에 BA Problem(Critical Section Problem)이 발생한다.\
+다중 스레드로 구성된 시스템이 공통의 변수에 접근하면서 변수가 inconsistent해지는 범위를 Critical Section이라고 한다.\
+이에 대한 Solution은 아래와 같다.
+
+* Mutual Exclusion 상호 배제 - 한번에 한 Process/Thread만 Critical Section에 접근할 수 있다.
+* Progress 진행 - 어떤 Process/Thread가 진입할 지는 유한 시간 내에 결정되야한다.
+* Bounded Waiting 유한 대기 - 어떤 Process/Thread라도 유한 시간 내에 Critical Section에 진입할 수 있다.
+
+## Synchronisation Tools
+* Semaphore - Sync 문제를 해결하기 위한 소프트웨어 도구이며 정수형 변수와 두 개의 동작(P, V)을 가진 구조이다.
+
+	//Go
+	queue := make(chan chan struct{})
+	type Semaphore struct {
+		value int // 사용 가능한 Resource의 양
+	}
+	
+	func (s *Semaphore) acquire() {
+		receiver := make(chan struct {})
+		s.value -= 1
+		if s.value < 0 {
+			queue <- receiver
+			// add this process/thread to list
+			// block
+			select {
+				case <- receiver:
+					break
+			}
+		}
+	}
+	
+	func (s *Semaphore) release() {
+		s.value += 1
+		if s.value <= 0 {
+			// remove a process P from list
+			// wakeup P
+			receiver := <- queue
+			receiver <- struct{} {}
+		}
+	}
+
+대기시키는 Queue를 다른 형태의 Data Structure로 변환하거나 value가 0인 다른 Semaphore를 사용하여 Ordering을 바꿀 수 있다.
+
+* Monitors
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
