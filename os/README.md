@@ -241,11 +241,43 @@ High-level language에서는 한 줄의 코드라도, 실제 컴퓨터가 동작
 
 대기시키는 Queue를 다른 형태의 Data Structure로 변환하거나 value가 0인 다른 Semaphore를 사용하여 Ordering을 바꿀 수 있다.
 
-* Monitors
+## 전통적 동기화 예시
+* Producer, Consumer
+Producer가 데이터를 생성하고 Consumer가 소비\
+eg) Compiler -> Assembler, Server -> Client\
+Producer와 Consumer의 속도 차이로 Buffer를 사용한다. 하지만 Buffer의 크기가 유한하다.(Bounded Buffer)\
+Buffer가 가득 찼을 때 Producer는 데이터를 더 생성할 수 없고, Consumer는 Buffer가 비었을 때 데이터를 소비할 수 없다.
 
+Buffer의 in과 out index, Producer와 Consumer가 Critical Section에 동시에 접근하지 못하도록 하여 문제 해결, 또한 Semaphore를 사용하여 busy-wait(무한 루프를 돌면서 CPU 소모)
 
+* Readers, Writers
+읽기만 하는 Reader는 다수가 동시에 DB에 접근 가능해도된다. 하지만 Writer가 DB에 접근했을 때, Reader와 다른 Writer는 Block 되어야 한다.
 
+* Dining Philosopher
+	// Go
+	lstick.Acquire()
+	rstick.Acquire()
+	
+	// Eating
+	
+	rstick.Release()
+	lstick.Release()
 
+하지만 모든 철학자가 Deadlock에 걸릴 수도 있다.
+
+---
+
+## Deadlock
+Process가 어떤 자원을 가진 상태로 다른 자원을 필요로 할 때 Deadlock이 발생할 수 있다.
+* Mutual Exclusion (상호 배타)
+* Hold and Wait (점유 대기)
+* No Preemption (비선점)
+* Circular Wait (환형 대기)
+
+## Resource
+동일 형식의 자원이 여러 개 있을 수 있다.\
+자원을 사용할 때는 요청, 사용, 반납의 과정을 거친다.\
+Deadlock 발생을 막기위해서 위의 필요 조건 중 1개 이상을 제거하면 Deadlock은 발생하지 않는다.
 
 
 
