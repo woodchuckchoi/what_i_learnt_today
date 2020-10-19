@@ -20,3 +20,28 @@
 	sysctl -w vm.nr_hugepages=30720 // 가장 최근에 사용한 page의 virtual-physical 주소 테이블을 저장하는 TLB를 효과적으로 사용하기 위해 JVM에서 normal page가 아닌 huge table을 사용하게 한다.
 
 ---
+
+# Discord's 2.5M Concurrent Voice With WebRTC
+*WebRTC - Standardised Specification that allows PEER-TO-PEER real-time communication*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
