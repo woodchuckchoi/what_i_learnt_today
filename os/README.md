@@ -279,7 +279,23 @@ Process가 어떤 자원을 가진 상태로 다른 자원을 필요로 할 때 
 자원을 사용할 때는 요청, 사용, 반납의 과정을 거친다.\
 Deadlock 발생을 막기위해서 위의 필요 조건 중 1개 이상을 제거하면 Deadlock은 발생하지 않는다.
 
+---
 
+# Deadlock 처리
+* 방지 - Deadlock 필요조건 중 한 가지 이상을 방지
+	* 자원을 공유할 수 있도록 한다. (일반적으로 불가능하다.)
+	* 모든 자원을 Process 시작 시에 가져오거나, 다른 자원을 기다릴 때 가지고 있는 자원을 Release한다. (자원 활용률 저하)
+	* 자원을 선점 가능(뺏을 수 있도록) 한다. (자원에 따라 불가능할 수 있다.)
+	* 자원에 번호를 부여해서 우선 순위를 둔다. (자원 활용률 저하)
+* 회피 - Process가 자원을 요청할 때 요청된 자원이 Deadlock을 유발하지 않도록 계산해서 할당한다.
+* 복구 - Deadlock이 발생하면 Process 종료 등의 방법으로 Deadlock을 해결한다. (검사에 대한 Overhead 발생)
+* 무시 - Deadlock은 실제로 잘 일어나지 않는다. 따라서 Deadlock이 발생해도 아무 조치를 하지 않는다. 사용자가 컴퓨터를 재시작한다.
+
+---
+
+# Monitor
+Semaphore와 같이 sync를 해결해주는 Data Structure, 하지만 High-Level에서 구현된 Process 동기화 방식\
+Process는 Critical Section 앞의 Queue에서 wait하며 Critical Section을 지난 후 release를 통해서 Queue의 대기 중인 Process를 notify로 깨워줘서 Critical Section으로 진입시킨다.\
 
 
 
