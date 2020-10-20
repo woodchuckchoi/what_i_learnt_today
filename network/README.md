@@ -502,3 +502,42 @@ At first, I thought you meant a TCP client (web-browser) trying to connect to a 
 
 
 I'm not sure whether this can be considered ALPN, since this alt-svc header is included in the application-data(response), not in one of those TLS handshake messages. Anyway, it does the job. If you want to know more about it, check out RFC7301, RFC7639.
+
+---
+
+# E-Tags
+Overhead를 막기위해 고안된 header 중 하나\
+Client가 Server에 어떠한 데이터를 요청하면, Server는 요청된 데이터와 함께 E-tag을 전송한다.\
+Client가 다시 같은 데이터를 요청하며 전달받은 E-tag을 If-None-Match 헤더와 함께 전송한다.\
+만약 데이터가 변하지 않았을 경우 Server는 304 Not Modified Response를 Return한다. Built-in Cache라고 생각할 수 있다.
+
+*하지만 최근에는 잘 사용하지 않는다.*
+Load Balancer를 통해서 다수의 Server가 연결되어 있다고 가정할 때, 한 Server는 다른 Server와 서로 다른 Etag을 생성할 수 있다.\
+이 때 etag은 오히려 더 많은 Overhead를 만들게 된다.\
+*위의 문제는 Apache, NginX 등의 서버에서 자체적으로 솔루션을 제공한다.*
+
+또한 Etag을 사용해서 tracking을 하는 경우가 많다.\
+Etag는 Cookie와 다르게 브라우저가 직접 관리하므로 사용자가 접근할 수 없기 때문에, tracking에에 사용된다.\
+예를 들어 image src의 서버가 계속 Not Modified 응답을 하는 경우, 해당 image의 etag은 항상 같게 유지되어 image src의 서버가 사용자를 track 할 수 있다.\
+위의 문제들로 인해 Etag은 점점 더 사라져가고 있으며, Browser 역시 etag을 삭제하는 방법을 지원하는 등 etag을 지양하는 방향으로 발전하고 있다.
+
+---
+
+# Session Layer
+*Provide a session between two hosts*
+*Internally to the computer if there is a bottleneck there is a backlog and something needs to manage what needs to be sent, what no longer needs to be sent and what priority the data to be sent has this something is a session.*
+Session은 SYN과 FIN 사이에 존재한다.\
+Presentation Layer와 함께 Transport Layer에 기능을 더하는 용도로 사용된다.
+
+Session Layer는 다음과 같은 서비스를 제공한다.
+* Dialogue Management - 여러 Process가 동시에 통신을 할 때(Network Interface 자원 요청), 어떤 Process가 통신을 할 것인지 순서를 정한다.
+* Synchronisation - Transport Layer는 통신 상의 에러만 catch한다. 하지만 Synchronisation은 그보다 상위 레벨의 에러를 다룬다. 예를 들어 FTP 통신에서 Transport Layer는 옳게 데이터를 전송했지만, Application Layer는 File System의 문제로 데이터를 전달받지 못할 수도 있다.
+* Activity Management - 
+* Exception Handling
+*.. TCP/IP Protocols do not include a session layer at all. ... By Worcester Polytechnic Institute*
+
+일반적으로 RPC에 사용된다고 한다.(RPC에 SESSION LAYER가?)\
+여기서 문제는 일반적으로 웹 프로그래밍을 할 때 일컫어지는 RPC는 TCP/IP Protocol을 따르며 REST와 같은 HTTP를 사용하되 Endpoint와 Payload의 차이가 있을 뿐이다.\
+검색 결과 RPC는 어떠한 프로토콜에 한정된 것이 아닌 패러다임이라고 하기 때문에, "Session Layer를 사용하는 RPC Implementation이 있다."고 생각하는 편이 낫지 않을까?
+
+---
