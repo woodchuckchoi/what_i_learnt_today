@@ -220,3 +220,31 @@
 	}
 
 ---
+
+# Longest Common Subsequence
+
+	//Go
+	const (
+		LEN_A int = N+1,
+		LEN_B int = M+1
+	)
+	
+	var common int[LEN\_A][LEN\_B]
+	
+	for int i = 0; i < LEN\_A; i++ {
+		for int j = 0; j < LEN\_B; j++ {
+			if i == 0 || j == 0 {
+				common[i][j] = 0
+			}
+			
+			if A[i-1] != B[j-1] {
+				common[i][j] = Max(common[i-1][j], common[i][j-1])
+			} else {
+				common[i][j] = common[i-1][j-1] + 1
+			}
+	
+	return common[N][M]
+
+---
+
+
