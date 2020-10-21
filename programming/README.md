@@ -717,12 +717,19 @@ go get은 vendor를 update하지 않는다. 따라서 3rd party app을 사용하
 
 ---
 
- 
+# Drawback of Client Side Rendering
+일반적으로 서버의 overhead를 줄이기 위해서 client side rendering을 사용한다.\
+현재는 client side rendering이 norm이 되어서 실제 html에는 사용할 script, img 등이 들어있을뿐, 데이터는 없는 경우가 많다.\
+하지만 robot이 crawling을 하거나, 링크의 preview가 생성될 때를 생각해보면 empty html을 사용할 수 없다.\
+이를 막기위해서는 html 자체에 meta data를 hardcode하거나, server side rendering을 할 수 밖에 없다.
+
+	user -> front(web) -> back(was) // 방법 1: front가 back의 데이터로 html을 생성해서 user에게 돌려준다. 어떻게 보면 렌더링 기능이 추가된 reverse proxy같이 작동한다.
+	// 방법 2: front의 nginx의 proxy_pass 등을 통해서 back에서 html을 렌더링하여 반환하도록 한다.
+	// 방법 3: front에 react-snap 등을 사용하여, page의 snapshot을 생성하고 이를 반환하게 한다.
 	
+application의 필요에 맞춰 server side rendering / client side rendering을 선택해야한다.
 
-
-
-
+---
 
 
 
