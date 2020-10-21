@@ -297,15 +297,71 @@ Deadlock 발생을 막기위해서 위의 필요 조건 중 1개 이상을 제�
 Semaphore와 같이 sync를 해결해주는 Data Structure, 하지만 High-Level에서 구현된 Process 동기화 방식\
 Process는 Critical Section 앞의 Queue에서 wait하며 Critical Section을 지난 후 release를 통해서 Queue의 대기 중인 Process를 notify로 깨워줘서 Critical Section으로 진입시킨다.\
 
+---
 
+# Main Memory Management
+기계어/어셈블리어 프로그램에서 Object-oriented programming/high level programming으로 패러다임이 변하면서 메모리에 대한 수요가 높아짐\
+메모리를 효과적으로 사용하기 위해서 메모리의 낭비를 없애고, 가상 메모리를 적용한다.\
 
+## Memory Structure
+CPU가 Memory의 address를 전달하면 Memory는 해당 address에 있는 data를 CPU에 전달한다.\
+Memory는 위의 예와 같이 주소와 데이터로 이루어져있다.
 
+* 프로그램 개발
+Source - High Level Programming Language / Assembly (test.c)
+Object - Compile/Assemble 결과물 (test.o)
+Executable - Object File을 Link한 결과물 (test.o + Libraries)
 
+프로그램이 실행되기 위해서는 code, data(literal, static/global var), stack(local var)이 메모리에 올려져야한다.\
+또한 이것을 메모리의 어떤 위치에 올려야 하는지, Multi Process 환경에서 위치를 어떻게 바꿔야하는지를 정해야 한다.\
+이 문제를 돕는 것이 CPU와 메모리 사이에서 동작하는 MMU(Memory Management Unit)이다.
 
+MMU는 base register(하한 주소값), limit register(상한 주소값), relocation register가 탑재되어있다.
 
+	//main executable이 메모리 0x0000 위치에 항상 로드된다고 가정한다.
+	//하지만 해당 위치에 이미 다른 프로세스가 동작 중이어서 다른 위치에 main process를 올려야한다. 편의를 위해 0x500에 올린다고 가정한다.
+	//이때 MMU의 relocation register는 500이라는 값을 가짐으로써, CPU가 0에 접근해도 500 위치로 보내준다. (Logical Location VS Physical Location)
+	//CPU -> Memory[base register + relocation register:limit register + relocation register]
 
+## 메모리 낭비 방지
+* Dynamic Loading
+프로그램 실행에 반드시 필요한 데이터만 Memory에 적재한다. (에러 처리와 같이 불필요한 부분을 skip한다.)\
+실행 시 필요한 데이터가 로드되지 않았다면, 그 부분만 메모리에 동적으로 탑재한다.
+* Dynamic Linking
+여러 프로그램이 공통적으로 사용하는 Library를 Memory에 중복해서 올리는 낭비를 줄인다.\
+하나의 Library Routine만 Memory에 load하고 다른 App 실행 시 이 Routine과 연결한다. (Linux - Shared Library)
+* Swapping
+Memory에 load되었으나 현재 사용하지 않는 process의 이미지를 swap device에 저장한다. Process의 크기가 크면 backing store의 입출력에 따른 overhead가 크다.\
+backing store(swap area)의 크기는 main memory의 크기와 비슷하게 정하는것이 이 이유다.
 
+## Contiguous Memory Allocation
+Multi Process 환경에서 하나의 Memory에 여러 Process가 load/unload되며 사용할 수 있는 연속적인 메모리가 scattered되어 process를 할당할 수 없는 상황(external fragmentation)이 발생한다.\
+위의 문제를 해결하기 위한 Contiguous Memory Allocation은 아래의 3가지 방법이 있다.
+* First-fit - Memory를 순차적으로 탐색하여 가장 먼저 발견한 Process의 필요 Memory에 Load
+* Best-fit - 가장 Process의 필요 Memory에 가까운 Memory의 위치에 load
+* Worst-fit - 가장 차이가 큰 (가장 큰) Memory의 위치에 load (남는 공간이 가장 커지기 때문에 다른 Process가 Hole에 끼어들어갈 여지가 가장 크다.)
 
+Memory 할당 속도면에서 first-fit이, 이용률면에서는 first-fit, best-fit이 최적이다.\
+하지만 어떠한 최적화 알고리즘으로도 1/3 수준의 Memory는 사용 불가능하다.\
+Process를 옮겨서 Memory의 Hole의 수를 줄이는 Compaction은 Overhead가 너무 크다.
+
+## Paging
+Process를 Page 단위로 잘라서 Memory에 끼워넣는다.\
+Process는 Page의 집합으로, Memory는 Frame의 집합으로 구성된다.\
+MMU의 Relocation Register를 여러 개 설정해서 Process가 연속된 메모리에 load된 것처럼 나타낸다.
+
+* Address Translation(주소 변환)
+CPU가 내는 주소는 2진수로 표현된다(전체 m비트)\
+하위의 n비트는 offset 또는 displacement이다\
+상위 m-n비트는 Page의 번호
+
+	//page size = 16bytes = 2 ** 4
+	//logical address 50 = 0b110010
+	// 0b11 = physical address, 0b0010 = displacement
+
+---
+
+# Paging
 
 
 
