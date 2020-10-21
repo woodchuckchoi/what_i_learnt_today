@@ -726,6 +726,7 @@ go get은 vendor를 update하지 않는다. 따라서 3rd party app을 사용하
 	user -> front(web) -> back(was) // 방법 1: front가 back의 데이터로 html을 생성해서 user에게 돌려준다. 어떻게 보면 렌더링 기능이 추가된 reverse proxy같이 작동한다.
 	// 방법 2: front의 nginx의 proxy_pass 등을 통해서 back에서 html을 렌더링하여 반환하도록 한다.
 	// 방법 3: front에 react-snap 등을 사용하여, page의 snapshot을 생성하고 이를 반환하게 한다.
+	// 방법 4: request의 user-agent를 읽어서 user의 접근일 경우, client side rendering, bot의 접근일 경우, hard-coded data제공
 	
 application의 필요에 맞춰 server side rendering / client side rendering을 선택해야한다.
 
