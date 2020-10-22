@@ -362,6 +362,95 @@ CPU가 내는 주소는 2진수로 표현된다(전체 m비트)\
 ---
 
 # Paging
+	# Q1
+	PageSize = 4 Bytes
+	Page Table : 5 6 1 2
+	Logical Address 13, Physical Address?
+	
+	Page Table Index		Page Table Value
+	0						5
+	1						6
+	2						1
+	3						2
+	
+	Logical Address = (Page Number) ++ (Displacement)
+	
+	13 = 0b1101 
+	PageSize = 4 = 2 ** 2
+	
+	0b11 = Page Table Index 0b01 = Displacement
+	Physical Address = 0b1001 (9)
+	
+	# Q2
+	PageSize = 1 KB
+	Page Table : 1 2 5 4 8 3 0 6
+	Logical Address 3000, Physical Address?
+	
+	PageSize = 1KB = 2 ** 10
+	
+	3000 = 0b101110111000
+	
+	0b10 = Page Table Index 0b1110111000 = Displacement
+	Physical Address = 0b1011110111000
+	
+	Physical Address = 0x1A53 = 0b000110(1001010011)
+	Logical Address = 0b111001010011
+
+## 내부 단편화(Internal Fragmentation)
+Process의 크기가 Page Size의 배수가 아니면 마지막 페이지는 한 Frame을 채울 수 없어서 남는 Memory 공간이 생기게 된다.\
+External Fragmentation에 비해 낭비되는 메모리가 미미하므로 일반적으로 skip한다.
+
+## Page Table 만들기
+CPU Register로, Main Memory로 생성할 수 있다.\
+CPU Register로 구성할 경우 Address 변환 속도가 빠르지만, CPU Register의 공간이 한정되어 있어 Table의 크기가 제한된다.\
+Main Memory에 Page Table을 구성할 경우 크기 제한이 적지만, Address 변환 속도가 느리다.\
+혹은 TLB라는 별도의 Buffer 저장 장치를 사용하여 구성할 수도 있다.
+
+*Protection & Sharing*
+* Protection - 모든 주소는 PageTable을 경유하므로 PageTable Entry마다 rwx 비트를 두어서 해당 Page에 대한 접근 제어
+* Sharing - 같은 Code를 사용하는 다수의 Process가 있다면 Code에 사용되는 Memory를 공유할 수 있다. (Re-enterant code)
+
+## Segmentation
+Process를 논리적인 내용(Paging은 무조건 같은 크기로)으로 잘라서 Memory에 배치한다.\
+Segment의 크기는 일반적으로 같지 않다.\
+
+MMU의 Segment Table은 Paging Table과 비슷하다.
+
+	Segment Table Base			Limit
+	1400						1000
+	6300						400
+	4300						400
+	3200						1100
+	4700						1000
+	
+	// Logical Address(2, 100) = Physical Address 4400
+	// Logical Address(1, 500) = Physical Address Segmentation Fault Error!
+
+*Protection & Sharing*
+* Protection - Segment Table Entry마다 r, w, x 비트를 둬서 각 Segment에 대한 접근을 제어한다. 
+* Sharing - 같은 Code를 사용하는 다수의 Process가 있다면 Code에 사용되는 Memory를 공유할 수 있다. (Re-enterant code)
+
+*같은 방식으로 Protection, Sharing이 동작하지만 논리적으로 나누는 편이 더 나은 수준의 관리가 가능하다.*
+
+*하지만 Segmentation은 External Segmentation 문제에 취약할 수 있다. 따라서 Segment를 Paging한다! Paged Segmentation!!*
+
+---
+
+# Virtual Memory
+Physical Memory보다 더 큰 Process를 실행할 수 있을까?\
+Process의 이미지를 모두 Memory에 올릴 필요는 없다. 현재 필요한 기능 / 부분의Demand Page만 Memory에 load함으로서 Memory의 총량보다 더 큰 크기의 Process를 실행할 수 있다.\
+Page Table에 Valid Bit Field를 추가해서 현재 Memory에 load된 Page와 그렇지 않은 Page를 나타낸다.\
+Invalid (0) Process가 필요할 때, 해당 Process를 보조기억장치에서 Memory로 동적으로 load한다.\
+Process의 Image는 Backing Store(SWAP device)에 저장해서 Page가 unload되고 다시 load 되었을 때까지 status를 저장한다.
+
+* Page Fault - Invalid Page 발생 시, CPU에 Interrupt 발생, CPU는 OS에 Page Fault Routine을 trigger해서 OS가 Memory Load를 하도록 한다.
+
+* Pure Demand Paging - Process 시작부터 아무 Page를 Load하지 않아서 Page Fault Routine을 통한 Overhead가 발생하는 대신에 Memory를 아낄 수 있다.
+* PrePaging - Process 시작 시에 최대한의 Page를 Load해서 Overhead를 줄이지만, Memory가 낭비될 수 있다.
+
+*Swapping과 Demand Paging은 SWAP device와 Memory사이에 전달되는 단위의 차이가 Process, Page로 다르다*
+
+---
 
 
 
