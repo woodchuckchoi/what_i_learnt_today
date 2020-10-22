@@ -732,17 +732,60 @@ application의 필요에 맞춰 server side rendering / client side rendering을
 
 ---
 
+# OAuth
+A Site의 User에게 B Site의 Auth 권한을 제공하는 Framework\
+OAuth 순서는 아래와 같다. 
 
+1. Authorisation Request (to Resource Owner)
+2. Authorisation Grant (from Resource Owner)
+3. Authorisation Grant (to Authorisation Server)
+4. Access Token (from Authorisation Server)
+5. Access Token (to Resource Server)
+6. Protected Resource (from Resource Server)
 
+	// Example
+	//1
+	//Resource Owner, Auth Service를 제공하는 대상, 즉 User에게 auth 수단을 요구한다. (id 등)
+	return res.redirect(AUTH\_URI + '?client\_id=' + CLIENT\_ID + '&redirect\_uri=' + CALLBACK\_URI + '&response\_type=code' + '&scope=' + RESOURCE\_TO\_GET);
+	
+	//2
+	//Resource Owner는 Auth 수단을 Application(Client)에 제공한다.
+	
+	//3
+	//2에서 전달받은 Auth Grant(수단)를 Authorisation Server에 전달한다.
+	let auth = await request
+		({
+			method: 'post',
+			url: Authorisation Server URI,
+			headers: {
+				...
+			},
+			form: {
+				code,
+				client_id: CLIENT_ID,
+				client_secret: CLIENT_SECRET,
+				...
+			},
+			...
+		});
+	...
+	
+	//4
+	//3을 통해서 Application(Client)는 Authorisation Server로부터 Access Token을 제공받는다.
+	
+	//5
+	//4에서 받은 Access Token을 포함하여 Resource Server에 요청을 보낸다.
+	
+	//6
+	//Resource Server는 Token이 일치하는지 확인 후 Resource를 제공한다.
 
+OAuth를 사용하기 위해서는 Auth를 제공하는 Service에 application을 등록해야 한다.\
+이를 통해서 제 3자가 Malicious Link를 통해서 User의 Token을 빼내려 하더라도 Service 측에서 공격을 방지한다.\
+위의 Client ID와 Client Secret은 Service에 Application(Client)를 등록하면 Service가 제공한다.\
+OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line의 코드일 뿐이므로 스스로 적용하는 것도 좋다.\
+대부분의 Oauth Service Provider는 OAuth Guide를 제공하므로 참조하여 사용한다.
 
-
-
-
-
-
-
-
+---
 
 
 
