@@ -452,10 +452,63 @@ Process의 Image는 Backing Store(SWAP device)에 저장해서 Page가 unload되
 
 ---
 
+## Effective Access Time
+
+	p = page fault rate
+	
+	T(eff) = (1-p)*Tm + p*Tp
+	// Tm = Memory 접근 시간
+	// Tp = Disk 접근 시간(seek time + rotational delay + transfer time)
+
+## Locality
+메모리 접근은 시간적, 공간적 지역성을 가진다.(반복문이 많고, 대부분의 코드는순차적으로 실행되기 때문에)\
+따라서 한번 PageFault가 발생하면 한 Page가 아닌 연속된 다수의 page를 Memory에 Load한다.
+
+## Page Replacement
+Demand Paging의 경우 요구되는 Page를 backing store에서 가져온다. 하지만 프로그램을 계속 실행함에 따라서 demand page가 늘어나고 언젠가 Memory는 가득 차게 된다.\
+Memory가 가득 차면 추가로 Page를 가져오기 위해서 어떤 Page를 backing store로 보내고(page-out) 그 빈 공간으로 필요한 Page를 가져온다.(page-in)\
+이렇게 쫓겨난 Page를 Victim Page라고 한다.
+
+I/O시간 절약을 위해서 modified되지 않은 페이지를 (변수의 경우 modify되는 경우가 많을 것이다.) victim page로 선택한다.\
+여러 Page 중에서 Victim Page를 선택하는 방법은 아래 등이 있다.
+
+* Random - 무작위로 Victim Page를 선택
+* FIFO - 먼저 Load된 Page를 먼저 Victim Page로 선택
+* OPT - 앞으로 가장 오래 사용되지 않을 Page와 교체 // 미래에 어떤 Page를 사용하지 않을지 모르므로 비현실적이다. 
+* LRU - Least-Recently-Used
+
+## Page Reference String
+
+	CPU가 전달하는 주소 = 100 101 102 432 612 103 104 611 612
+	Page Size가 100 Bytes라면
+	페이지 번호는 1 1 1 4 6 1 1 6 6
+	Page Reference String은 1 4 6 1 6 (Page Fault가 일어나지 않는 상황을 제외한다.)
 
 
+## Global / Local Replacement
+* Global Replacement - Memory 상의 모든 Process에 대해 교체
+* Local Replacement - Memory 상의 자기 Process에 대해 교체
+*Global Replacement가 더 효과적일 수 있다.*
 
+---
 
+# Frame Allocation
+* Thrashing
+CPU utilisation VS Degree of Multiprogramming\
+Process의 개수가 증가함에 따라 CPU 이용률은 증가한다.\
+하지만 일정 수준을 넘어서면 page in/out에 사용되는 overhead 때문에 CPU의 이용률이 오히려 감소한다. (Thrashing)
+
+Thrashing을 극복하기 위해서 Global Replacement보다는 Local Replacement를 사용하는 편이 좋다.\
+Process당 적절한 수의 **Frame을 할당**하는 것이 CPU 이용률 향상에 유리하다.
+
+* Static Allocationn
+	* Equal Allocation
+	* Proportional Allocation
+* Dynamic Allocation
+	* Working Set Model
+	* Page Fault Frequency
+
+---
 
 
 
