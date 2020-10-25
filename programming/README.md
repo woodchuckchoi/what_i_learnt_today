@@ -787,6 +787,21 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 
 ---
 
+# How to Store JWT
+
+	Client -> Login -> Server
+	Client <- accessToken, refreshToken <- Server
+	
+	// accessToken은 Memory에, refreshToken은 cookie에 저장한다.
+	// Server에 Request를 보낼 때, accessToken은 authentication header에, refreshToken은 body에 넣어서 전달한다.
+	// Server는 accessToken이 valid하면 response를 전달한다.
+	// 하지만 accessToken이 만료되거나, User가 Refresh 했을 경우에는 accessToken이 유효하지 않다.
+	// requestToken은 Refresh Request를 보낼 때에만 accessToken을 반환하므로 공격을 무력화한다.
+	
+	// Client가 refresh 후 Server에 접근하면 (refresh request), Server는 valid accessToken을 발행한다.
+	// accessToken이 expired 되었을 경우 invalid request / expire header를 보고 Refresh Request를 보내게 된다.
+
+---
 
 
 
