@@ -505,10 +505,45 @@ Process당 적절한 수의 **Frame을 할당**하는 것이 CPU 이용률 향�
 	* Equal Allocation
 	* Proportional Allocation
 * Dynamic Allocation
-	* Working Set Model
-	* Page Fault Frequency
+	* Working Set Model - N 시간에 얼마만큼의 Frame을 사용할지를 과거의 수치를 통해서 예측한다. (Working set과 window를 통해서 예측)
+	* Page Fault Frequency - Page Fault 발생 비율의 상한/하한선을 정하고 초과시에 더 많은 Frame을 할당, 미만시에 Frame을 회수한다.
+
+## Page Size
+Page의 일반적인 크기는 4KB ~ 4MB 수준이며 점점 커지는 경향을 띈다.\
+Page의 크기는 아래에 영향을 끼친다.
+* Internal Fragmentation
+* Page-in, Page-out 시간
+* Page Table Size
+* Memory Resolution(사용되는 Memory의 밀도)
+* Page Fault 발생 확률
+
+PageTable은 원래 별도의 chip(TLB 캐시)에 저장되었으나, 최근에는 Cache 메모리와 함께 CPU에 적재된다.
 
 ---
+
+# FILE Allocation
+컴퓨터 시스템 자원 관리
+* CPU - Process Management(CPU Scheduling, Process Synchronisation)
+* 주기억장치 - Memory Management(Paging, Virtual Memory)
+* 보조기억장치 - File System
+
+Hard Disk(보조기억장치)는 Track(동심원)과 Sector(동심원의 일정한 길이의  외변)로 이루어진다.\
+Sector의 크기는 일반적으로 512Bytes이지만 Sector 자체의 크기가 너무 작기 때문에 Sector의 집합인 Block을 사용한다.\
+그렇기 때문에 하드디스크를 Block Device라고 한다.\
+한 글자 (Character Size == 1Byte)를 저장하더라도 Hard Disk의 Block Size만큼의 용량을 차지하게 된다. Block Size는 OS가 정하게 된다.
+
+각각의 파일에 대해서 Free Block을 어떻게 할당할 것인가? == FILE Allocation은 아래와 같은 방법을 사용한다.
+* Contiguous Allocation - 각 파일을 연속된 Block에 할당한다. Header의 이동을 최소화하여 I/O 성능이 뛰어나다. 동영상, 음악 등의 매체에 적합하다. 순서대로 접근할 수도 있으며, 특정 부분을 바로 읽을 수도 있다. 하지만 생성, 삭제를 반복하면 Hole이 생겨서 낭비되는 부분이 생기기 쉽다.(External Fragmentation) 또한 File을 생성했을 때, 크기가 얼마나 될 것인가를 알 수 없다.
+* Linked Allocation - Linked List처럼 각 Block이 다음 Block을 가리키는 4Bytes~의 포인터를 저장한다. External Fragmentation이 발생하지 않는다. 하지만 Direct Access가 불가능하며, 포인터가 끊어질 경우 더 이상 File에 접근하지 못하는 점, 느린 속도가 단점으로 남는다. 개선 방법으로 Windows에서 사용하는 FAT 파일시스템이 있다. 포인터들만 모은 File Allocation Table을 별도의 Block에 이중 저장(손상 시 복구를 위해서)하여 Direct Access와 속도를 개선했다.
+* Indexed Allocation - Unix/Linux에서 사용하는 방식으로 File당 한 개의 Index Block을 가진다. 이 Index Block은 File의 포인터의 집합이며, Directory는 해당 Index block을 가리킨다. Direct Access가 가능하며, External Segmentation이 없다. Index block을 할당하기 위해서 저장공간의 손실이 있다는 단점이 있다.
+
+
+
+
+
+
+
+
 
 
 
