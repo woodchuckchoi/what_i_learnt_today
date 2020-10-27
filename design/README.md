@@ -23,3 +23,15 @@ Facade를 통해서 inner logic을 숨긴다. Compiler의 경우 내부에 수�
 
 * Observer(Pub/Sub)
 Publisher와 Subscriber(s)의 loose coupling이 가능하다. 어디에나 사용할 수 있다. 하지만 Pub/Sub 모델이 복잡해지면 Event Loop이 복잡해져서 debug에 어려움이 있다.
+
+---
+
+# Uber's New Backend Architecture
+모든 Process를 기능 단위로 분리했다.\
+심지어 Message Queue에 Insert를 하는 Process도 분리시켜놨음\
+이 경우 Message Queue를 변경해도 쉽게 교체가 가능하겠지만 Micro Service로 구축할지 Monolithic의 한 부분으로 구성할지는 Trade-off를 보고 결정해야 할 듯
+
+Google, Uber처럼 Global Scale인 경우 최소한의 Error를 가지는 Atomic Clock을 사용해서 ACID를 유지한다.\
+Time Zone에 따른 차이를 극복하는 것이 Global Scale Service가 필요한 점 (Unless 각 Region마다 각각의 Server를 구성)
+
+---
