@@ -535,14 +535,26 @@ Sector의 크기는 일반적으로 512Bytes이지만 Sector 자체의 크기가
 각각의 파일에 대해서 Free Block을 어떻게 할당할 것인가? == FILE Allocation은 아래와 같은 방법을 사용한다.
 * Contiguous Allocation - 각 파일을 연속된 Block에 할당한다. Header의 이동을 최소화하여 I/O 성능이 뛰어나다. 동영상, 음악 등의 매체에 적합하다. 순서대로 접근할 수도 있으며, 특정 부분을 바로 읽을 수도 있다. 하지만 생성, 삭제를 반복하면 Hole이 생겨서 낭비되는 부분이 생기기 쉽다.(External Fragmentation) 또한 File을 생성했을 때, 크기가 얼마나 될 것인가를 알 수 없다.
 * Linked Allocation - Linked List처럼 각 Block이 다음 Block을 가리키는 4Bytes~의 포인터를 저장한다. External Fragmentation이 발생하지 않는다. 하지만 Direct Access가 불가능하며, 포인터가 끊어질 경우 더 이상 File에 접근하지 못하는 점, 느린 속도가 단점으로 남는다. 개선 방법으로 Windows에서 사용하는 FAT 파일시스템이 있다. 포인터들만 모은 File Allocation Table을 별도의 Block에 이중 저장(손상 시 복구를 위해서)하여 Direct Access와 속도를 개선했다.
-* Indexed Allocation - Unix/Linux에서 사용하는 방식으로 File당 한 개의 Index Block을 가진다. 이 Index Block은 File의 포인터의 집합이며, Directory는 해당 Index block을 가리킨다. Direct Access가 가능하며, External Segmentation이 없다. Index block을 할당하기 위해서 저장공간의 손실이 있다는 단점이 있다.
+* Indexed Allocation - Unix/Linux에서 사용하는 방식으로 File당 한 개의 Index Block을 가진다. 이 Index Block은 File의 포인터의 집합이며, Directory는 해당 Index block들을 가리킨다. Direct Access가 가능하며, External Segmentation이 없다. Index block을 할당하기 위해서 저장공간의 손실이 있다는 단점이 있다. 또한 Index Block의 최대 크기에 따라서 File의 최대 크기가 정해진다는 단점을 극복하기 위해서 Linked, Multilevel Index, Combined 같은 방식을 차용한다.
 
+## Disk Scheduling
+Disk 접근 시간은 Seek time + Rotational time + Transfer time으로 결정된다.\
+이중 Cylinder를 탐색하는 Seek Time이 가장 크다.
 
+Multi Process 환경에서는 Disk Queue에 많은 Request가 쌓이게 된다.\
+이 Request를 가장 빠르게 처리하는 방법은 == Disk Scheduling
 
+Disk Scheduling 방법은 아래와 같다.
+* First-Come First-Serve
+* Shortest-Seek-Time-First - 그 순간의 Head 위치에서 가장 가까운 Cylinder부터를 탐색하는 방법, Optimal하지 않으며 혼자 멀리 떨어진 Disk Request의 경우 Starvation 문제가 발생한다.
+* Scan Scheduling - Head가 계속 Inward-Outward로 움직이며 이에 해당하는 Disk Request를 처리한다. Disk Queue의 Request가 Uniform Distribution을 따른다는 가정 하에 유용한 방법이다.
 
+Scan Variants
+1. C-Scan - Disk Cylinder idx의 끝에 도달하면 처음으로 돌아간다.
+2. Look - Request의 상한, 하한까지만 탐색한다.
+3. C-Look - C-Scan + Look
 
-
-
+---
 
 
 
