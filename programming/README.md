@@ -803,8 +803,23 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 
 ---
 
+# Golang SQL package
+다른 언어, Lib과의 차이점은 일단 Single Query의 경우 commit을 자동으로 수행하며, 여러 Query가 합쳐진 Transaction은 Transaction을 선언한 후 Exec, Commit, Rollback 과정을 거친다는 점.\
+또한 다수의 Entry가 반환되는 Query의 경우, Rows라는 Interface를 반환한다. Rows는 Next() Method를 통해서 다음 Rows에 대한 정보를 Lazy Evaluation하는데, 특이하게도 아래와 같은 Syntax를 취한다.
 
+	for rows.Next() {
+	    val (
+	        n string,
+	        m int
+	    )
+	
+	    rows.Scan(&n, &m)
+	    u := model.User{Name: n, Age: m}
+	    models = append(models, u)
+	}
 
+위와 같이 rows.Next()를 실행한 상태로 그 안의 scope에서 해당 row를 처리하는 것을 best practice(이자 golang의 일반적인 package가 그렇듯 유일한) 처리 방법으로 두고 있다.\
+아직 SQL pkg의 소스 코드를 까보지는 않았는데, Next()를 defer로 처리한 건 알 수 있다.
 
 
 
