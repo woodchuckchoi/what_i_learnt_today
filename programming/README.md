@@ -819,7 +819,7 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 	}
 
 위와 같이 rows.Next()를 실행한 상태로 그 안의 scope에서 해당 row를 처리하는 것을 best practice(이자 golang의 일반적인 package가 그렇듯 유일한) 처리 방법으로 두고 있다.\
-아직 SQL pkg의 소스 코드를 까보지는 않았는데, Next()를 defer로 처리한 건 알 수 있다.
+아직 SQL pkg의 소스 코드를 까보지는 않았는데, Next()는 -1 idx에서 시작해서 늘어가는 거겠지
 
 
 

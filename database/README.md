@@ -158,3 +158,18 @@ Committed Transaction은 persistent해야한다. Redis는 in-memory이므로 dur
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
