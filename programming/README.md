@@ -838,3 +838,38 @@ Go의 source code는 utf-8을 사용한다.\
 이처럼 한 character를 나타내는 codepoint의 단위를 go에서는 rune이라 한다.
 
 ---
+
+# Generics in Go
+"Generic programming enables the representation of functions and data structures in a generic form, with types factored out..."\
+아래 함수는 string 등 다른 []\<type\>에는 사용할 수 없다.
+
+    func Reverse(s []int) {
+        var (
+            left = 0
+            right = len(s) - 1
+        )
+        for left < right {
+            s[left], s[right] = s[right], s[left]
+            left++
+            right--
+        }
+    }
+
+아래와 같이 Interface를 통해서 generics를 흉내낼 수 있지만
+
+    func Reverse(s []interface{}) {
+        var (
+            left = 0
+            right = len(s) - 1
+        )
+        switch s[0].(type) {
+            case int64:
+                // do something
+                ...
+
+여전히 코드를 반복해야할 뿐아니라, Go의 Best Practice도 아니다.(Statically Typed Language의 강점이 사라진다.)\
+Developer들의 요구로 Generics Implement를 고려하고 있지만, 우선순위가 아니며 Trade-off가 있기 때문에 확실하진 않다.
+
+-> 위의 예시처럼 편리하긴 할테지만 Generics를 통한 overhead와 complexity가 golang에 적합한지는... 차라리 code generator를 사용하는게 나을 수도 있을 듯
+
+---
