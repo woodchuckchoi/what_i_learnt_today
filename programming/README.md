@@ -821,5 +821,20 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 위와 같이 rows.Next()를 실행한 상태로 그 안의 scope에서 해당 row를 처리하는 것을 best practice(이자 golang의 일반적인 package가 그렇듯 유일한) 처리 방법으로 두고 있다.\
 아직 SQL pkg의 소스 코드를 까보지는 않았는데, Next()는 -1 idx에서 시작해서 늘어가는 거겠지
 
+또 MySQL의 timestamp는 time pkg의 time.Format(time.RFC3339)와 compatible하다. time.Time type이기 때문에 JSON Marshal에도 문제가 없다! 땡큐!
 
+---
 
+# Go\'s String & Byte & Rune
+Go의 source code는 utf-8을 사용한다.\
+따라서 string literal은 utf-8 인코딩된 문자열을 나타내게 된다.\
+하지만 string은 arbitrary byte의 array이므로 모든 string이 utf-8 value만 가지는 것은 아니다.
+
+예를 들어 ⌘는 U+2318이며 \\xe2\\x8c\\x98로도 나타낼 수 있다.\
+그렇기 때문에 string과 character에 대해서 나타낼때는 ambiguous 할 수 밖에 없다.
+
+또한 à를 나타내기 위해서는 U+00e0을 사용할 수도 u+0300과 U+0061의 조합으로도 나타낼 수 있다.
+
+이처럼 한 character를 나타내는 codepoint의 단위를 go에서는 rune이라 한다.
+
+---
