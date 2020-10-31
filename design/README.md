@@ -35,3 +35,17 @@ Google, Uber처럼 Global Scale인 경우 최소한의 Error를 가지는 Atomic
 Time Zone에 따른 차이를 극복하는 것이 Global Scale Service가 필요한 점 (Unless 각 Region마다 각각의 Server를 구성)
 
 ---
+
+# Streaming Service
+왓챠같은 비디오 스트리밍 서비스는 (각각 다르지만) 어떻게 동작하는 것일까?\
+Pay, Recommendation 등 다른 서비스도 중요하지만, Streaming 서비스가 중심이다. 다른 서비스와는 다르게 대용량 정보를 끊김없이 제공해야되기 때문에 아키텍쳐, 프로토콜이 일반적인 CRUD 서비스와는 차이가 있을 수 밖에 없다.\
+예를 들어 Youtube는 UDP(HTTP3) 통신을 통해서 Byte 데이터를 전송받는다. 그렇게 전달받은 Byte 데이터를 Front가 렌더링하는 것으로 보인다.\
+반면 왓챠는 HTTP2(TCP) 프로토콜로 동영상 데이터인 mp4를 AWS S3 -> Cloud Front로부터 전달받는다. 특이한 점은 각 Request의 URI가 같다는 것이다.\
+계속 바뀌는 영상 데이터인데 엔드포인트는 같다? 그렇다면 S3 Static Serving에 계속해서 UUID의 URI에 실시간으로 영화를 잘라서 넣거나 미리 잘라놓은 영상을 계속 업데이트 한다는 뜻일까?\
+Request Header에는 "range"라는 내 이론과 꽤나 잘 맞을 것 같은 Header도 있다.\
+아무리 생각해도 실시간으로 영상을 처리하는 건 너무 overhead가 크기 때문에 Batch 작업으로 처리한 짧은 영상을 복붙하는 것 같은데, 복붙도 문제가 있다.\
+S3에 복붙을 한다고해도 1. S3는 Strongly Consistent하지 않고 2. S3의 최대 속도가 수백 MB라도 실시간 스트리밍 서비스에는 느릴 수도 있다.\
+그렇다면 나한테 보여지는 URI에는 보이지 않는 service가 URI, Header의 range를 조합해서 그 순간에 맞는 영상으로 forward해주는 서비스가 있다고 생각할 수 밖에 없다.\
+endpoint URI를 숨김으로써 얻는 이득은 공격에 대한 방어일까? 하지만 해당 URI에 접속하면 (Broken) 영상이 보이는데;; 아키텍쳐가 어떤지는 모르지만 Auth와 관련해서 고칠 점이 있는건가
+
+---

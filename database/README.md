@@ -158,12 +158,43 @@ Committed Transaction은 persistent해야한다. Redis는 in-memory이므로 dur
 
 ---
 
+# Row-oriented VS Columnar
+* Row-oriented
+database의 tuple(각 column에 대한 데이터의 집합)을 기본 단위로 저장
+하나의 block io read는 여러 row를 fetch하게 된다.
+하나의 read를 하는데 더 많은 IO overhead가 발생하지만 한 row를 fetch 했을 때, 모든 column의 데이터를 가져온다.
 
+* Columnar
+database table은 각 column별로 저장
+하나의 block io read는 한 column의 여러 row를 가져온다.
+한 column에 대한 데이터를 fetch 할 때 상대적으로 적은 IO overhead가 발생한다.
 
+*Example*
 
+    SELECT first_name FROM emp WHERE ssn=666;
+    # row-oriented - ssn match 할 때까지 모든 row, 모든 column의 데이터를 fetch한다.
+    # columnar - ssn column query를 통해서 idx를 탐색한다. first_name의 idx번째 row를 찾는다.
+    
+    SELECT * FROM emp WHERE id=1;
+    # row-oriented - id는 index이므로 바로 id를 찾아서 모든 column의 데이터를 제공한다.
+    # columnar - 각 column에 대해서 id가 1인 데이터를 query한다.
+    
+    SELECT SUM(salary) FROM emp;
+    # row-oriented - 모든 row의 모든 column에 대한 query를 수행하고, 그 중에서 salary만 집계한다.
+    # columnar - salary column의 모든 데이터를 가져온 후 집계한다.
 
+## Pros & Cons
+* Row-based
+읽기/쓰기에 optimal (OLTP)\
+Inefficient Compression
+Inefficient Aggregation
+Efficient Queries on multiple columns
 
-
+* Columnar
+쓰기가 느리다 (OLAP)
+Efficient Compression
+Efficient Aggregation
+Inefficient Queries on multiple columns
 
 
 
