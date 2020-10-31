@@ -873,3 +873,20 @@ Developer들의 요구로 Generics Implement를 고려하고 있지만, 우선�
 -> 위의 예시처럼 편리하긴 할테지만 Generics를 통한 overhead와 complexity가 golang에 적합한지는... 차라리 code generator를 사용하는게 나을 수도 있을 듯
 
 ---
+
+# Streaming
+얼마 전부터 궁금했던 streaming을 간단하게 구현하는 가이드를 따라서 구현을 해봤다.\
+단순한 File Server를 제공하면 Protocol에 맞춰 video play framework가 HLS면 HLS, DASH면 Dash로 지원하는 형태였다.\
+*HLS는 Apple이 개발한 format이라 그런건지 safari를 제외하면 접근성이 좋지 않은 것 같았다.*
+
+	const songsDir = "song"
+	const port = 9999
+
+	http.Handle("/", addHeaders(http.FileServer(http.Dir(songsDir))))
+
+Encoding, File Server(s3 Object Storage를 대부분 사용) 부분도 구현할 부분이 많이 있지만 내 생각에는 대용량 데이터인 비디오를 보관할 media server, edge-service provider 등 architecture를 제대로 구현하는게 속도와 안전성, scalability에 가장 포인트가 아닐까 생각한다.\
+Front, 게다가 video framework를 사용해본적이 없어서 black box처럼 느껴지는 부분이 좀 있었고, web rtc가 이렇게 swiss army knife 같이 느껴질 줄은 몰랐다.\
+
+---
+
+
