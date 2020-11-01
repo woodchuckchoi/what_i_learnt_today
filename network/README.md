@@ -541,3 +541,15 @@ Session Layer는 다음과 같은 서비스를 제공한다.
 검색 결과 RPC는 어떠한 프로토콜에 한정된 것이 아닌 패러다임이라고 하기 때문에, "Session Layer를 사용하는 RPC Implementation이 있다."고 생각하는 편이 낫지 않을까?
 
 ---
+
+# TLS
+통신을 할 때 내 Node의 Router는 내 Private IP를 Public IP로 전환한다.\
+일반적으로 모든 Packet은 ISP로 바로 전달되지만, Internet은 기본적으로 다른 Node를 통해서 전달되는 데이터의 흐름이므로 100% 안전하다고 할 수 없다.\
+따라서 TLS의 Goal은 Connection을 중개하는 다른 Node가 중간에서 connection(source/destination ip, port)을 제외한 데이터를 sniff(Deep-Packet Inspection) 하지 못하도록 암호화하는 것이다.\
+Certificate은 client가 접근하는 server가 실제 server가 맞는지를 확인시켜준다.\
+Client도 certificate을 가지고 server가 이를 확인하는 형태를 Mutual TLS라 한다. 이는 한 application이 여러 서비스로 나눠진 Micro Service Architecture에서 중요하다.(대부분의 MicroService는 Mutual TLS등 complexity를 피하기 위해서 K8S와 같은 cluster에 deploy한다.)\
+
+---
+
+
+
