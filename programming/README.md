@@ -886,6 +886,12 @@ Developer들의 요구로 Generics Implement를 고려하고 있지만, 우선�
 
 Encoding, File Server(s3 Object Storage를 대부분 사용) 부분도 구현할 부분이 많이 있지만 내 생각에는 대용량 데이터인 비디오를 보관할 media server, edge-service provider 등 architecture를 제대로 구현하는게 속도와 안전성, scalability에 가장 포인트가 아닐까 생각한다.\
 Front, 게다가 video framework를 사용해본적이 없어서 black box처럼 느껴지는 부분이 좀 있었고, web rtc가 이렇게 swiss army knife 같이 느껴질 줄은 몰랐다.\
+단순히 File Server를 제공하는 게 아니라면 Logic은
+
+    Client -> Streaming Server // 현재 status의 metadata request 후, 다음 status(vid) response
+    // 여기서 중요한 점은 response가 highly available 해야한다는 점.
+    // 또 Downtime도 없어야하지만, 다음 몇 프레임을 생략하더라도 그 다음 프레임을 볼 수 있는게 더 중요하지 않을까? (연속적인 비디오)
+    // 이 기준이라면 UDP가 더 낫지만, HTTP3를 지원하는 프레임워크는 현재 한정적이므로, 아마도 UDP의 socket server를 직접 구현하는 것이 state-or-art가 아닐까 생각한다.
 
 ---
 
