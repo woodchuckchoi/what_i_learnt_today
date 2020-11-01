@@ -551,5 +551,21 @@ Client도 certificate을 가지고 server가 이를 확인하는 형태를 Mutua
 
 ---
 
+# AWS ALB, NLB and CLB
+* NLB
+Network Connection(IP addr, port)에 따라서 Layer4(transport layer)에서 load balancing한다.\
+content-type, cookie 등 application layer의 criteria는 사용되지 않는다.\
+NAT Gateway의 logic을 통해서 구현되었으며, EIP를 사용하기 때문에 static한 endpoint를 가지게 된다.
 
+* ALB
+Layer3(Network Layer)부터 Layer7(Application Layer)까지의 정보를 종합하여 load balancing한다.\
+HTTP(1.1, 2)와 HTTPS를 rule-based, host-based, path-based로 load balancing 가능하다.
 
+Neetwork LoadBalancer는 단순히 request를 forwarding하는 반면 Application LoadBalancer는 Request를 확인하고 Content-Based-Route한다.\
+또한 NLB의 경우 application의 availability를 확신할 수 없다. Server의 Ping에 대한 응답이나 3-Way TCP Handshake 가능 여부를 통해서 availability를 따지기 때문이다.\
+반면 ALB의 경우 HTTP GET Request에 대한 응답이나, response의 content가 예상한 대로 나오는지 등 더 자세히 확인할 수 있다.
+
+* CLB
+Classical LoadBalancer는 Legacy이며 Backward-compatibility 등 특별한 경우가 아니라면 사용을 권장하지 않는다.
+
+---
