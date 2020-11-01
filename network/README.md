@@ -569,3 +569,18 @@ Neetwork LoadBalancer는 단순히 request를 forwarding하는 반면 Applicatio
 Classical LoadBalancer는 Legacy이며 Backward-compatibility 등 특별한 경우가 아니라면 사용을 권장하지 않는다.
 
 ---
+
+# Netmask
+Netmask는 "Subnet에 얼마나 많은 IP가 있을 수 있는지를 나누는(available hosts)" 32bit으로 구성된 mask이다.\
+255.255.255.0은 항상 Network address로 지정되어 있으며, 255.255.255.255는 항상 Broadcast address로 지정되어있어서 할당할 수 없다.\
+아래 예시와 같이 subnet을 나타낸다.
+
+    IP                  NETMASK             DESC
+    192.168.55.161      255.255.255.255     192.168.55.161
+    192.168.55.0        255.255.255.0       192.168.55.0    - 192.168.55.255
+    192.168.55.240      255.255.255.240     192.168.55.240  - 192.168.55.255
+    192.168.55.161      255.255.255.0       192.168.55.0    - 192.168.55.161
+    192.168.0.0         255.255.0.0         192.168.0.0     - 192.168.255.255
+
+
+
