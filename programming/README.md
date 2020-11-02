@@ -895,4 +895,20 @@ Front, 게다가 video framework를 사용해본적이 없어서 black box처럼
 
 ---
 
+# All you need to know about wsgi
+WSGI는 WebServer(NginX, Apache)와 Django, Flask 등의 Framework 사이에 존재한다.\
+WSGI는 어떤 일을 하는가?
+
+먼저 Classic한 웹 서버(CGI)는 아래의 flow를 따른다.\
+WebServer는 Static Content를 반환하기만 하므로, Dynamic Content를 반환하기 위해서는 중간에 외부의 script를 동작시키고 이 결과값을 return 해줘야한다.\
+이 과정에서 environment variable에 각종 param을 저장한 Webserver는 fork()하여 script를 동작시킨다.
+
+WSGI는 CGI를 확장한 Gateway Interface이다.
+어떠한 script라도 environment variable의 dict를 첫번째 argument로, 두번째 argument는 정해진 format에 따라서 함수 내에서 call하는 형식만 따른다면 webserver에 implement 될 수 있다.\
+이것이 WSGI, webserver와 framework를 연결해주는 standard이다.
+
+Apache의 경우 pre-forking을 통해서 최대한 fork()의 overhead를 줄인다.\
+하지만 이러한 기능이 없는 NginX는 Gunicorn, uWSGI 등의 fork를 대신해주는 또 다른 웹서버에 forward해줌으로써 WSGI를 구현을 돕는다.
+
+---
 
