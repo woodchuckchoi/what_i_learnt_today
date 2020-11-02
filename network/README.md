@@ -582,5 +582,24 @@ Netmask는 "Subnet에 얼마나 많은 IP가 있을 수 있는지를 나누는(a
     192.168.55.161      255.255.255.0       192.168.55.0    - 192.168.55.161
     192.168.0.0         255.255.0.0         192.168.0.0     - 192.168.255.255
 
+---
 
+# Auth & JWT
+1. Storing PW as is
+최악, DB Leak의 경우 PW 노출
 
+2. Storing Hashed PW
+PW를 알 수 없지만, DB Leak의 경우 PW 예측 가능
+
+3. Storing Salt and Hashed PW
+Salt로 Hash된 PW와 Salt를 저장, 2 Column을 추가해야하는 Overhead 발생
+
+4. Storing Hashed PW that stores Salt
+bcrypt 등을 사용하여 hashed pw가 salt를 포함하도록 한다.
+
+5. Always ask the PW and store something else
+매번 PW를 묻고 PW와 기타 데이터를 조합한 무언가를 저장한다.
+
+* Using JWT
+위의 모든 방법은 application은 stateless하더라도 db가 stateful하다. System 전체로 봤을 때, stateful하다고 볼 수 있다.\
+Stateless, Non-Session based의 방법으로 JWT를 사용하며, login token, reload token을 사용한다.
