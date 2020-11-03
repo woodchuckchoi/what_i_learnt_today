@@ -196,11 +196,17 @@ Efficient Compression
 Efficient Aggregation
 Inefficient Queries on multiple columns
 
+---
 
+# Locking
+일반적으로 Database에서 locking을 구현하는데는 3가지 방법이 있다.
+1. Table-based Locking
+Commit이나 Rollback이 발생하기 전까지 Table 전체를 Lock하는 방식이다. Read와 Write Lock이 나눠지는 경우가 대부분이다.
 
+2. Row-based Locking
+Commit이나 Rollback이 발생하기 전까지 해당 Row를 Lock하는 방식이다. Read와 Write Lock이 나눠지는 경우가 대부분이다. Deadlock이 발생하지 않도록 주의한다. (Table-based Lock은 deadlock이 발생하지 않는다.)
 
+3. Optimistic Locking
+\"Lock\"과 같은 Column을 두고 해당 Column이 0이 아닐 때는 접근 금지 등의 Logic을 통해서 Lock을 구현하는 방식이다. 한 Transaction 내에서 Lock의 설정과 Logic에 대한 Query가 동시에 발생하도록 Query를 짜야한다.
 
-
-
-
-
+---
