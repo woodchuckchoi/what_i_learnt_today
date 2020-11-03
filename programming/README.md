@@ -912,3 +912,72 @@ Apache의 경우 pre-forking을 통해서 최대한 fork()의 overhead를 줄인
 
 ---
 
+# Python High-order wrappers
+* property decorator는 getter와 setter를 대신하는 역할을 한다.
+
+	class Test():
+	    def __init__(self, score = 0):
+	        self.__score = score
+	
+	    @property # getter
+	    def score(self):
+            print('Getting score...')
+	        return self.__score
+	
+	    @score.setter # setter
+	    def score(self, value):
+	        self.__score = value
+    
+    # >>> t = Test()
+    # >>> print(t.score)
+    # 0
+    # >>> t.score = 42
+    # >>> print(t.score)
+    # 42
+
+위와 같이 동작한다. property.deleter도 있다.
+
+functools lib은 고계함수에 대한 지원을 하는 class, methods로 이루어져있다.\
+* functools.cache는 function에 대한 cache를 구현한다.
+
+    @cache
+    def factorial(n):
+        return n * factorial(n-1) if n else 1
+    
+    factorial(10) # 10까지 계산
+    factorial(7)  # cache에서 retrieve
+
+* functools.cached\_property는 method를 property로 만들고 그 값을 instance lifecycle 동안 cache한다.
+
+    @cached_property
+    def stdev(self):
+        return statistics.stdev(self._data)
+    
+    # >>>print(something.stdev)
+    # some data (cached)
+
+* functools.lru\_cache는 functools.cache와 같지만 bound가 없이 무한히 커지는 cache와 다르게 maxsize(default 128)를 가진다. maxsize가 None으로 설정되면 cache와 동일하게 동작한다. typed flag가 true로 설정되면 type에 따라 다른 값으로 추정되어 cache에 저장된다.
+
+* functools.partial은 partial object를 반환하며 partial object는 call 되었을 때 args와 kwargs가 설정된 함수처럼 동작한다.
+
+    basetwo = partial(int, base=2)
+    basetwo.__doc__ = 'Convert base 2 string to an int.'
+    basetwo('10001')
+    # 17
+
+* functools.wraps는 wrapper function에 wrapped function의 메타데이터를 전달한다.
+
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
+        return wrapper
+
+    @decorator
+    def example():
+        """Docstring"""
+        print('Called!')
+    # >>> print(example.__name__)
+    # 'example' # 사실 wrapper이지만 wraps를 통해서 변환
+    # >>> print(example.__doc__)
+    # 'Docstring' # 동일
