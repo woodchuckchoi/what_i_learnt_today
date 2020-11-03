@@ -603,3 +603,12 @@ bcrypt 등을 사용하여 hashed pw가 salt를 포함하도록 한다.
 * Using JWT
 위의 모든 방법은 application은 stateless하더라도 db가 stateful하다. System 전체로 봤을 때, stateful하다고 볼 수 있다.\
 Stateless, Non-Session based의 방법으로 JWT를 사용하며, login token, reload token을 사용한다.
+
+---
+
+# DNS over HTTPS
+Request가 발생하면 PORT 53 (UDP)를 통해서 DNS Provider(주로 ISP)에 해당 Domain의 IP를 요청&전달하게 된다.\
+HTTPS 보안을 통해서 Payload가 보이지 않는다고 하더라도, 해당 Request가 향하는 Domain은 보이기 때문에 이를 통해서 정부&기관은 Block이 가능하다.\
+FireFox는 이것을 막기위해서 CloudFlare에 Secure Connection을 연결한 후 DNS를 Query하는 DNS over HTTPS를 고안했지만 TCP Handshake 중에도 Domain이 노출되어 근본적인 해결책이 아니라는 취약점이 있다.
+
+--- 
