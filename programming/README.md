@@ -996,6 +996,102 @@ functools lib은 고계함수에 대한 지원을 하는 class, methods로 이�
 
 ---
 
+# NginX Basics
 
+	http {
+	    server {
+	        listen 8080;
+	        root /home/hyuck/nginx; // root directory for static files
+	
+	        location /images {
+	            // traffic to /images/filename will be served /home/hyuck/images/filename
+	            root /home/hyuck/;
+	        }
+            //regex, anyfilename.jpg will match
+            location ~ .jpg$ {
+                return 403;
+            } 
+	    }
+	}
+	
+	events { }
+    
+    $ nginx -s reload
 
+위의 예시는 8080에 server를 연다. /home/hyuck/nginx의 static file을 제공하며, /images에 접근하면 /home/hyuck/images에서 제공한다. jpg로 끝나는 uri에 접근하면 403 error를 출력한다.
 
+    server {
+        listen 8888;
+    
+        location / { // localhost:8888/에 접근하는 traffic을 localhost:8080/으로 redirect한다.
+            proxy_pass http://localhost:8080/;
+        }
+        location /img { // localhost:8888/img/something.png를 localhost:8080/image/something.png로 redirect한다.
+            proxy_pass http://localhost:8080/images/;
+        }
+    }
+
+    http {
+        upstream allbackend {
+            // ip_hash; // hash ip to decide where to send, handy for stateful applications
+            server 127.0.0.1:2222;
+            server 127.0.0.1:3333;
+            server 127.0.0.1:4444; // scaled apps, load balanced in round-robin
+        }
+        upstream app1backend {
+            server 127.0.0.1:2222;
+        }
+        upstream app2backend {
+            server 127.0.0.1:3333;
+        }
+        server {
+            listen 80; // need sudo privilege since 80 is reserved for system
+            location / {
+                proxy_pass http://allbackend/;
+            }
+            location /app1 {
+                proxy_pass http://app1backend/;
+            }
+            location /app2 {
+                proxy_pass http://app2backend/;
+            }
+            location /admin {
+                return 403;
+            }
+        }
+
+위의 예시는 layer 7 proxy 예제임.
+
+    stream {
+        upstream allbackend {
+            server 127.0.0.1:2222;
+            server 127.0.0.1:3333;
+        }
+        server {
+            listen 80;
+            proxy_pass allbackend; // smtp, websocket any tcp protocol will be allowed
+        }
+    }
+
+위의 예시는 layer 4 proxy 예제임.
+
+    server {
+        listen 443 ssl;
+    
+        ssl_certificate /public_key;
+        ssl_certificate_key /private_key;
+    }
+
+SSL Support
+
+    server {
+        ssl_protocols TLSv1.3;
+    }
+TLS 1.3 Support
+
+    server {
+        listen 443 ssl http2;
+    }
+HTTP2 Support
+
+---
