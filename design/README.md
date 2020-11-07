@@ -49,3 +49,16 @@ S3에 복붙을 한다고해도 1. S3는 Strongly Consistent하지 않고 2. S3�
 endpoint URI를 숨김으로써 얻는 이득은 공격에 대한 방어일까? 하지만 해당 URI에 접속하면 (Broken) 영상이 보이는데;; 아키텍쳐가 어떤지는 모르지만 Auth와 관련해서 고칠 점이 있는건가
 
 ---
+
+# Bloom Filter
+만약 a라는 user가 있는지 확인하고 싶다면, was에 request를 보내고 was는 db에 select를 통해서 a가 있는지 확인 후 response를 보내야 한다.\
+이 때 생기는 round trip을 최소한으로 처리하기 위해서 redis와 같은 메모리에 응답값을 저장한 후, 그 응답을 활용할 수 있다.\
+하지만 이와 같은 문제를 막기 위한 solution, bloom filter를 사용할 수도 있다.
+
+## Bloom Filter
+Hashing 값을 통해서 DB에 값이 해당 Hashing 값을 가지는 이름이 이미 있는지를 알 수 있다? HOW?\
+Cassandra도 내부적으로 Consistency를 체크하기 위해서 Bloom Filter를 사용한다.\
+Application이 stateful해진다, memory intensive하다, redis를 사용하는 것과 큰 차이가 없다.\
+Implementation에 따라 spec 차이가 있겠지만 지금 생각으로는 서비스 적용에 크게 이득이 없을 것이라고 예상됨
+
+---
