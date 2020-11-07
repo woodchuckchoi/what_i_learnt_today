@@ -612,3 +612,12 @@ HTTPS 보안을 통해서 Payload가 보이지 않는다고 하더라도, 해당
 FireFox는 이것을 막기위해서 CloudFlare에 Secure Connection을 연결한 후 DNS를 Query하는 DNS over HTTPS를 고안했지만 TCP Handshake 중에도 Domain이 노출되어 근본적인 해결책이 아니라는 취약점이 있다.
 
 --- 
+
+# Virtual IP Address (VIP)
+Master Node는 Virtual IP에 응답한다.\
+Health Check를 통해서 Slave(Worker) Node는 Virtual IP에 응답하지 않는다.\
+Master가 Unresponsive되면 Slave Node는 Master가 되어서 Virtual IP에 응답한다.\
+위의 과정을 VRRP (Virtual Router Redundancy Protocol)이라고 한다.\
+LoadBalancer가 있으니 필요없다고 생각할 수도 있지만, entry point를 늘린다는 점에서 만약에 entry point load balancer가 여러개 있다면? 더더욱 Highly Available하지 않은가?를 알 수 있다.
+
+---
