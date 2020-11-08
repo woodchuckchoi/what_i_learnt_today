@@ -621,3 +621,6 @@ Master가 Unresponsive되면 Slave Node는 Master가 되어서 Virtual IP에 응
 LoadBalancer가 있으니 필요없다고 생각할 수도 있지만, entry point를 늘린다는 점에서 만약에 entry point load balancer가 여러개 있다면? 더더욱 Highly Available하지 않은가?를 알 수 있다.
 
 ---
+
+# NAT Slipstreaming
+Packet을 특정한 방식으로 만들면 NAT Gateway는 이를 해독하는 과정(Deep Packet Inspection)에서 PORT OPEN과 같은 Malicious 명령을 수행할 수도 있다.
