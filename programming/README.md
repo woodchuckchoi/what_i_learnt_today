@@ -1095,3 +1095,11 @@ TLS 1.3 Support
 HTTP2 Support
 
 ---
+
+# GraphQL
+GraphQL은 얼핏 봤을 때는 ORM의 일종이라고 생각할 수 있지만, GraphQL 자체에 Object-Relation mapping 기능이 지원되지 않고, 그 자체로 DB에 접속할 수 없다.\
+GraphQL은 resolver function을 작성하며, MySQL 등 SQL System에 연결하여 사용한다.\
+RestAPI 구조에서 흩어져있는 Endpoint를 하나의 Endpoint로 모으고, filter 기능을 통해서 back의 기능을 front에서 수행할 수 있도록 한 것이다.\
+Client(PC, Mobile 등)의 성능이 높아지면서 SPA, Client-side rendering 등의 feature를 통해서 server에 집중되는 overhead를 front에 분배하는 기능이 점점 추가되는데, GraphQL 역시 그 일환이라고 볼 수 있다.
+
+---
