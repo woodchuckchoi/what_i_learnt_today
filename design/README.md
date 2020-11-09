@@ -62,3 +62,13 @@ Application이 stateful해진다, memory intensive하다, redis를 사용하는 
 Implementation에 따라 spec 차이가 있겠지만 지금 생각으로는 서비스 적용에 크게 이득이 없을 것이라고 예상됨
 
 ---
+
+# Reddit Being Slow
+New Reddit은 lazy evaluation하던 old reddit에서 모든 data를 다 load하는 웹앱으로 변경했다.\
+대부분의 overload는 static data (video, image)가 차지했지만 불필요한 javascript 역시 적지 않은 용량을 차지한다.\
+graphql을 사용하고 (아마도) 새로운, 더 낫다고 여겨지는 web framework를 적용했지만 performance boost와 new tech가 항상 같은 것은 아니다.
+
+p.s. PNG의 animated version인 apng가 존재한다!
+
+---
+
