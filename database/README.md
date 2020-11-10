@@ -210,3 +210,13 @@ Commit이나 Rollback이 발생하기 전까지 해당 Row를 Lock하는 방식�
 \"Lock\"과 같은 Column을 두고 해당 Column이 0이 아닐 때는 접근 금지 등의 Logic을 통해서 Lock을 구현하는 방식이다. 한 Transaction 내에서 Lock의 설정과 Logic에 대한 Query가 동시에 발생하도록 Query를 짜야한다.
 
 ---
+
+# Check Indexes and Partitioning Information
+
+```
+    SHOW INDEXES FROM table_name
+    // Check table's index information
+    
+    SHOW CREATE TABLE table_name
+    // Check table's partitioning information and other data
+```
