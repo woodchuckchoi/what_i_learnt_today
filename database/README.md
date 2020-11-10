@@ -28,11 +28,11 @@ Index를 선택할 때는 위의 조건들을 이용하여 직접 선택하거�
 
 * In Depth
 일반적으로 B-Tree와 LSM-Tree로 인덱스를 설정한다.\
-Index와 Table은 서로 다른 data structure로 서로 다른 곳에 저장된다.\
+Index와 Table은 서로 다른 data structure로 서로 다른 곳에 저장된다.
 
 	// describe test;
-	// id INT AUTO INCREMENT NOT NULL PRIMARY KEY // PRIMARY KEY는 Index로 설정된다.
-	// name VARCHAR(10) NOT NULL 
+	id INT AUTO INCREMENT NOT NULL PRIMARY KEY // PRIMARY KEY는 Index로 설정된다.
+	name VARCHAR(10) NOT NULL 
 	
 	select id from test where id = 1;
 	// 위의 query는 index인 id를 찾은 후, 해당 index value를 반환하므로 소요되는 시간이 적다.
