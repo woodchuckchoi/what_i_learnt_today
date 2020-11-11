@@ -220,3 +220,18 @@ Commit이나 Rollback이 발생하기 전까지 해당 Row를 Lock하는 방식�
     SHOW CREATE TABLE table_name
     // Check table's partitioning information and other data
 ```
+
+---
+
+# 7 Database Paradigms
+1. Key-Value: redis, memcached와 같이 key-value로 구성된 간단한, 주로 in-memory에 구성된 database. 속도가 빨라서 cache, pub/sub에 주로 사용된다.
+2. Wide Column: Cassandra, HBase와 같이 key-columns로 구성된 database. Schema가 없어서 Join이 불가능하지만, scalable하여 time-series 등 write를 집중적으로 사용하는 usage에 적합하다.
+3. Document: MongoDB, FireStore 등 key-value pair를 저장하는 documents를 모아서 collection을 구성하는 database. Schema가 없어서 join이 안되지만, scalable하며 relational db의 sql과 유사한 query가 가능하다. read가 빠르지만 writing, updating이 느리다.
+4. Relational DB: MySQL, Postgres 등 가장 일반적인 형태의 database. Schema, ACID 등의 특징을 가지고 있다.
+5. Graph: neo4j 등 data 사이의 관계를 정의하는 database. Edge를 구성하고 다른 Table과 relationship을 구성해서 관계를 표현한다. Join이 많은 engine 구현에 뛰어나다.
+6. Search DB: Solr, Elastic Search 등 대용량 문서에서 특정 텍스트를 찾아내는데 특화된 DB. Document DB와 같은 구성이지만, index를 효과적으로 구성해서 대용량 데이터를 분석한다. Overhead가 높아서 일반적인 app 구성에 사용하기 어렵지만 검색, 추천 시스템 등에 효율적이다.
+7. Multi Model: Fauna DB 등 여러 database paradigm을 합쳐서 만든 database. ACID를 지원하며, graphql을 통해서 query와 payload를 조작할 수 있다. 속도가 빠르고 유연하다.
+
+---
+
+

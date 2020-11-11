@@ -624,3 +624,13 @@ LoadBalancer가 있으니 필요없다고 생각할 수도 있지만, entry poin
 
 # NAT Slipstreaming
 Packet을 특정한 방식으로 만들면 NAT Gateway는 이를 해독하는 과정(Deep Packet Inspection)에서 PORT OPEN과 같은 Malicious 명령을 수행할 수도 있다.
+
+---
+
+# google.com and www.google.com are different
+Browser는 HTTPS로 연결되는 도메인을 저장하고 이후에 해당 도메인에 접근하는 Request가 발생하면 바로 HTTPS 연결을 시도한다.(HSTS)\
+하지만 www를 붙이지 않으면, browser는 저장된 도메인과 일치하지 않다고 인식하고 HTTP 연결을 시도한다.\
+뿐만 아니라 대부분의 사이트는 HTTP 연결 시에 HTTPS로 redirect를 반환하므로 1번의 Round Trip이 낭비된다.\
+결과적으로 보안 측면에서, 그리고 속도 측면에서도 google.com이 아닌 www.google.com을 추천한다.
+
+---
