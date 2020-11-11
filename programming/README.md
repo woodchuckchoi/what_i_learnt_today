@@ -1103,3 +1103,13 @@ RestAPI 구조에서 흩어져있는 Endpoint를 하나의 Endpoint로 모으고
 Client(PC, Mobile 등)의 성능이 높아지면서 SPA, Client-side rendering 등의 feature를 통해서 server에 집중되는 overhead를 front에 분배하는 기능이 점점 추가되는데, GraphQL 역시 그 일환이라고 볼 수 있다.
 
 ---
+
+# Regex Example
+```
+	// Might be vscode specific
+	match : \(([^(]+)\)\.strip\(\)\.replace\(' ', ''\).replace\('\\n', ''\).replace\('\\t', ''\)
+	// Match anything that starts with ( and capture any text that is not ( and ends with ) and replace and so on
+	replace : strip_all($1)
+```
+
+---
