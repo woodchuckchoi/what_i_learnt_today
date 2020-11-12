@@ -634,3 +634,13 @@ Browser는 HTTPS로 연결되는 도메인을 저장하고 이후에 해당 도�
 결과적으로 보안 측면에서, 그리고 속도 측면에서도 google.com이 아닌 www.google.com을 추천한다.
 
 ---
+
+# HTTP2 and QUIC Server Push Is Being Deprecated!
+Client가 Request하지 않은 Resource를 Server가 먼저 Client로 보내는 Push를 Deprecate한다고 Chromium이 알림\
+이유는 Chromium에서 발생하는 99.97%의 Request는 Server Push implementation을 사용하지 않기 때문에 (쓰는 사람이 없음)\
+근본적으로 Server Push 기능을 implement하기 너무 어렵기 때문\
+이에 대한 Alternative로 HTML의 \<link rel="preload"\>를 사용하여 클라이언트의 브라우저가 해당 리소스에 대한 request를 미리 보내도록 설정할 수 있다.(HTTP Status Code 103를 참고한다.)
+
+---
+
+
