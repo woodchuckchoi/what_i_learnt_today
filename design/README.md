@@ -72,3 +72,12 @@ p.s. PNG의 animated version인 apng가 존재한다!
 
 ---
 
+# Sidecar Pattern For Micro-services
+한 Host의 여러 application이 HTTP(Loopback)를 통해서 inter-process communication하는 Service Design\
+thick lib과 reference를 decouple하며, 각 application(micro-service)는 독립적으로 사용, refactor할 수 있다. 각 service에 알맞는 언어를 사용하여 Polyglot하다는 장점이 있다.\
+HTTP를 사용하여 통신하므로 Latency가 존재하며, Service 구성에 complexity가 존재한다는 단점이 있다.
+
+---
+
+
+
