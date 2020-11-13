@@ -20,3 +20,20 @@
 의 형태를 띄는 파일로, 프로그램을 Source로부터 Compile하는데 사용된다.
 
 ---
+
+# Ambiguous Commands in Git
+```
+	git reset --soft // index (commit status)와 working directory를 유지한 상태로 HEAD만 이전 commit으로 돌린다.
+	git reset [--mixed] // working directory를 유지하고 HEAD와 index를 이전 commit으로 돌린다. git reset의 default behaviour.
+	git reset --hard // HEAD, index, working directory 모두를 이전 commit으로 돌린다.
+
+	git rebase <branch> // HEAD가 가리키는 Branch를 <branch>의 마지막 commit을 parent로 옮긴다.
+	
+	git cherry-pick <commit> // <commit>을 현재 HEAD의 child로 가져온다.
+```
+
+---
+
+# Dockerfile & Docker-compose Miscellaneous Knowledge
+1. ARG는 Dockerfile을 통해서 image를 구성할 때 사용한다.
+2. Docker와 Docker-compose 모두 ENV를 구성할 수 있지만, 같은 Key가 존재하면 Docker-compose의 ENV가 priority를 가진다. (overrides dockerfile env)
