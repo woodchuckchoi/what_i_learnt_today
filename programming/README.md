@@ -1113,3 +1113,14 @@ Client(PC, Mobile 등)의 성능이 높아지면서 SPA, Client-side rendering �
 ```
 
 ---
+
+# Random Boolean Network
+복잡한 기능을 다수의 간단한 노드의 네트워크로 표현하는 방식\
+각 Node의 상태가 바뀔 때마다 Rule에 따라서 다른 Node의 상태를 변경한다.\
+Node 사이의 Connection을 구성하는 Graph를 프로그래밍 Paradigm에 적용한 것이라 볼 수 있다.\
+주로 Simulation 등 복잡한 Behaviour을 프로그램으로 Implement할 때 사용된다.\
+Neural Net과 같이 Node 사이의 Connection에 따라 Result가 변화하므로 실험과 분석을 통해 결과를 얻는다.
+
+---
+
+
