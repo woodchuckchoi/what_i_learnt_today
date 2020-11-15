@@ -245,3 +245,14 @@ Partition Elimination이 발생하는지, 발생했을 때 Performance에 영향
 Partitioning은 Indexing과 거의 비슷하게 작동하지만, Partitioning이 주는 장점은 Data가 일정 크기 (250GB~)를 넘지 않을 때에는 그 장점을 거의 실감하지 못한다.
 
 ---
+
+# Why Uber Engineering Switched from Postgres to MySQL
+* Uber의 초기 Service Settings: Postgres & Python Monolithic
+* 현재: MySQL(+Schemaless) & MicroService (Polyglot)
+
+Uber가 발견한 Postgres의 문제점
+* Inefficient Architecture for Writes
+* Inefficient Data Replication
+* Issues with Table Corruption
+* Poor Replic MVCC Support (Multiversion Concurrency Control)
+* Difficult Upgrade
