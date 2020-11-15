@@ -234,4 +234,14 @@ Commit이나 Rollback이 발생하기 전까지 해당 Row를 Lock하는 방식�
 
 ---
 
+# Partitioning's Effects on DB
+Partitioning은 Partitioning Scheme이 Query에 맞게 적용되었을때, Query Performance에 영향을 준다.\
+Partition은 Single Column에 적용할 수 밖에 없고 (Partitioning Key) 이를 통해서 Partition Elimination을 실행한다.\
+Partition Elimination이 발생하는지, 발생했을 때 Performance에 영향을 미치는지에는 두 가지 Factor가 존재한다.
 
+1. Partition Key - Query가 Partition Key를 반드시 포함해야 한다.
+2. Granularity - Partition이 너무 크면 Data를 불러들이는데 기존과 같이 오랜 시간이 소요된다. 반면에 Partition의 크기가 너무 작으면 Manageable 하지 않다.
+
+Partitioning은 Indexing과 거의 비슷하게 작동하지만, Partitioning이 주는 장점은 Data가 일정 크기 (250GB~)를 넘지 않을 때에는 그 장점을 거의 실감하지 못한다.
+
+---
