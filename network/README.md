@@ -643,4 +643,29 @@ Client가 Request하지 않은 Resource를 Server가 먼저 Client로 보내는 
 
 ---
 
+# How To Send Files via HTTP Request
+File Upload Request Example
+```
+	POST /upload?upload_progress_id=12344 HTTP/1.1
+	Host: localhost:3000
+	Content-Length: 1325
+	Origin: http://localhost:3000
+	... other headers ...
+	Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryePkpFF7tjBAqx29L
+	
+	------WebKitFormBoundaryePkpFF7tjBAqx29L
+	Content-Disposition: form-data; name="MAX_FILE_SIZE"
+	
+	100000
+	------WebKitFormBoundaryePkpFF7tjBAqx29L
+	Content-Disposition: form-data; name="uploadedfile"; filename="hello.o"
+	Content-Type: application/x-object
+	
+	... contents of file goes here ...
+	------WebKitFormBoundaryePkpFF7tjBAqx29L--
+```
+위와 같이 multipart/form-data Content-Type의 Request를 작성해서 보낸다.\
+Request의 Body에는 데이터를 Byte String으로 변경해서 담겨진다.\
+*HTTPS가 아니라면 Man In The Middle Attack을 통해서 전송되는 File까지 바로 볼 수 있다!!*
+
 
