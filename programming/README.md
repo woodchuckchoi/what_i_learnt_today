@@ -1123,4 +1123,285 @@ Neural Net과 같이 Node 사이의 Connection에 따라 Result가 변화하므�
 
 ---
 
+# GopherCon2019 - How I Write HTTP Web Services...
+1. Tiny main abstraction
+```
+	func main() {
+	    if err := run(); err != nil {
+	        fmt.Fprintf(os.Stderr, "%s\n", err)
+	        os.Exit(1)
+	    }
+	}
+	
+	func run() error {
+	    db, dbtidy, err := setupDatabase()
+	    if err != nil {
+	        return erros.Wrap(err, "setup database")
+	    }
+	    defer dbtidy()
+	    srv := &server {
+	        db: db,
+	    }
+	    // ...
+	}
+```
+
+2. The server struct
+```
+type server struct {
+	    db      *someDatabase
+	    router  *someRouter
+	    email   EmailSender
+}
+```
+
+3. Constructor for server? - Don't setup dependencies here
+```
+	func newServer() *server {
+	    s := &server{}
+	    s.routes()
+	    return s
+	}
+```
+
+4. Make server an http.Handler - Implement ServeHTTP to tun your server into an http.Handler\
+Use your server wherever you can use http.Handler\
+Just pass execution to your router (don't hide your logic here)
+```
+	func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	    s.router.ServerHTTP(w, r)
+	}
+```
+
+5. routes.go - one place for all routes
+```
+	package main
+	
+	func (s *server) routes() {
+	    s.router.Get("/api/", s.handleAPI())
+	    s.router.Get("/about/", s.handleAbout())
+	    s.router.Get("/", s.handleIndex())
+	}
+```
+
+6. Handlers hang off the server - Handlers are methods on the server, which gives them access to the dependencies via s\
+careful not to have racing conditions as many handlers might be trying to access some resources in s
+```
+    func (s *server) handleSomething() http.HandlerFunc {
+        //put some logic
+    }
+```
+
+7. Naming handler methods - for autocomplete and docs purposes
+```
+handleTasksCreate
+handleTasksDone
+handleTasksGet
+
+handleAuthLogin
+handleAuthLogout
+```
+
+8. Return the handler - allows for handler-specific setup
+```
+    func (s *server) handleSomething() http.HandlerFunc {
+        thing := prepareThing()
+        return func(w http.ResponseWriter, r *http.Request) {
+           // use thing
+        }
+    }
+```
+
+9. Take arguments for handler-specific dependencies
+```
+    func (s *server) handleGreeting(format string) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+            fmt.Fprintf(w, format, r.FormValue("name"))
+        }
+    }
+
+    s.router.HandleFunc("/one", s.handleGreeting("Hello %s"))
+    s.router.HandleFunc("/two", s.handleGreeting("Hola %s"))
+```
+
+10. Take arguments for handler-specific dependencies
+```
+    handleTemplate(template *template.Template) http.HandlerFunc
+    
+    handleRandomQuote(q QUoter, r *rand.Rand) http.HandlerFunc
+    
+    handleSendMagicLinkEmail(e EmailSender) http.HandlerFunc
+```
+
+11. Too big? Have many servers
+```
+    // people.go
+    type serverPeople struct {
+        db          *mydatabase
+        emailSender EmailSender
+    }
+
+    // comments.go
+    typeserverComments struct {
+        db *mydatabase
+    }
+```
+
+12. HandlerFunc over Handler - http.HandlerFunc implements http.Handler, which makes them interchangealbe
+```
+    func (s *server) handleSomething() http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+
+        }
+    }
+```
+
+13. Middleware are just Go functions - Take an http.HandlerFunc and return a new one\
+Run code before/after the wrapped handler
+```
+func (s *server) adminOnly(h http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        if !currentUser(r).IsAdmin {
+            http.NotFound(w, r)
+            return
+        }
+        h(w, r)
+    }
+}
+```
+
+14. Wire Middleware up in routes.go
+```
+	package main
+	
+	func (s *server) routes() {
+	    s.router.Get("/api/", s.handleAPI())
+	    s.router.Get("/about", s.handleAbout())
+	    s.router.Get("/", s.handleIndex())
+	    s.router.Get("/admin", s.adminOnly(s.handleAdminIndex()))
+	}
+```
+
+15. Respond helper - Abstract responding and do the bare bones initially\
+later make this more sophisticated(if needed)
+```
+    func (s *server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
+        w.WriteHEader(status)
+        if data != nil {
+            err := json.NewEncoder(w).Encode(data)
+        }
+    }
+```
+
+16. Decoding helper - Abstract decoding and do the bare bones initially
+```
+    func (s *server) decode(w http.ResponseWriter, r *http.Request, v interface{}) error {
+        return json.NewDecoder(r.Body).Decode(v)
+    }
+```
+
+17. Future proof helpers - Always take http.ResponseWriter and \*http.Request
+
+18. Request and response data types
+```
+    func (s *server) handleGreet() http.HandlerFunc {
+        type request struct {
+            Name    string
+        }
+        type response struct {
+            Greeting    string `json:"greeting"`
+        }
+        return func (w http.ResponseWriter, r *http.Request) {
+            ...
+        }
+    }
+```
+
+19. Lazy setup with sync.Once - Perform expensive setup when the handler is first hit to improve startup time\
+if the handler isn't called, the work is never done
+```
+    func (s *server) handleTemplate(files string...) http.HandlerFunc {
+        var (
+            init    sync.Once
+            tpl     *template.Template
+            tplerr  error
+        )
+        return func(w http.ResponseWriter, r *http.Request) {
+            init.Do(func(){
+                tpl, tplerr = template.ParseFiles(files...)
+            })
+            if tplerr != nil {
+                http.Error(w, tplerr.Error(), http.StatusInternalServerError)
+                return
+            }
+            // use tpl
+        }
+    }
+```
+
+20. net/http/httptest is your BFF
+```
+    func NewRequest(method, target string, body io.Reader)
+        *http.Request
+
+    type ResponseRecorder
+
+    type Server
+```
+
+21. Server is testable - create a new server instance inside each unit test\
+only set dependencies you need
+```
+    func TestHandleAbout(t *testing.T) {
+        is := is.New(t)
+        srv := newServer()
+        db, cleanup := connectTestDatabase()
+        defer cleanup()
+        srv.db = db
+        r := httptest.NewRequest("GET", "/about", nil)
+        w := httptest.NewRecorder()
+        srv.ServeHTTP(w, r)
+        is.Equal(w.StatusCode, http.StatusOK)
+    }
+```
+
+22. Test types help frame the test - request, response types are trapped inside the handler, we can make different types for our tests\
+great storytelling opportunity
+```
+    func TestGreet(t *testing.T) {
+        is := is.New(t)
+        p := struct {
+            Name string `json:"name"`
+        }{
+            Name: "Someone",
+        }
+        var buf bytes.Buffer
+        err := json.NewEncoder(&buf).Encode(p)
+        is.NoErr(err) // json.NewEncoder
+        req := httptest.NewRequest(http.MethodPost, "/greet", &buf)
+        //... more test code here
+    }
+```
+
+23. Server is testable in two ways
+```
+    // test the whole stack (integration test)
+    srv.ServeHTTP(w, r)
+
+    // test just this handler (unit test)
+    srv.handleGreet(w, r)
+```
+
+24. You can even make real HTTP requests
+```
+    func TestTips(t *testing.T) {
+        h := newFakeRemoteService()
+        srv := httptest.NewServer(h)
+        defer srv.Close()
+        resp, err := http.Get(srv.URL + "/api/tips")
+    }
+```
+
+---
+
 
