@@ -668,4 +668,11 @@ File Upload Request Example
 Request의 Body에는 데이터를 Byte String으로 변경해서 담겨진다.\
 *HTTPS가 아니라면 Man In The Middle Attack을 통해서 전송되는 File까지 바로 볼 수 있다!!*
 
+---
+
+# DevTools Waterfall to Diagnose Performance
+Waterfall shows not only Resource Scheduling, but also Connection Start procedures, Request, Response time.\
+TTFB(Time To First Byte) is the most important criterion there. It indicates the duration of time the server took to respond to the request.\
+Since HTTP1.1 does not support streaming, http1.1 web apps' waterfall will most likely show 5~6 resources being downloaded at any given time.\
+In order to avoid such disadvantage, many http1.1 web apps implement domain sharding.\
 
