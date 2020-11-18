@@ -37,3 +37,38 @@
 # Dockerfile & Docker-compose Miscellaneous Knowledge
 1. ARG는 Dockerfile을 통해서 image를 구성할 때 사용한다.
 2. Docker와 Docker-compose 모두 ENV를 구성할 수 있지만, 같은 Key가 존재하면 Docker-compose의 ENV가 priority를 가진다. (overrides dockerfile env)
+
+---
+
+# AWS IAM & Bucket Policy
+AWS IAM Permission S3 Full Access는 S3 Bucket Policy에 자신의 계정이 등록되어 있지 않아도 접근 가능하다.\
+S3 ACL에 Root 계정이 등록되어 있기 때문이다.\
+AWS IAM의 Policy는 명시적으로 연결 가능하지 않으면 모두 DENY하는 정책을 사용한다.\
+따라서 특정 S3 Bucket에만, 특정 Action을 할 때만 접근 가능하게 한다면 'Resource'는 해당 bucket에만, action을 특정해서 사용할 수 있다.\
+단 Root 계정은 ACL에서 기본적으로 Read, Write가 가능하게 되어있으므로 만약 Root 계정도 통제하고 싶다면 이를 deactivate 한 후 Bucket Policy에 Role의 ARN을 추가하는 방식으로 사용한다.\
+위의 방법을 통해서 Cross Account에도 접근 가능 권한을 줄 수 있다.
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::AccountB:user/AccountBUserName"
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:PutObjectAcl"
+            ],
+            "Resource": [
+                "arn:aws:s3:::AccountABucketName/*"
+            ]
+        }
+    ]
+}
+```
+
+---
+
+
