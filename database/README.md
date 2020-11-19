@@ -256,3 +256,14 @@ Uber가 발견한 Postgres의 문제점
 * Issues with Table Corruption
 * Poor Replic MVCC Support (Multiversion Concurrency Control)
 * Difficult Upgrade
+
+---
+
+# Avoid LEFT JOIN whenever possible
+MySQL을 기준으로 INNER JOIN을 한다면 가장 적은 ROW를 가지고 있는 TABLE을 기준으로 JOIN이 이루어진다.\
+하지만 LEFT JOIN은 가장 왼쪽의 TABLE부터 시작해서 모든 ROW에 대해서 FULL SCAN을 실시하며 순서대로 JOIN을 하게된다.
+반드시 필요한 것이 아니라면 되도록 LEFT JOIN을 사용하지 않는 것이 좋다.
+
+---
+
+

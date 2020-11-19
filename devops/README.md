@@ -71,4 +71,8 @@ AWS IAM의 Policy는 명시적으로 연결 가능하지 않으면 모두 DENY�
 
 ---
 
+# Git stash and reset
+1. git reset branch를 통해서 특정 commit으로 돌아갈 수 있다.
+2. working directory에 local change가 있다면 git stash push "description"을 통해서 change를 저장하고, git stash apply (or pop)을 통해서 저장된 change를 현재의 commit에 반영한다.
 
+---
