@@ -676,3 +676,15 @@ TTFB(Time To First Byte) is the most important criterion there. It indicates the
 Since HTTP1.1 does not support streaming, http1.1 web apps' waterfall will most likely show 5~6 resources being downloaded at any given time.\
 In order to avoid such disadvantage, many http1.1 web apps implement domain sharding.\
 
+---
+
+# Will WebTransport Replace WebSocket?
+## WebSocket Limitations
+* Head-of-line blocking
+* Client Must Initiate Connections
+
+## WebTransport
+* Built on HTTP3(No blocking + Server Push)
+
+---
+
