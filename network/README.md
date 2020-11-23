@@ -688,3 +688,10 @@ In order to avoid such disadvantage, many http1.1 web apps implement domain shar
 
 ---
 
+# Envoy Proxy Fixes
+1. UDP Proxy로 Envoy를 사용할 때, 1500 bytes 이상이 하나의 UDP packet에 들어있거나 packet이 reassemble 되었을 때 크기가 1500 bytes가 넘는다 Envoy Crash 현상 발견
+2. 다중 Proxy로 구성된 서비스에서 downstreamRemoteAddress가 origin을 가리키지 못하는 현상 발견
+
+---
+
+ 
