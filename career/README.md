@@ -9,3 +9,7 @@
 8. Framework
 9. Messaging Format(JSON, protobuf 등)
 10. Security, Infra와 OS, Web 어떤 레벨에서든 보안에 대한 지식을 가지는 것은 큰 장점이 된다.
+
+---
+# Nowadays
+1. 일을 많이 하는 것도 좋지만, 일하는 시간을 딱 정해놓고 그 외에 시간에는 기술적인 발전을 위한 개인 프로젝트를 하자.
