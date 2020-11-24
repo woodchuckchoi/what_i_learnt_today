@@ -694,4 +694,9 @@ In order to avoid such disadvantage, many http1.1 web apps implement domain shar
 
 ---
 
- 
+# Link Local Address(IPV6)
+Link = Network Segment, 라우터로 나누어진 네트워크의 부분\
+따라서 Link Local은 해당 링크에 Local인, 해당 링크에게만 visible한 주소\
+외부로부터의 접근은 차단하며, 링크에서 Unique한 주소를 갖는다.\
+IPV6 Routing Table에 included되지 않는다.\
+Link Local Address는 자동으로, 혹은 설정을 통해 구성할 수 있다.
