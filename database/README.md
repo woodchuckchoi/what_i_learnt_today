@@ -273,3 +273,11 @@ DB, Message Broker, Cache는 일반적인 App이 사용하는 3가지 feature이
 pub, sub, rpush 등 간단한 API 역시 redis의 강점 중 하나겠지..
 
 ---
+
+# Caching
+* Spatial - Access한 데이터의 주변에 있는 데이터를 caching한다. Sequential한 데이터 접근이 예상되는 시나리오에 적합하다.
+* Temporal - 주로 Access되는 데이터를 caching한다.
+* Distributed - Main DataStore와 sync되도록 한다. Redis에 데이터가 없거나 expired 됐을 경우 DataStore에서 retrieve, 있을 경우 retrieve.\
+Sync를 맞추기 위해 cache를 거쳐 데이터를 저장하고, 불러오는 write-through 방식과 cache에 데이터를 저장하면, cache가 이를 DataStore에 저장하고 값을 retrieve하는 write-back 방식이 있다.
+
+---
