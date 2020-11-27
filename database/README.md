@@ -281,3 +281,11 @@ pub, sub, rpush 등 간단한 API 역시 redis의 강점 중 하나겠지..
 Sync를 맞추기 위해 cache를 거쳐 데이터를 저장하고, 불러오는 write-through 방식과 cache에 데이터를 저장하면, cache가 이를 DataStore에 저장하고 값을 retrieve하는 write-back 방식이 있다.
 
 ---
+
+# FROM Subquery
+SQL Query를 작성할 때, FROM [TABLE] WHERE 를 작성하는 경우가 많다.\
+하지만 FROM (SELECT * FROM TABLE WHERE )의 Performance가 더 높을 수 있다.\
+상식적으로 생각했을 때, TABLE을 선택하고 그 중에서 조건을 선택하는 것과 조건을 선택한 TABLE을 가지고 Query를 수행하나 차이가 없을 것 같지만 이런 문제점이 있으니 주의하도록 하자.\
+물론 FULL JOIN이나 LEFT JOIN을 사용하게 된다면 두번째의 Performance가 더 높게 나와야겠지만, 다른 경우에도 PERFORMANCE가 더 높게나오는 건 CPU register 문제인걸까?
+
+---
