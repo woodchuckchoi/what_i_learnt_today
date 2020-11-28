@@ -1404,4 +1404,32 @@ great storytelling opportunity
 
 ---
 
+# Importing Packages for Side-effects
+Go를 사용하다보면
+
+```
+	_ "github.com/example/something"
+```
+
+과 같이 pkg를 import하되 사용하지 않는 경우를 자주 보게된다.\
+이것은 pakcage의 side-effect만을 사용하기 위함이다.
+
+pkg가 직접 사용되지 않고 (pkg.Something처럼) 사용될 수 있는 경우는 2가지이다.
+
+1. pkg-level variable 선언
+2. pkg가 import되었을 때 call 되는 init func에 side-effects 주입
+
+예를 들어 echo의 swagger middelware는 1, 2 모두를 사용한다.
+
+```
+	type s struct {}
+	
+	func init() {
+		swag.Register(swag.Name, &s{})
+	}
+```
+이것도 일종의 dependency injection이라고 볼 수 있을까?
+
+---
+
 
