@@ -261,7 +261,7 @@ Uber가 발견한 Postgres의 문제점
 
 # Avoid LEFT JOIN whenever possible
 MySQL을 기준으로 INNER JOIN을 한다면 가장 적은 ROW를 가지고 있는 TABLE을 기준으로 JOIN이 이루어진다.\
-하지만 LEFT JOIN은 가장 왼쪽의 TABLE부터 시작해서 모든 ROW에 대해서 FULL SCAN을 실시하며 순서대로 JOIN을 하게된다.
+하지만 LEFT JOIN은 가장 왼쪽의 TABLE부터 시작해서 모든 ROW에 대해서 FULL SCAN을 실시하며 순서대로 JOIN을 하게된다.\
 반드시 필요한 것이 아니라면 되도록 LEFT JOIN을 사용하지 않는 것이 좋다.
 
 ---
@@ -361,4 +361,26 @@ on r.movie_id = g.movie_id
 
 ---
 
+# Redis being the most popular DB on AWS
+Redis가 memory cache로써 더 빠른 response time을 돕지만, 기본적으로 Database의 query를 optimise하는 것이 더 효율적이다.\
+또한 Kafka, RabbitMQ가 강세를 가지던 Message Broker Area에서도 Redis가 떠오르고 있다.\
+DB, Message Broker, Cache는 일반적인 App이 사용하는 3가지 feature이기 때문에 Redis라는 하나의 solution으로 모든 문제를 해결할 수 있다는 점이 강점이다.\
+pub, sub, rpush 등 간단한 API 역시 redis의 강점 중 하나겠지..
 
+---
+
+# Caching
+* Spatial - Access한 데이터의 주변에 있는 데이터를 caching한다. Sequential한 데이터 접근이 예상되는 시나리오에 적합하다.
+* Temporal - 주로 Access되는 데이터를 caching한다.
+* Distributed - Main DataStore와 sync되도록 한다. Redis에 데이터가 없거나 expired 됐을 경우 DataStore에서 retrieve, 있을 경우 retrieve.\
+Sync를 맞추기 위해 cache를 거쳐 데이터를 저장하고, 불러오는 write-through 방식과 cache에 데이터를 저장하면, cache가 이를 DataStore에 저장하고 값을 retrieve하는 write-back 방식이 있다.
+
+---
+
+# FROM Subquery
+SQL Query를 작성할 때, FROM [TABLE] WHERE 를 작성하는 경우가 많다.\
+하지만 FROM (SELECT * FROM TABLE WHERE )의 Performance가 더 높을 수 있다.\
+상식적으로 생각했을 때, TABLE을 선택하고 그 중에서 조건을 선택하는 것과 조건을 선택한 TABLE을 가지고 Query를 수행하나 차이가 없을 것 같지만 이런 문제점이 있으니 주의하도록 하자.\
+물론 FULL JOIN이나 LEFT JOIN을 사용하게 된다면 두번째의 Performance가 더 높게 나와야겠지만, 다른 경우에도 PERFORMANCE가 더 높게나오는 건 CPU register 문제인걸까?
+
+---
