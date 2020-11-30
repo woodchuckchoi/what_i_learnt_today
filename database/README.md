@@ -266,4 +266,99 @@ MySQL을 기준으로 INNER JOIN을 한다면 가장 적은 ROW를 가지고 있
 
 ---
 
+# Query Optimisatino tips
+```
+// Inefficient
+select * from movie;
+
+// Efficient
+select id from movie;
+```
+
+```
+// Inefficient
+select m.title
+from movie m
+inner join rating r
+on m.id = r.movie_id
+where floor(r.value/2) = 2
+
+// Efficient
+select m.title
+from movie m
+inner join rating r
+on m.id = r.movie_id
+where r.value between 4 and 5
+```
+
+```
+// Inefficient
+select g.value
+from rating r
+inner join genre g
+on r.movie_id = g.movie_id
+where g.value like '%Comedy'
+
+// Efficient
+select g.value
+from rating r
+inner join genre g
+on r.movie_id = g.movie_id
+where g.value in ('Romantic Comedy', 'Comedy')
+```
+
+```
+// Inefficient
+select distinct m.id
+from movie m
+inner join genre g
+on m.id = g.movie_id
+
+// Efficient
+select m.id
+from movie m
+where exists (select 'X' from rating r where m.id = r.movie_id)
+```
+
+```
+// Inefficient
+select m.id
+from movie m
+inner join rating r
+on m.id = r.movie_id
+group by id
+having m.id > 1000;
+
+// Efficient
+select m.id
+from mvoie m
+inner join rating r
+on m.id = r.movie_id
+where m.id > 1000
+group by id;
+```
+
+FROM에 크기가 큰 테이블을, JOIN에 작은 순서대로 테이블 배치
+```
+// Inefficient
+select m.title
+from rating r
+inner join genre g
+on g.movie_id = r.movie_id
+inner join movie m
+on m.id = r.movie_id
+
+// Efficient
+select m.title
+from rating r
+inner join movie m
+on r.movie_id = m.id
+inner join genre g
+on r.movie_id = g.movie_id
+```
+
+자주 사용하는 데이터에 대해서는 전처리된 테이블을 따로 보관/관리한다.
+
+---
+
 
