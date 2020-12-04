@@ -1432,4 +1432,12 @@ pkg가 직접 사용되지 않고 (pkg.Something처럼) 사용될 수 있는 경
 
 ---
 
+# How to Efficiently Stream
+Mobile에서 YouTube Vid를 사용하면 Response가 206 Partial Content HTTP Status를 전달하는 것을 볼 수 있다.\
+videoplayback으로 시작하는 이 response가 실제로 video의 일부분에 대한 binary-encoded data이다.\
+Edge Location의 CDN에 대한 response는 video가 (일정 부분에 한해서) 계속 전달되는 동안 계속 다운로드 되며 실시간 스트리밍 된다.\
+HTTP3 (QUIC) 프로토콜을 사용하므로 Head of Line Blocking이 없다.\
+반면에 Desktop Mode를 사용할 시, YouTube은 video와 audio를 분리해서 스트리밍한다.\
+따라서 Payload를 최소화하여 안정적으로 스트림 할 수 있다.
 
+---
