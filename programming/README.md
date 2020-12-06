@@ -1441,3 +1441,13 @@ HTTP3 (QUIC) 프로토콜을 사용하므로 Head of Line Blocking이 없다.\
 따라서 Payload를 최소화하여 안정적으로 스트림 할 수 있다.
 
 ---
+
+# Go Mistakes
+1. If something does not depend on the status of something, use Function. If it does, then use Method. A lot of people blindly uses Struct and Method having come from OOP backgrounds. Using methods should always mean that it might change the status of the datatype(class).
+2. If the value(s) should be shared with functions or methods, use pointers. If not, use values, instead.
+3. Thinking of errors as strings. Write pre-defined errors and use them.
+4. Datastructres are not safe for concurrent acess. Yet, people will use it concurrently, should you share your code. To make them safe, use the Sync package or channel.
+
+---
+
+
