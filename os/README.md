@@ -556,18 +556,61 @@ Scan Variants
 
 ---
 
+# Assembly
+A processor is comprised of registers, stack, 
 
 
+## Register
+Working memory with different purposes, fixed width (32bit machine has 32bit registers, 64bit machines, 64bit registers)
 
+## Stack
+Array-like LIFO data structure that has a stack pointer and random access feature
 
+x32 assembly
+```
+global _start # to make identifier accessible to the linker
 
+_start: # identifier followed by a colon will create a label, labels are used to name locations in the code
 
+mov eax, 1 # mov integer 1 to eax register
+mov ebx, 42 # mov integer 42 to ebx register
+int 0x80 # interrupt handler for system calls (hex 80), the system call it makes is determined by eax register.
+# eax being 1 indicates the system exit call(end of the programme), whilst ebx is used to indicate the status.
+```
 
+```
+nasm -f elf32 ex1.asm -o ex1.o # build 32bit elf object file (ELF = executabl and linking file, executable format used by Linux)
+ld -m elf_i386 ex1.o -o ex1 # ld command to build an executable from an object file
+```
 
+```
+$ ./ex1
 
+$ echo $?
+42
+```
 
+```
+sub ebx, 29 # ebs -= 29
+add ebx, ecx # ebx += ecx
+mul ebx # eax \*= ebx
+div edx # eax /= edx
+```
 
+```
+section .data
+    msg db "Hello, World!", 0x0a # save the string in db and add a newline character
+    len equ $ - msg # len is eqaul to the current cursor - the start of msg
 
+section .text
+_start:
+    mov eax, 4      ; sys_write system call
+    mov ebx, 1      ; stdout file descriptor 
+    mov ecx, msg    ; bytes to write
+    mov edx, len    ; number of bytes to write
+    int 0x80        ; perform system call
 
-
-
+    mov eax, 1
+    mov ebx, 0
+    int 0x80    ; return successfully
+```
