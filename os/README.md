@@ -614,3 +614,13 @@ _start:
     mov ebx, 0
     int 0x80    ; return successfully
 ```
+
+```
+    cmp ecx, 100    ; compare ecx with 100, store the result internally
+    je  ; jump if equal
+    jne ; jump if not eqaul
+    jg  ; jump if greater
+    jge ; jump if greater or eqaul
+    jl  ; jump if less
+    jle ; jump if less or eqaul
+```
