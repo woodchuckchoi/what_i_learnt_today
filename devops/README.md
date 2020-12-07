@@ -158,3 +158,14 @@ Container is basically the combination of a namespace (what you can see) and a c
 		}
 	}
 ```
+
+# Docker's resource management
+```
+Containers and the host use the same kernel. Although the programs running in Docker can't see the host filesystem, only their own filesystem.
+
+Unused files will sit on disk, only the used files will be loaded into memory.
+
+Multiple containers using the same base image are capable of sharing resources. However they don't share files, hence each will have to load its own copy of the files they need. 
+
+Docker uses AUFS, Union File System, which uses "copy on write". What it means is that, When you have multiple base images, those images take disk space, but when you run N containers from those images, there is no actual disk used. As it is copy-on-write, only modified files will take space on the host.
+```
