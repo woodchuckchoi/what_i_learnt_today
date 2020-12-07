@@ -1,5 +1,5 @@
 ; Infinite loop (e9 fd ff)
-loop
+loop:
 	jmp loop
 
 ; Fill with 510 zeros minus the size of the previous code
