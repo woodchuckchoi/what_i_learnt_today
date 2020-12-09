@@ -1450,4 +1450,94 @@ HTTP3 (QUIC) 프로토콜을 사용하므로 Head of Line Blocking이 없다.\
 
 ---
 
+# GraphQL
+GraphQL은 REST, RPC와 같이 API Design Specification이다.\
+그렇다고 기존에 있는 REST API 서버를 없애고 GraphQL로 다시 구현할 필요 없이, 많은 endpoint중에 /graphql 처럼 하나의 GraphQL endpoint를 만들어 주는 것으로 충분하다.\
+간단히 말해서 GraqhQL은 resource를 url이 아닌 query를 통해 표현하는 것이다.\
+JOIN을 사용하지 않기 때문에 SQL Database와 궁합이 나쁠 것이라고 생각하는 경우가 많지만, Table을 entity로 매칭하기에 SQL과 GraphQL의 궁합은 나쁘지 않다.\
+서버 개발자가 결정하는 것은 entity의 관계와 데이터를 어떻게 가져올 것이냐에 대한 것이다.\
+REST에서 같은 데이터를 가져오기 위해서 여러 API를 작성하는 것과 반대로 graphql은 데이터를 요청하는 측에서 데이터의 depth를 정하므로 API 개발 load가 줄어든다.\
+요청하는 데이터의 depth가 너무 깊어지는 것을 막기 위해서 query의 maxDepth를 설정하는 방식을 취하는 경우가 일반적이라고 한다.\
+GraphQL을 사용하면서도 Join을 사용하기 위해서 join-monster 등의 라이브러리도 지원하고 있다.\
+
+
+아래는 graphql-js에서 스키마 정의 예시이다.
+```
+var schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+        name: 'Character',
+        fields: {
+            name: {
+                type: GraphQLString,
+                resolve() {
+                    return 'name';
+                }
+            },
+            appearsIn: {
+                type: GraphQLList(Episode),
+                resolve() {
+                    return [];
+                }
+            }
+        }
+    })
+})
+```
+
+이를 graphql-tools를 사용하여 스키마를 더 명료하게 나타낼 수 있다.
+```
+// define type by raw string
+const Comment = `
+    type Comment {
+        id: Int!
+        message: String
+        author: String
+    }
+`;
+}
+
+// get data from DB
+const CommentResolver = () => {}
+
+export const schema = makeExecutableSchema({
+    Comment,
+    CommentResolver,
+});
+```
+
+GraphQL을 사용하면 일어나기 쉬운 1+N 문제를 1+1로 변환시키는 DataLoader의 사용이 필수적이다.\
+NodeJS에서 이벤트 루프가 돌아가는 사이클 동안 들어온 id 기반 요청을 배치로 처리한 후 값을 돌려주는 방식으로 문제를 해결한다.\
+Dataloader는 캐싱 기능을 가지고 있지만, Redis와 같은 in-memory storage와 같은 정의는 아니고, 한 요청이 처리되는 동안에 데이터를 캐싱한다는 뜻이다.\
+
+REST의 GET이 아닌 모든 Method에 해당하는 데이터의 변형을 일으키는 요청을 Mutation이라 한다.\
+mutation을 사용할 때 생길 수 있는 문제는 input type과 output type이 다른 것이다.\
+input에 필요한 data와 output으로 나오는 data의 타입이 다른 건 당연하니까.\
+그렇기 때문에 GraphQL에는 input type이 따로 존재하며, input type을 output type으로 함께 사용할 수 없도록 제약이 걸려있다.\
+Header의 Content-Type은 application/json, application/graphql을 사용한다.\
+application/json의 경우 아래 format을 따른다.
+```
+{
+  "query": "...",
+  "operationName": "...",
+  "variables": { "myVariable": "someValue", ... }
+}
+```
+
+반면에 application/graphql을 사용하면 아래 format을 따른다.
+```
+{
+  human(id: "1000") {
+    name
+    height(unit: FOOT)
+  }
+} # id가 1000인 human entity의 이름과 FOOT 단위의 키를 뽑는다.
+```
+
+이 차이 때문에 variable을 사용하는 mutation 요청에서 application/json을 사용하면 graphql query를 직접 짜야되서 귀찮아진다.\
+따라서 글쓴이는 Content-Type: application/json으로 통일될 것이라고 생각한다.
+
+*항상 REST 방식으로만 개발했는데 GraphQL도 사용해보면 재밌을 것 같다.*
+
+---
+
 
