@@ -1540,4 +1540,11 @@ application/json의 경우 아래 format을 따른다.
 
 ---
 
+# GFS
+Google File System
+1. Stores 3 replicas for fail-over
+2. Chunk size being 64 MB, which is much larger than 512 Bytes, the usual block size. The bigger the chunk size is, the less communication is needed between the client and the master server. Also, it reduces the metadata size on the master.
+3. In case of a master crash, logs which are stored on the masters disk and replicated onto other replicas disks are used.
+4. All metadata is stored in the master's memory. (Some are also stored in disk) By doing so, it is compact, fast, and simle.
+5. By not keeping the chunk location information persisitently at the master, there is no need to sync the info the master has and the actual status. Which is a hard task in a large-scale distributed system.
 
