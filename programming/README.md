@@ -1548,3 +1548,6 @@ Google File System
 4. All metadata is stored in the master's memory. (Some are also stored in disk) By doing so, it is compact, fast, and simle.
 5. By not keeping the chunk location information persisitently at the master, there is no need to sync the info the master has and the actual status. Which is a hard task in a large-scale distributed system.
 
+Highly Available -> Replicas with Resource Scheduling
+Multiple Levels, Types of Lock for efficiently managing multi-client environment
+
