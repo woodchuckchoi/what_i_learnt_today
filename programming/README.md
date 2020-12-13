@@ -1551,3 +1551,17 @@ Google File System
 Highly Available -> Replicas with Resource Scheduling
 Multiple Levels, Types of Lock for efficiently managing multi-client environment
 
+---
+
+# Go internal server performance
+한줄요약: 성능, 기능(SSL 인증 등)은 걱정하지 않아도 된다. 많은 회사들은 internal Go server를 사용한다. 하지만 DevOps 편의성, Cloud에서 설정을 위해서라면 Nginx, Apache를 사용할 수도 있다.
+Go internal servers don't need another 'production' server to take requests and hand over to go servers. They can simply handle that many requests by themselves (Unless the framework's internal server completely mucked up building it)\
+Many companies directly expose their Go servers to the Internet, even Google's download server is written in Go using net/http pkg.\
+Yet there can be couple of reasons if you decided to put your go server behind a NginX server.\
+First, DevOps people are more familiar with handling NginX config. Rather than being involved in the source code.\
+Second, there might be some NginX, Apache (production) server specific config on your CSP or Infrastructure provider.\
+
+
+---
+
+

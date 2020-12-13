@@ -624,3 +624,24 @@ _start:
     jl  ; jump if less
     jle ; jump if less or eqaul
 ```
+
+---
+
+# Unix Domain Socket
+```
+Unix sockets are used as any other socket types. This means, that socket system calls are used for them. The difference between FIFOs and Unix sockets, is that FIFO use file sys calls, while Unix sockets use socket calls.
+
+Unix sockets are addressed as files. It allows to use file permissions for access control.
+
+Unix sockets are created by socket sys call (while FIFO created by mkfifo). If you need client socket, you call connect, passing it server socket address. If you need server socket, you can bind to assign its address. While, for FIFO open call is used. IO operation is performed by read/write.
+
+Unix socket can distinguish its clients, while FIFO cannot. Info about peer is provided by accept call, it returns address of peer.
+
+Unix sockets are bidirectional. This means that every side can perform both read and write operations. While, FIFOs are unidirectional: it has a writer peer and a reader peer.
+
+Unix sockets create less overhead and communication is faster, than by localhost IP sockets. Packets don't need to go through network stack as with localhost sockets. And as they exists only locally, there is no routing.
+```
+
+# PID 0
+Main Process(init, responsible for starting/shutting down)는 PID 1이 할당된다. 그렇다면 0은?\
+PID 0 is reserved for swapper(or sched) which is responsible for paging. It is actually part of the kernel rather than a user process.
