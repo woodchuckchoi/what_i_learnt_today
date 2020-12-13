@@ -169,3 +169,16 @@ Multiple containers using the same base image are capable of sharing resources. 
 
 Docker uses AUFS, Union File System, which uses "copy on write". What it means is that, When you have multiple base images, those images take disk space, but when you run N containers from those images, there is no actual disk used. As it is copy-on-write, only modified files will take space on the host.
 ```
+
+# Docker O'Reily
+Docker는 UFS(union file system)을 이용한다. 여러 파일 시스템이 계층 구조로 마운트되어 하나의 파일 시스템처럼 사용할 수 있게 해준다.\
+이미지의 파일 시스템은 읽기 전용 계층에 마운트되고, 실행 중인 컨테이너가 변경한 내용은 읽기-쓰기 계층에 쓰여진다.\
+따라서 실행 중인 시스템에서 변경된 내용을 찾으려면 최상위 읽기-쓰기 계층만 참고하면 된다.
+
+```
+$ docker diff [container] # image와 비교해서 바뀐 파일 리스트 반환
+
+$ docker logs [container] # container에서 실행한 모든 작업 내용 반환
+```
+
+Docker는 default로 unix domain socket을 사용하지만 tcp socket도 지원한다.
