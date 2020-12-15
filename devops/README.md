@@ -182,3 +182,13 @@ $ docker logs [container] # container에서 실행한 모든 작업 내용 반�
 ```
 
 Docker는 default로 unix domain socket을 사용하지만 tcp socket도 지원한다.
+
+---
+
+# Secret in Docker
+당연하게도 Dockerfile 내에 (layer 안에) secret을 저장하는 건 최악의 방법이다. 누구든 컨테이너에 접근 권한만 있다면 secret을 가져갈 수 있으니까.\
+이를 막기위해서 컨테이너의 시작 시점에 환경 변수로 secret을 전달하거나, secret이 포함된 volume을 컨테이너에 붙여서 secret을 전달하는게 일반적이다.\
+하지만 가장 좋은 방법은 컨테이너가 다른 신뢰할 수 있는 웹 서버, vault 같은 key-value storage에서 필요한 secret을 가져오는 것이다.\
+aws 같은 경우에는 ec2 instance의 특정 ip에는 built-in metadata server가 동작하고 있고, metadata를 통해서 role을 assume해서 secret을 받아 사용할 수 있다.
+
+---
