@@ -1577,3 +1577,38 @@ Second, there might be some NginX, Apache (production) server specific config on
 구현하게 된다면 구현의 어려움, 알고리즘 구현에 대해서 기록하겠다(아마도 b-tree에 단어 분리, 초성 체크, 초성이 중간에 끼었을 때 처리 그런게 어렵겠지)
 
 ---
+
+# make and new in Go
+```
+The built-in function make takes a type T, which must be a slice, map or channel type, optionally followed by a type-specific list of expressions.
+It returns a value of type T (not *T).
+```
+```
+Although make creates generic slice, map, and channel values, they are still just regular values; make does not return pointer values.
+
+If new was removed in favour make, how would you construct a pointer to an initialised value ?
+
+Using new to construct a pointer to a slice, map, or channel zero value works today and is consistent with the behaviour of new.
+
+For the confusion they may cause, make and new are consistent;
+
+make only makes slices, maps, and channels,
+new only returns pointers to initialised memory.
+```
+사실상 new를 사용하는 경우는 거의 없다. 굳이 사용한다면 빈 구조체를 initialise하고 그에 대한 포인터를 만드는 용도?\
+하지만 &my\_struct{}가 더 명시적이지 않을까? 또 built-in type의 pointer로 사용한다고 하더라도 
+
+```
+ptr := new(int) // 이렇게 하고나서 다시 ptr = &val 을 한다? 같은 일을 두 번할 뿐
+
+var ptr *int    // 같은 방식을 취할 거라면 이게 더 보기 쉽다.
+
+ptr := &val     // 이게 가장 많이 사용될테고
+```
+
+오랜만에 new를 코드에 사용하면서, 뭔가 헷갈리기도 하고 잘못한 것 같은 느낌이 들어서 찾아봤다.\
+일할 땐 Python, 개인적으로는 Go, 알고리즘은 C++, Go, 가끔씩 JS도 디버그하고.. 하다보니 우연히 튀어나온 new이지만, Go에 한해서는 용도가 매우 한정되있다고 생각한다.
+
+---
+
+
