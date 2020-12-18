@@ -1576,6 +1576,26 @@ Second, there might be some NginX, Apache (production) server specific config on
 물론 여기에 사용할 언어는 Go가 좋을 것 같다. 퍼포먼스가 좋고, 데이터 정합성 체크와 서버 + a 역할을 동시에 처리한다. 용도가 딱 맞는 것 같아서..\
 구현하게 된다면 구현의 어려움, 알고리즘 구현에 대해서 기록하겠다(아마도 b-tree에 단어 분리, 초성 체크, 초성이 중간에 끼었을 때 처리 그런게 어렵겠지)
 
+18/DEC/2020
+당연히 B Tree가 아니다. B Tree로 하는 방법이 있을 수도 있겠지만, a 글자 다음에 올 수 있는 글자는 특수 문자, 알파벳 등 수천가지가 넘을 수 있다. 따라서 가지를 치는 Tree 구조는 맞지만 Binary는 아니다. 훨씬 더 많은 가지를 칠 수 있다.\
+이런 구조를 Prefix Tree라고 한다.\
+Prefix Tree를 써야겠구나하고 reference없이 혼자 만들기 시작했는데, 단어 추가, 검색을 진행하던 중에 하나 더 깨달은 점이 있다.\
+지금 내가 계획없이 그냥 진행한 PrefixTree 구조를 간단히 para-표기하면 아래와 같다.
+```
+type PrefixTreeNode struct {
+    Syllable        rune
+    SyllableType    int
+    Nexts           []*PrefixTreeNode
+}
+```
+Syllable은 한글일 경우 초성, 중성, 종성을 분리해서 저장하며, SyllableType이 한글(초,중,종), 영어, 그외(특수문자+숫자 등)를 분간한다. Nexts에는 현재 Node를 prefix로 가지는 다른 Node들의 Pointer를 저장한다.\
+
+하지만 Node가 LeafNode가 아닐때에는 이 Node가 단어의 끝인지, 다음 Node의 Prefix로만 존재하는지 알 수 있는 방법이 없다.\
+Prefix Tree의 reference를 찾아보니 index를 사용하는 경우가 있다.\
+단어가 끝나는 지점에서 index를 부여해서 index가 있는 부분은 중간일 수도, 단어의 끝일 수도 있는 것을 선언하는 것이다.\
+하지만 왜 하필 index일까? 메모리를 아끼기위해서는 단어의 끝임을 알리는 struct {}{} 혹은 bool이 더 나을텐데?\
+ChildNode를 따라 아래까지 더 추적하지 않아도 해당 prefix를 가진 Node에만 도달하면, 어떤 단어를 자동 완성할지를 알 수 있는 것이다. 단어의 길이가 길수록 속도가 향상될 것이며, 코드가 간단해진다. 긴 단어가 많을수록 매 Node에 같은 []int를 저장시켜야 하므로 메모리를 더 많이 사용하지만 앞의 장점과 trade-off라고 생각한다면 훨씬 더 나은 선택이다.
+
 ---
 
 # make and new in Go
