@@ -100,6 +100,12 @@ Uber 기술 블로그에서 한 기사 밖에 읽지 못했지만 더 알아볼�
 여기에서 MicroService Architecture에 Go가 효율적임을 알 수 있다.\
 Go HTTP 통신의 베이스가 되는 net/http 패키지는 Google에서 서버로 사용할만큼 퍼포먼스가 뛰어날 뿐만 아니라, 기본적으로 Request를 goroutine에서 처리해서 default로 async하다.
 
++ 왜 RESTful이 아닌 RPC를 사용하는가?
+마이크로 서비스를 도입하면서 엔드포인트가 많아지는 것은 어쩔 수 없는 결과이다.\
+Local Procedure Call이 아니니까.\
+RPC를 사용하면 상대적으로 간단한 인터페이스(GET과 POST만 사용, payload는 body에 포함 등)를 제공한다. 하지만 RESTful은 단순히 엔드포인트가 많아짐을 넘어서 헤더와 리소스에 대한 정의까지 필요하다.\
+따라서 대부분의 MSA는 REST가 아닌 RPC 기반으로 통신한다.
+
 ---
 
 
