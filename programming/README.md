@@ -1610,7 +1610,7 @@ If new was removed in favour make, how would you construct a pointer to an initi
 
 Using new to construct a pointer to a slice, map, or channel zero value works today and is consistent with the behaviour of new.
 
-For the confusion they may cause, make and new are consistent;
+For the confusion they may cause, make and new are consistent
 
 make only makes slices, maps, and channels,
 new only returns pointers to initialised memory.
@@ -1650,4 +1650,17 @@ github.com/woodchuckchoi/something/
 일반적으로 package를 사용할 때 base directory에 위치한 package를 사용하는 경우가 많으니까 이 방식이 맞을수도, 아니면 utility package에는 당연히 main package를 넣지 않을 수도 있다.\
 지금 내 경우에는 package를 혼자 만들고 있으니까 이런 식으로 사용하는 것이고.
 
+Go의 package managing 방식은 github, bitbucket 등 repository를 이용하는 방식이기 때문에 public이 아닌 package를 사용하기 위해서는 몇가지 설정이 필요하다.
+```
+git config --global url.git@github.com:.insteadOf https://github.com // https 방식을 ssh 방식으로 바꿔준다. ssh key가 등록되어 있다면 identity check을 위한 prompt가 생략되므로.
 
+go env -w GOPRIVATE=github.com/<OrgName>/* // proxy, checksum database를 사용하지 않고 repository에 접근한다.
+// eg) go env -w GOPRIVATE=github.com/woodchuckchoi/*,bitbucket.com/user/* 같이 comma-seperated string이다.
+```
+
+package의 versioning은 다음 표기법을 따른다. v[Major].[Minor].[Patch]\
+go get -u (upgrade)를 통해서 upgrade 가능하다.\
+major version change는 go.mod의 module을 변경함으로써 진행되고, minor version change는 git의 tag를 통해서 설정한다.\
+go.mod의 major version과 git tag의 semantic version의 major version이 일치해야한다.
+
+---
