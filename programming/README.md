@@ -1631,4 +1631,23 @@ ptr := &val     // 이게 가장 많이 사용될테고
 
 ---
 
+# Package in Go
+Go는 기본적으로 Relative Import를 지원하지 않는다.\
+Python으로 치면 from ..pkg.something import some\_func 같은.\
+Go Path에 pkg를 생성하고 사용하는 방식은 go mod 이후 거의 deprecate되는 추세라고 한다.
+
+Go의 package는 간단하게 말하면 디렉토리를 뜻한다.\
+module을 이루는 디렉토리에서 시작해서 그 하위 디렉토리는 모두 하나의 package(sub-package?)라고 볼 수 있으며, package의 이름은 디렉토리와 일치하지 않아도 된다.(하지만 그렇게 하면 alias를 사용하지 않을 경우 상당히 사용하기가 힘들 것이다.)\
+하지만 한 package에서, 즉 한 디렉토리 내에서 모든 파일은 하나의 package를 가리켜야한다.\
+```
+github.com/woodchuckchoi/something/
+| main.go - package main
+| something.go - package something
+...
+```
+이런 식으로는 사용할 수 없다는 것이다.\
+내 프로젝트는 package와 main을 같이 사용하는 경우, 즉 패키지 안에 엔트리포인트도 같이 있는 경우 binary라는 디렉토리를 따로 두고 여기에 main package를 넣어서 사용하기도 한다.\
+일반적으로 package를 사용할 때 base directory에 위치한 package를 사용하는 경우가 많으니까 이 방식이 맞을수도, 아니면 utility package에는 당연히 main package를 넣지 않을 수도 있다.\
+지금 내 경우에는 package를 혼자 만들고 있으니까 이런 식으로 사용하는 것이고.
+
 
