@@ -700,3 +700,24 @@ Link = Network Segment, 라우터로 나누어진 네트워크의 부분\
 외부로부터의 접근은 차단하며, 링크에서 Unique한 주소를 갖는다.\
 IPV6 Routing Table에 included되지 않는다.\
 Link Local Address는 자동으로, 혹은 설정을 통해 구성할 수 있다.
+
+---
+
+# Self-Signed Certificate
+1. CA로서 사용할 private key를 생성한다.
+```
+openssl genrsa -[Algorithm] -out myCA.key 2048
+```
+
+2. Certificate을 생성한다.
+```
+openssl req -x509 -new -nodes -key myCA.key -[Algorithm] -days [CertificateAliveDays] -out myCA.pem
+```
+
+3. 사용할 resource에 certificate을 등록한다.
+```
+sudo cp myCA.pem /usr/local/share/ca-certificates/certificate.crt
+sudo dpkg-reconfigure ca-certificates
+```
+
+---
