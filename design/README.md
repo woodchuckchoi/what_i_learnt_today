@@ -108,4 +108,16 @@ RPC를 사용하면 상대적으로 간단한 인터페이스(GET과 POST만 사
 
 ---
 
+# NginX MicroServices 1
+MicroService에서 App등 Front로부터 direct access가 들어오는 경우에는 API Gateway를 사용한다.\
+API Gateway는 load balancing, caching, access control, monitoring 등을 담당하며, AWS API Gateway 혹은 NginX를 사용해서 implement한다.\
+Loose Coupling을 통해서 MSA의 효과를 극대화하기 위해서 각 MicroService가 DB를 따로 가지는 것이 일반적이다.\
+어쩔 수 없이 DB간에 overlapping되는 부분이 있고 Consistency를 위해서 더 implement할 게 많지만(eg. Redis를 application과 db 사이에 두고 여러 DB를 concurrent하게 update), 이로 인해 얻는 퍼포먼스, 구조 상의 이득이 일반적으로 더 크다.
 
+MSA은 기본적으로 Distributed System이다. Concurrency는 물론, Durability 등 monolithic에서는 신경쓰지 않았던 많은 부분에 대비가 되어있어야 한다.\
+또한 DB분리를 통해서 Eventual Consistency를 피할 수 없게 된다. 이에 대한 대비 역시 필요하다.\
+MSA의 배포는 MSA에서 가장 복잡한 부분 중 하나다.  Service Discovery, Scaling 등에 대한 고민이 필요하며, 일반적으로 K8S와 같은 Clustering Solution을 사용하여 구현한다.
+
+---
+
+# NginX MicroServices 2
