@@ -121,3 +121,39 @@ MSA의 배포는 MSA에서 가장 복잡한 부분 중 하나다.  Service Disco
 ---
 
 # NginX MicroServices 2
+MSA에서 Front가 MicroService와 통신하는데 사용할 수 있는 방법은 아래와 같다.
+
+* Direct Communication
+Front가 MicroService들과 직접 통신한다. 각각의 MicroService는 자신의 public endpoint를 가지게되며, 이 public endpoint는 load balancer를 가리켜서 scaling을 할 수 있도록 한다.\
+이 방법의 문제점은 Client가 필요한만큼 Public Network를 통해서 통신을 해야한다는 점이다.\
+예를 들어 어떤 페이지를 로드하는데 필요한 MS가 10개라면 그만큼의 통신이 Public Network를 통해서 이루어져야한다. 이러한 통신을 public network를 통해서 연결한다면 (특히 mobile환경인 경우에) performance 저하뿐만 아니라 front 코드의 복잡함도 문제가 된다.\
+또한 MSA에 주로 사용되는 RPC, AMQP와 같은 protocol을 사용할 시 browser, firewall, mobile과 관련해서 문제가 생길 수 있다.\
+Front와 Back이 coupling되어 있으므로 Back의 기능이 수정될 때, Front 역시 수정이 필요해지는 것 역시 문제점이다.
+
+* API Gateway
+위의 Direct Communication의 문제점을 해결하기 위해서 API Gateway를 사용한다.\
+API Gateway는 시스템의 entry point역할을 하며, oop의 Facade pattern과 같은 역할을 한다.\
+또한 Authentication, Monitoring, Load Balancing, Caching 등 기존 Server의 역할을 모두 지원한다.\
+API Gateway는 보통 Client로부터 Request를 받아서 여러 Micro Service에 요청을 전달하고 이 결과를 모아서 다시 Client에게 전달한다. 이 과정에서 Protocol을 translate하는 역할도 수행한다.
+
+```
+예를 들어 /productdetails?productid=123 이라는 API Gateway의 entry point가 있다면 API Gateway는 내부적으로 아래와 같은 Request를 보내고 있을 수도 있다.
+
+/productdescription?productid=123
+/productimages?productid=123
+/reviews?productid=123
+/recommendations?productid=123
+...
+
+위의 Micro Service로부터 받은 응답을 모아서 다시 사용자에게 전달하는 역할을 한다. 평균적으로 API Gateway의 한 Endpoint는 6~7개의 Micro Service에 결과를 요청한다.
+```
+
+API Gateway를 사용하면 Encapsulating을 통해서 Client와 Server 사이의 rount trip 횟수를 줄일 수 있으며 Front의 코드가 간단해진다.\
+반면 API Gateway를 Highly Available하게 설정하고, Micro Service의 개발에 맞춰 API Gateway를 수정하는 과정에 대해 최적화를 해야한다. 그렇지 않으면 API Gateway가 서비스 개발의 bottleneck이 될 것이다.
+
+API Gateway를 사용하기 위해서는 Micro Service로 보내지는 Request를 Concurrent하게 처리하고, 만약 Dependency가 있을경우 이에 순서를 맞추는 것이 중요하다.\
+Micro Service의 위치가 계속해서 바뀌는 Cloud 환경에 대비하기 위한 Service Discovery가 필수적이며, Partial Failure에 대비한 개발 역시 필요하다.
+
+---
+
+
