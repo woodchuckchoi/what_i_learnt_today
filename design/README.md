@@ -156,4 +156,68 @@ Micro Service의 위치가 계속해서 바뀌는 Cloud 환경에 대비하기 �
 
 ---
 
+# NginX MicroService 3
+Monolithic과는 다르게 서비스가 분리된 Process 형태를 띄고 있는 MSA이므로, Service간 communication은 IPC(inter-process communication) 방식으로 이루어진다.\
+Service간의 interaction은 아래와 같이 분류해서 생각할 수 있다.
+
+1. First Dimension
+    1. One-to-one - 하나의 Client Request는 하나의 Service Instance에서 처리된다.
+    2. One-to-many - 각 Client Request는 여러 Service Instances에서 처리된다.
+2. Second Dimension
+    1. Synchronous - Client는 Service를 Synchronous하게 호출한다.
+    2. Asynchronous - Client는 Service를 호출하고 block하지 않는다.
+
+위의 분류는 아래와 같이 설명된다.
+```
+There are the following kinds of one‑to‑one interactions:
+
+Request/response – A client makes a request to a service and waits for a response. The client expects the response to arrive in a timely fashion. In a thread‑based application, the thread that makes the request might even block while waiting.
+Notification (a.k.a. a one‑way request) – A client sends a request to a service but no reply is expected or sent.
+Request/async response – A client sends a request to a service, which replies asynchronously. The client does not block while waiting and is designed with the assumption that the response might not arrive for a while.
+There are the following kinds of one‑to‑many interactions:
+
+Publish/subscribe – A client publishes a notification message, which is consumed by zero or more interested services.
+Publish/async responses – A client publishes a request message, and then waits a certain amount of time for responses from interested services.
+```
+
+Client와 Server가 분리된 개발 환경에서 위의 조건에 부합하는 API를 디자인하기 위해서 API-first approach가 사용된다.\
+Interface Definition(protobuf와 같은)를 먼저 작성한 후, Client 개발자와 함께 리뷰한다. 모든 리뷰가 끝나면 실제 개발에 착수한다.\
+Interface Definition을 정하는 것은 어떤 IPC mechanism을 사용하는가에 따라 달라진다.\
+Messaging을 사용할 경우, API는 message channel과 message type이 될 것이고, HTTP를 사용한다면 URI, request/response format이 될 것이다.
+
+Monolithic Pattern의 경우 API를 수정하고 이에 관련된 code를 update하는 것은 어렵지 않다.\
+하지만 MSA의 경우 API 수정에 따른 기타 코드 수정을 한번에 할 수 없는 경우가 대부분이므로 backward-compatibility를 생각하며 개발 사항을 배포해야한다.\
+사용하지 않는 resp의 field에는 default value를 사용하고, client도 쓰지 않는 field는 무시하는 방향으로 개발한다.\
+backward-incompatible한 수정이 필요하다면, URL에 version을 명시하고 구버젼과 새로운 버젼을 한 Service에서 혹은 다른 Instance에서 동시에 동작하게 하는 방식을 사용한다.
+
+Partial Failure에 대비하는 durability에 대한 고려 역시 필요하다. Netflix는 durability에 대한 문제 해결을 아래와 같이 정의한다.
+```
+Network timeouts – Never block indefinitely and always use timeouts when waiting for a response. Using timeouts ensures that resources are never tied up indefinitely.
+
+Limiting the number of outstanding requests – Impose an upper bound on the number of outstanding requests that a client can have with a particular service. If the limit has been reached, it is probably pointless to make additional requests, and those attempts need to fail immediately.
+
+Circuit breaker pattern – Track the number of successful and failed requests. If the error rate exceeds a configured threshold, trip the circuit breaker so that further attempts fail immediately. If a large number of requests are failing, that suggests the service is unavailable and that sending requests is pointless. After a timeout period, the client should try again and, if successful, close the circuit breaker.
+
+Provide fallbacks – Perform fallback logic when a request fails. For example, return cached data or a default value such as empty set of recommendations.
+```
+
+이와 같은 IPC을 HTTP에서 하는 경우가 많다. HTTP를 사용하면 얻을 수 있는 장점은 아래와 같다.
+
+* HTTP is simple and familiar.
+* You can test an HTTP API from within a browser using an extension such as Postman or from the command line using curl (assuming JSON or some other text format is used).
+* It directly supports request/response‑style communication.
+* HTTP is, of course, firewall‑friendly.
+* It doesn’t require an intermediate broker, which simplifies the system’s architecture.
+
+단점은 아래와 같다.
+
+* It only directly supports the request/response style of interaction. You can use HTTP for notifications but the server must always send an HTTP response.
+* Because the client and service communicate directly (without an intermediary to buffer messages), they must both be running for the duration of the exchange.
+* The client must know the location (i.e., the URL) of each service instance. As described in the previous article about the API Gateway, this is a non‑trivial problem in a modern application. Clients must use a service discovery mechanism to locate service instances.
+
+주로 사용되는 포맷인 HTTP(REST)를 대체할 대안으로는 RPC(주로 Thrift를 이용)가 있으며 어떠한 포맷을 사용하느냐에 따라 Message의 format에 대한 선택도 달라진다.
+
+---
+
+
 
