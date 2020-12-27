@@ -233,3 +233,76 @@ Client는 load balancer에 query를 보내고 load balancer가 service registry�
 Client로부터 Service Discovery logic이 분리되어 있으므로 client에서 구현이 간단해지며, Server-side Discovery를 제공하는 tool을 바로 사용할 수 있다. 반면 Load balancer와 같은 서비스를 개발 환경이 제공해주지 않는다면 스스로 구현해야한다는 단점이 있다.
 
 Service Registry는 Service Discovery Feature의 중심으로 highly available, up-to-date한 database이다.
+
+---
+
+# NginX MicroService 5
+MSA에서 각 서비스는 각자의 schema를 가진, 혹은 각 서비에에 맞는 종류의 DB를 가지는 것이 일반적이다.\
+이와 같은 환경에서 data consistency를 유지하기 위해서 event-driven architecture를 구성한다.
+
+Event-driven Architecture는 아래와 같은 Process를 거쳐 동작한다.
+
+* BASE Model
+1. A 서비스에 Request가 도착하면 A DB를 수정(Pending)하고 Message Broker를 통해서 연관된 B 서비스에도 Request를 전달한다.
+2. B 서비스는 B DB를 수정하고 Message Broker를 통해서 A에게 OK Status를 전달한다.
+3. OK를 전달받은 A 서비스는 1에서 수정한 DB Entry를 OK상태로 전환한다.
+
+Event-driven 방식에 따라서 아래와 같은 구조를 사용하기도 한다.
+1. Client에서 A 서비스와 B 서비스에 Request를 보낸다.
+2. A와 B 서비스는 OK Status를 Message Broker에 전달한다.
+3. Message Broker에 일치하는 A, B의 OK Status를 발견하면 Updater 서비스는 DB를 update한다.
+4. Update된 DB를 Viewer 서비스로 확인한다.
+
+위의 경우 DB에서 다시 Join을 하는 경우 Consistency에 대한 문제가 재발생하므로 Document DB(MongoDB)를 사용하여 Order가 생겼을 때 기존 Document에 append하는 방식을 사용하는 경우가 많다.\
+Event-driven Data를 구성하면 다수의 DB 사이에 Transaction과 eventual consistency를 구현할 수 있지만, 단일 DB를 사용할 때보다 복잡한 구성이 필요하다.
+
+Event Driven에서 Atomicity를 구현하기 위해서 Event Table을 두는 경우도 고려해야한다.\
+A 서비스는 A DB를 업데이트하면서 이와 동시에 Event table에 어떤 서비스에서 어떤 일을 해야하는지를 Tasnaction으로 처리한다.\
+Event table을 query하는 event publisher는 해당 event를 message broker에 전달한다.\
+MSA에서 atomicity를 구현할 수 있지만, 개발 단계에서 신경써야할 부분이 많아지며, NoSQL을 사용할 경우 transaction과 query 지원이 RDB보다 상대적으로 부족할 수 있다는 단점도 있다.
+
+위의 방식과 비슷하면서도 다른 Log Mining 방식도 있다.\
+A 서비스가 A DB를 update할 떄 발생하는 log를 log miner Service가 message broker에 전달하는 방식으로 DynamoDB가 이를 사용한다.\
+event의 atomicity를 구현하며, application의 business logic과 atomicity 구현과 같은 technicalities를 분리할 수 있지만, DB의 종류 혹은 DB 버젼 사이에도 log가 다르기 때문에 이에 대한 확인이 필요하다는 점이다.
+
+Event Sourcing을 사용하는 방법도 있다.\
+Event Sourcing은 DB에 Entity의 state를 저장하지 않고 event를 저장하고 다른 서비스들이 이 event를 subscribe해서 상태를 다시 추적하는 방법으로, Event는 단일 객체이므로 atomicity는 자연스럽게 구현된다.\
+Event Sourcing을 통해서 MSA의 data consistency를 해결할 수 있으며 "OOP-RDB의 mismatch로 발생하는 문제"도 피할 수 있기 때문에 monolithic에서 msa로 변환을 쉽게 할 수 있다는 장점이 있다.\
+하지만 기존의 스타일과 확연히 차이가 있기때문에 learning curve가 높은 편이며, eventual consistent를 피할 수 없다는 단점이 있다.
+
+---
+
+# NginX MicroService 6
+MSA의 배포 역시 Monolithic과 큰 차이가 있다.\
+Monolithic의 배포와 같은 방식으로 각 서버마다 동작에 필요한 서비스를 넣어서 배포할 수도 있다.\
+이 방식은 배포가 빠르고, resource를 효과적으로 사용할 수 있으며, service startup이 빠르다는 장점이 있지만, service 사이의 coupling, service간의 resource 제한 불가, 운영 부서에서 각 service가 어떻게 연결되는지 알아야 한다는 단점 또한 있다.
+
+각 Host에 service를 가상화해서 배포하는 방식의 경우 위의 monolithic 배포와 정반대의 장점과 단점을 지닌다. 각 Service는 loose coupling되어 있으며, resource를 제한 가능, Scaling이 자유롭다는 장점이 있는 반면 상대적으로 긴 startup time과 learning curve가 단점이다.
+
+Serverless(AWS Lambda) 배포 방식의 경우 long-running application에는 맞지 않는 방식으로 request가 도착하면 이에 맞춰 instance가 동작한다. Request는 300초 이내에 응답되어야하며, 각 request는 다른 instance에서 동작할 수도 있기 때문에 (cache가 존재함에도 불구하고) state를 저장하는 application에는 적합하지 않다.
+
+---
+
+# NginX MicroService 7
+Monolithic Legacy code를 MSA로 refactor하는 경우 처음부터 MSA를 새로 시작하는 Big Bang 방식은 지양한다.\
+대신 monolithic을 incrementally rewrite하는 방식을 지향해야한다. 새로운 기능을 구성하는 Micro Service를 기존 Legacy와 함께 운영하여 Monolithic이 점차적으로 사라지거나, 하나의 micro service로 변화하도록 한다.
+
+Incremental Refactoring은 아래와 같은 방식으로 구현할 수 있다.
+
+1. Stop Digging - Monolithic code에 기능을 추가하는 것을 중지하고 해당 기능을 담당할 micro service를 구축한다. 일반적으로 API Gateway를 통해서 Monolithic과 Micro Serivce가 같은 endpoint를 사용하도록 하며, monolithic의 코드나 데이터를 사용하기위해서 glue code를 구성할 수 있다.
+2. Split Frontend and Backend - (Self-explanatory)
+3. Extract Services - Monolithic에서 Service를 분리하여 Micro Service를 만든다. Micro Service가 만들어짐에 따라서 Monolithic의 크기는 줄어든다. Micro Service를 충분히 분리했다면 Monolithic 역시 Micro Service가 되어있거나, 사라졌을 것이다. 
+
+가장 수정이 자주되는 module을 먼저 분리해서 micro service로 만듦으로써 overhead를 줄인다. 또 resource를 가장 많이 차지하는 module을 분리함으로써 효율적인 배포 환경을 구성한다. 분리되는 모듈의 dependency는 REST API 등 interface를 구성해서 
+
+```
+Monolithic [X -> Y -> Z]
+
+Monolithic [X] -> MS [Y] -> Monolithic [Z]
+```
+와 같이 구성한다.
+
+---
+
+
+
