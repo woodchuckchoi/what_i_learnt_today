@@ -219,5 +219,17 @@ Provide fallbacks – Perform fallback logic when a request fails. For example, 
 
 ---
 
+# NginX MicroService 4
+다른 Process(혹은 instance)에 존재하는 Service와 RPC(REST도 넓은 의미의 RPC에 속한다)로 소통하기 위해서는 네트워크 상의 주소(주로 ip와 port)를 알아야한다. Cloud 환경에서는 과거와 다르게 Instance가 autoscaling, fail-over 등의 이유로 유동적으로 바뀌기 때문에 service를 주소가 아닌 다른 방법으로 인식하는 기능이 필요하다.\
+위의 기능은 client-side discovery와 server-side discovery 두 가지 방식으로 구현 가능하다.
 
+1. Client-side Discovery
+Client가 service discovery와 load balancing 전부를 담당하는 방식으로 Client는 service registry(현재 사용 가능한 service 서버 목록 database)에 query를 보내서 instance를 정한 후, 해당 instance에 요청을 전달한다.\
+Service Instance를 refresh하는 데에는 일반적으로 heatbeat mechanism(일정 시간마다 ping을 보내서 service status == alive 를 확인하는 방식)을 사용한다.\
+Client-side Discovery는 구조가 간단하고 service registry를 제외하면 dynamically modified되는 부분이 없다. 또한 Client가 service에 대한 정보를 가지게 되므로, 각 service에 맞는 load balance 방식을 적용할 수 있다. 하지만 Client와 Service Registry가 coupling되어 있으므로 모든 client에서 service registry와 관련된 logic을 구현해야한다.
 
+2. Server-side Discovery
+Client는 load balancer에 query를 보내고 load balancer가 service registry와 통신을 통해서 Service Discovery를 구현한 방식으로 NginX, AWS ELB, K8S의 default service discovery logic이 여기 속한다.\
+Client로부터 Service Discovery logic이 분리되어 있으므로 client에서 구현이 간단해지며, Server-side Discovery를 제공하는 tool을 바로 사용할 수 있다. 반면 Load balancer와 같은 서비스를 개발 환경이 제공해주지 않는다면 스스로 구현해야한다는 단점이 있다.
+
+Service Registry는 Service Discovery Feature의 중심으로 highly available, up-to-date한 database이다.
