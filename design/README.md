@@ -304,5 +304,12 @@ Monolithic [X] -> MS [Y] -> Monolithic [Z]
 
 ---
 
+# AWS API Gateway and Lambda
+API Gateway가 Service의 Entry Point 역할을 한다는 정의에서 내가 가장 알고 싶었던 점은 다중 Request를 보내고 이것을 aggregate하는 MSA에서는 API Gateway를 어떻게 사용하는가였다.\
+정답은 "aggregate하는 integrate layer(주로 lambda)를 둔다"이다.\
+API Gateway는 다중 request 전송 후 이를 모아서 모델링해서 전달하는 역할을 하지 않는다.(그런 서비스도 있을 수 있겠지만)\
+이러한 역할은 사실상 동시성, 모델링 등 프로그래밍 분야기 때문에 가볍게 사용할 수 있는 Lambda와 같은 serverless에 넘기고 API Gateway는 authorisation, monitoring, routing의 역할을 담당한다.\
+그렇다면 사실 NginX에서 모두 할 수 있는 일이고, 거기에 AWS API Gateway는 load balancer도 따로 설정해야되므로 NginX의 압승이 아닌가?하는 생각도 들었지만 SaaS로 인프라, 네트워크같은 부분을 신경쓰지 않아도 된다는 면은 AWS API Gateway의 장점이라고 본다.\
+현재 서비스에 Integration Layer로 Lambda가 상당히 많아질 것이라고 예상하는데 다행히 Terraform 도입을 얼마 전 시작해서 API Gateway와 Lambda 연결을 Terraform으로 관리한다면 그나마 좀 관리가 수월할 것 같다.
 
-
+---
