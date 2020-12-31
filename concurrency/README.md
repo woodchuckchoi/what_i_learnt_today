@@ -55,5 +55,21 @@ Coordination
 * Condition Variables
 * Wait Groups
 
-Deadlock
+Replication
+1. State Transfer
+Somehow stores the state of a machine (contents of the ram) in another
+2. Replicate State Machine
+When external events intervene store the events
 
+Replicate State Machine Implementation Points
+1. What events to store? Not all bits of memory -> some level of application state
+2. How closely (quick) replication takes place (synchronisation lag)
+3. Cut-over
+4. Anomalies
+5. New replicas
+
+Non-deterministic events may happen?
+Input packet data and the timing of interruption should match (state)
+
+resp is held by the primary until the replica acknowledges the req
+network error between master and worker -> appealing outside authority to decide which of (primary/backup) should survive
