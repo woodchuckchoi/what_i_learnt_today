@@ -1664,3 +1664,22 @@ major version change는 go.mod의 module을 변경함으로써 진행되고, min
 go.mod의 major version과 git tag의 semantic version의 major version이 일치해야한다.
 
 ---
+
+# Concurrency and Go
+Thread 사이에는 parent/child relationship이 존재하지 않는다. 다시 말해 A thread가 B thread를 생성하고 A thread가 종료되더라도 B thread가 종료되지는 않는다.\
+하지만 예외적으로 A thread가 main thread 일 때, 그리고 어떤 thread가 exit system call을 호출 했을 때 다른 thread에 영향을 끼칠 수 있다. Process의 Main함수를 담당하는 Main thread가 exit하면 process도 exit하고 process에 속한 thread 모두 exit한다.
+
+Goroutine은 thread지만 여러 core의 resource를 활용할 수 있다.\
+이것은 Go가 clone system call을 사용해서 goroutine을 관리하기 때문이다. Clone은 child process가 parent process의 address를 그대로 사용하게 함으로써 memory는 공유하면서 CPU core는 각각 사용할 수 있도록 한다.
+
+Goroutine은 아래와 같은 형태를 띈다.
+```
+OS Process(P) - OS thread(M) - Goroutine(G)
+```
+goroutine을 생성할 경우 Go는 설정에 따라 여러 Process를 생성한다.\
+생성된 idle Process 중 process를 선택해서 thread(M)를 생성한다.\
+생성된 M에 goroutine(G)를 생성한다.
+
+---
+
+
