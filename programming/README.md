@@ -1680,6 +1680,15 @@ goroutine을 생성할 경우 Go는 설정에 따라 여러 Process를 생성한
 생성된 idle Process 중 process를 선택해서 thread(M)를 생성한다.\
 생성된 M에 goroutine(G)를 생성한다.
 
+Go에서 동시성을 구현할때는 단순화를 목표로 하고 가능하면 채널을 사용한다. 고루틴은 무한정 쓸 수 있는 자원처럼 다룬다.
+
+모든 Go 프로그램에는 적어도 하나의 Goroutine이 있다. Main Goroutine (Main Thread처럼)가 그것이다.\
+Goroutine은 Coroutine이라 불리는 높은 수준의 추상화다.\
+Coroutine은 동시에 실행되는 (병렬이 아닐 수 있다.) 서브루틴으로 인터럽트가 불가능하다. 하지만 중단하거나 재진입할 수 있는 여러 Point를 가진다.\
+Goroutine은 중단이나 재진입 포인트를 정의하지 않고, Go runtime이 goroutine을 관리한다.\
+Goroutine을 호스팅하는 Go의 메커니즘은 M:N 스케줄러로, M개의 그린스레드를 N개의 OS 스레드에 매핑한다.\
+Goroutine은 스레드에 스케쥴링 된다. 사용가능한 그린스레드보다 더 많은 Goroutine이 있다면 스케줄러는 사용 가능한 스레드들에게 Goroutine을 분배하고, 분배된 Goroutine이 대기 상태가 되면 다른 Goroutine이 실행되도록 한다.
+
+Goroutine은 약 2kb의 메모리를 차지하며, 컨텍스트 스위칭에 사용되는 비용도 OS의 Thread보다 훨씬 저렴하므로 동시성 프로그래밍에 알맞다.
+
 ---
-
-
