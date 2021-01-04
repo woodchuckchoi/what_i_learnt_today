@@ -192,3 +192,15 @@ Docker는 default로 unix domain socket을 사용하지만 tcp socket도 지원�
 aws 같은 경우에는 ec2 instance의 특정 ip에는 built-in metadata server가 동작하고 있고, metadata를 통해서 role을 assume해서 secret을 받아 사용할 수 있다.
 
 ---
+
+# EFK Stack
+(Micro Service) -> Fluentd -> ElasticSearch -> Kibana
+Fluentd는 Log를 수집해서 목적지로 전달하는 역할을 한다.\
+ElasticSearch는 Kibana의 backend를 맡으며 String 검색 엔진 기능으로 log의 처리를 담당한다.\
+Kibana는 ES에서 처리된 log를 시각화하는 Front의 역할을 한다.
+
+일반적으로 각 (Micro) Service는 K8S, Docker-Compose 등의 logging 기능을 통해서 FluentD에게 Log를 전달하고, FluentD는 전달받은 log의 전처리, 다음 system으로 전달, 여러 fluentd의 요청 aggregation 등을 처리한다.\
+Fluentd를 통해서 Service와 Domain에 대해서 tagging을 하고 이를 (S3에 전달하거나) 또 다른 Fluentd를 통해서 통합하여 ES (cluster)로 전달한다.\
+Kibana는 config을 통해서 ES cluster에 접근하며, ES cluster는 구성되면 cluster에 전달되는 데이터를 distribute-process한다.
+
+
