@@ -203,4 +203,28 @@ Kibana는 ES에서 처리된 log를 시각화하는 Front의 역할을 한다.
 Fluentd를 통해서 Service와 Domain에 대해서 tagging을 하고 이를 (S3에 전달하거나) 또 다른 Fluentd를 통해서 통합하여 ES (cluster)로 전달한다.\
 Kibana는 config을 통해서 ES cluster에 접근하며, ES cluster는 구성되면 cluster에 전달되는 데이터를 distribute-process한다.
 
+ElasticSearch는 기본적으로 distributed-system이므로 clusterName.nodeName으로 구성된 identifier에서 clusterName이 같다면 자동으로 cluster를 구성하고 request, data를 cluster내에서 분산 처리한다.\
+/etc/elasticsearch/elasticsearch.yml 파일을 수정하여 cluster를 구성한다.
 
+```
+cluster.name: logging-cluster
+
+node.name: "node-1"
+
+# master node
+node.master: true
+
+# worker(data) nodes:
+node.data: true
+
+# node network information
+network.host: IP addr like 192.168.14.25 or smthing like it
+
+# REST port
+http.port: 9200
+
+# details of the nodes in the cluster
+discovery.zen.ping.unicast.hosts: ["172.11.11.11", "192.168.14.25"]
+
+service elasticsearch restart
+```
