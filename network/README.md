@@ -721,3 +721,14 @@ sudo dpkg-reconfigure ca-certificates
 ```
 
 ---
+
+# Proxy
+HTTP Proxy는 (당연하게도) HTTP Protocol을 지원한다.\
+Client가 GET http://server/path HTTP/1.1을 Proxy에 전달한다.\
+Proxy는 request를 Server에 전달한다.\
+Server는 Proxy을 일반적인 connection으로 생각하고 Client처럼 답을 한다.\
+Proxy는 전달받은 resp을 Client에 전달한다.
+
+Front는 Client의 browser에서 동작한다. 동작한 (대부분) Javascript는 API를 host(server) + api url과 같은 형식을 띄게함으로써 Proxy가 동작한다.
+
+---
