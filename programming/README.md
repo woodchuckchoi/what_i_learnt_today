@@ -1654,7 +1654,7 @@ Go의 package managing 방식은 github, bitbucket 등 repository를 이용하�
 ```
 git config --global url.git@github.com:.insteadOf https://github.com // https 방식을 ssh 방식으로 바꿔준다. ssh key가 등록되어 있다면 identity check을 위한 prompt가 생략되므로.
 
-go env -w GOPRIVATE=github.com/<OrgName>/* // proxy, checksum database를 사용하지 않고 repository에 접근한다.
+go env -w GOPRIVATE=github.com/<OrgName>/\* // proxy, checksum database를 사용하지 않고 repository에 접근한다.
 // eg) go env -w GOPRIVATE=github.com/woodchuckchoi/*,bitbucket.com/user/* 같이 comma-seperated string이다.
 ```
 
@@ -1690,5 +1690,42 @@ Goroutine을 호스팅하는 Go의 메커니즘은 M:N 스케줄러로, M개의 
 Goroutine은 스레드에 스케쥴링 된다. 사용가능한 그린스레드보다 더 많은 Goroutine이 있다면 스케줄러는 사용 가능한 스레드들에게 Goroutine을 분배하고, 분배된 Goroutine이 대기 상태가 되면 다른 Goroutine이 실행되도록 한다.
 
 Goroutine은 약 2kb의 메모리를 차지하며, 컨텍스트 스위칭에 사용되는 비용도 OS의 Thread보다 훨씬 저렴하므로 동시성 프로그래밍에 알맞다.
+
+Cond는 고루틴들이 대기하거나, 어떤 이벤트의 발생을 알리는 rendezvous point이다.\
+여기서 이벤트는 복수의 고루틴 사이에서 어떤 사실이 발생했다는 사실만을 전달하는 임의의 신호이다.(마치 chan <- struct{} {}와 같다)\
+Cond를 사용하지 않는 가장 단순한 접근 방법은 무한루프일 것이다.
+
+```
+for conditionTrue() == false {
+}
+```
+
+하지만 위의 방법은 한 개 코어의 모든 사이클을 소모한다. 이를 개선하면 아래와 같다.
+
+```
+for conditionTrue() == false {
+    time.Sleep(time.Millisecond)
+}
+```
+
+위 방법 역시 sleep을 얼마나 할 것인가에 따라 낭비가 생긴다.\
+여기서 필요한 '고루틴이 신호를 받을 때까지 슬립하고 자신의 상태를 확인할 수 있는 방법이 Cond Type이다.\
+Cond를 사용하면 아래와 같이 개선할 수 있다.
+
+```
+// 이 코드는 무시하자
+c := sync.NewCond(&sync.Mutex{})
+c.L.Lock()
+for conditionTrue() == false {
+    c.Wait()
+}
+c.L.Unlock()
+```
+
+위 방법은 현재 고루틴을 일시 중단해서 다른 고루틴들이 OS 스레드에서 실행될 수 있도록 하기 때문에 resource 관리 측면에서 훨씬 더 효율적이다.\
+Wait()이 호출되면 c.L.Unlock()을 실행한다. Wait()이 종료될때는 c.L.Lock()을 실행한다.
+
+Signal()은 Cond Type이 Wait 호출에 멈추는 고루틴에게 조건이 발생했음을 알리는 두 가지 메소드(Broadcast, Signal) 중 하나이다. Signal은 FIFO의 가장 오래된 고루틴에게 신호를 알려주고, Broadcast는 모든 고루틴에게 신호를 보낸다.\
+chan을 사용하면 모든 고루틴에게 신호를 보내는게 어렵지 않지만, 반복적으로 호출하는 동작을 간단하게 구현해놨다는 점, 그리고 채널을 사용하는 것보다 성능이 좋다는 점이 Cond와 Broadcast의 사용 이유일 것이다.
 
 ---
