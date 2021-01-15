@@ -228,3 +228,18 @@ discovery.zen.ping.unicast.hosts: ["172.11.11.11", "192.168.14.25"]
 
 service elasticsearch restart
 ```
+
+---
+
+# CICD tools
+MSA 혹은 MSA가 아니더라도 Container를 사용해서 서비스를 구현하고, CICD를 적용하기위해서는 어떤 기술을 적용해야 하는지 고민하는 경우가 많다.\
+AWS 같은 경우에는 AWS CodePipeline(CodeCommit, CodeBuild, CodeDeploy), AWS ECS(AWS 표준의 Container Service)와 기타 등등을 제공하는데 테스트해본 결과 (특히) ECS가 사용하기 힘들다.\
+설정 포맷이 널리 사용되는 k8s, docker-compose 형식과 차이가 클뿐만 아니라, cluster를 구성하는 Console 설정마저도 복잡하다. (튜토리얼 따라서 console에서 설정하는 것도 실패해서 cli는 건들지도 않았지만)\
+문제는 CodePipeline의 배포 부분에서 container의 버젼을 바꾸는 것과 같은 서비스를 제공하는 건 ECS가 전부라는 것.\
+ECS가 아니라면 직접 container image의 버젼을 수정하고 적용하는 부분을 만들어야되는데, 사실 그렇게하려면 Jenkins를 쓰는게 훨씬 간단하다.\
+그렇지만 AWS에서 container orchestration tool 중 가장 널리 사용되는 K8S도 지원하므로 (EKS) 이에 대한 CICD reference도 찾아봤다.\
+간단하게, repository에 k8s config file을 두고, code build 환경에서 aws cli를 사용해서 kubectl에게 EKS cluster에 대한 권한을 준다.\
+sed 등의 툴로 이미지 버젼이 변경된 k8s config을 kubectl로 apply해서 이미지 버젼 업데이트를 한다. (deploy 방식은 k8s에서 기본 제공하는 rolling, 따로 설정한다면 bluegreen도 된다)\
+k8s를 사용한다는데서 이미 훨씬 더 개발자가 사용하기 편리하다고 생각하지만 (kubectl과 k8s config 포맷은 정말 간단하다.) 위 방식의 단점도 생각해보자면 일단 EKS cluster를 유지하는 고정비용이 ap-northeast-2기준 cluster당 월 72$가 필요하고, 적용 중인 terraform에서 한 눈에 보기 좀 어려울 것 같다고 생각한다.\
+위의 단점에 재반박을 하자면, CodePipeline을 사용하는 것보다는 비싸지만 그 이상으로 k8s가 제공하는 기능(service discovery, deployment 등)이 많다는 점, CodePipeline을 사용하더라도 한 곳에서 Terraform으로 모든 리소스를 관리하기 어렵다는 의견을 낼 수 있을 것 같다.\
+더 리서치를 하고, 더 생각해봐야겠지만 Google Tech 매니아라 그런지 K8S를 사용하는 위의 방식이 신뢰가 가고, 다른 방법보다 편리하다고 생각한다.
