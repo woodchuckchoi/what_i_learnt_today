@@ -1728,26 +1728,39 @@ Wait()이 호출되면 c.L.Unlock()을 실행한다. Wait()이 종료될때는 c
 Signal()은 Cond Type이 Wait 호출에 멈추는 고루틴에게 조건이 발생했음을 알리는 두 가지 메소드(Broadcast, Signal) 중 하나이다. Signal은 FIFO의 가장 오래된 고루틴에게 신호를 알려주고, Broadcast는 모든 고루틴에게 신호를 보낸다.\
 chan을 사용하면 모든 고루틴에게 신호를 보내는게 어렵지 않지만, 반복적으로 호출하는 동작을 간단하게 구현해놨다는 점, 그리고 채널을 사용하는 것보다 성능이 좋다는 점이 Cond와 Broadcast의 사용 이유일 것이다.
 
-sync.Pool은 동시에 실행해도 안전한 객체 pool이다. DB connection과 같이 리소스가 많이 필요한 대상을 고정된 갯수만큼만 사용하기 위해서 사용한다.\
-Get 메소드를 사용해서 Resource를 할당받고, 할당할 수 있는 리소스가 없다면 New 메소드를 통해서 새로운 리소스를 생성하며 리소스를 다 사용한 후에는 Put 메소드를 통해서 풀에 반납한다.
 
-```
-myPool := &sync.Pool{
-    New: func() interface{} {
-        fmt.Println("Creating new instance.")
-        return struct{} {}
-    },
-}
-
-myPool.Get()
-instance := myPool.Get()
-myPool.Put(instance)
-myPool.Get()
-
-// stdout
-Creating new instance. // myPool.Get()
-Creating new instance. // instance := myPool.Get()
-```
-웹서버, DB connection pool과 같이 거의, 혹은 동일한 리소스를 동시에 정해진 갯수만큼 필요로 하는 로직에서 사용한다면 performance에 큰 영향을 줄 수 있다.
 
 ---
+
+# Bridge Channel
+<- <- chan interface{} 와 같은 형태를 bridge 채널이라고 부른다.\
+channel의 stream과 같은 형태이다.\
+bridging의 use case는 아래와 같다.
+
+```
+bridge := func(done <-chan interface{}, chanStream <-chan <-chan interface{}) <-chan interface{} {
+    valStream := make(chan interface{})
+    go func() {
+        defer close(valStream)
+        for {
+            var stream <-chan interface{}
+            select {
+            case maybeStream, ok := <-chanStream:
+                if !ok {
+                    return
+                }
+                stream = maybeStream
+            case <-done:
+                return
+            }
+            for val := range orDone(done, stream) {
+                select {
+                    case valStream <- val:
+                    case <-done:
+                }
+            }
+        }
+    }()
+    return valStream
+}
+```
