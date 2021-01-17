@@ -243,3 +243,13 @@ sed 등의 툴로 이미지 버젼이 변경된 k8s config을 kubectl로 apply�
 k8s를 사용한다는데서 이미 훨씬 더 개발자가 사용하기 편리하다고 생각하지만 (kubectl과 k8s config 포맷은 정말 간단하다.) 위 방식의 단점도 생각해보자면 일단 EKS cluster를 유지하는 고정비용이 ap-northeast-2기준 cluster당 월 72$가 필요하고, 적용 중인 terraform에서 한 눈에 보기 좀 어려울 것 같다고 생각한다.\
 위의 단점에 재반박을 하자면, CodePipeline을 사용하는 것보다는 비싸지만 그 이상으로 k8s가 제공하는 기능(service discovery, deployment 등)이 많다는 점, CodePipeline을 사용하더라도 한 곳에서 Terraform으로 모든 리소스를 관리하기 어렵다는 의견을 낼 수 있을 것 같다.\
 더 리서치를 하고, 더 생각해봐야겠지만 Google Tech 매니아라 그런지 K8S를 사용하는 위의 방식이 신뢰가 가고, 다른 방법보다 편리하다고 생각한다.
+
+---
+
+# Docker Network
+* bridge - Default network driver. Standalone 컨테이너가 다른 컨테이너와 통신을 가능하게 한다.
+* host - Standalone 컨테이너가 Host의 network를 직접적으로 사용할 수 있게 한다.
+
+---
+
+
