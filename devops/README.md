@@ -252,4 +252,11 @@ k8s를 사용한다는데서 이미 훨씬 더 개발자가 사용하기 편리�
 
 ---
 
+# Dynamic Port Mapping
+한 Host에서 하나의 Port는 한 번에 한 대상에 대해서만 Listen이 가능하다.\
+그렇다면 동일한 Instance에서 Blue Green Deployment는 불가능한걸까?\
+이에 대한 답은 Dynamic Port Mapping이다.\
+App이 사용하는 Host의 Port를 static하게 설정하지 않는다.\
+Dynamic하게 설정된 Port는 Instance 외부의 Load Balancer에게 Port에 대한 정보를 제공하고 Load Balancer는 Health Check, Listener를 사용하여 Dynamic Port Mapping을 구현한다.
 
+-- 
