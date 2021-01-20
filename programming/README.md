@@ -1781,3 +1781,25 @@ Go의 에러는 "시스템이 사용자가 전달한 명시적 또는 암시적�
 
 ---
 
+# Node
+Node는 단일 Thread에서 작동한다. 대신 동시 작업을 event loop 방식으로 실행해서 처리한다.\
+따라서 blocking을 피하고 non-blocking을 사용해야만 한다.\
+이를 위해서 callback을 다른 함수에 넘기는 방식을 사용한다.
+
+```
+Cost of IO
+L1 cache              3      cycles
+L2 cache             14      cycles
+RAM                 250      cycles
+Disk         41 000 000      cycles
+Network     240 000 000      cycles
+```
+
+Programming에서 가장 큰 waste는 IO block에서 발생한다.\
+IO blocking에 대해서 sync(대응하지 않음), multiprocess(fork), multithread(threading)의 방법이 있다.\
+sync를 사용할 수 없고, multiprocess는 overhead가 너무 크기 때문에 Go 등의 프로그래밍 언어, Apache 등의 서버에서는 thread를 사용한다.\
+Request마다 thread를 생성해서 응답하는 방식이다.\
+반면 Nginx, Node.js는 multithreaded하지 않다. Single thread, event-based 방식을 사용한다.\
+Event가 끝났을 때, 행동을 결정하는 것이 callback이다.
+
+IO를 제외한 CPU-intensive workload는 별개의 Process로 분리하는 것을 Nodejs는 추천한다.(MSA / Daemon) 
