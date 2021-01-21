@@ -1819,3 +1819,20 @@ NO -> CPU intensive - Batch Job (more suited for Go or other multithreaded syste
 
 module.exports를 사용해서 require 한다.
 export를 사용해서 import 한다.
+
+Promise는 ES6에서 추가된 JS object로 Producing Code와 Consuming Code를 연결한다.\
+Producing Code는 실행에 시간이 소요되며 Consuming Code는 결과를 기다린다.
+
+```
+let myPromise = new Promise(function(myResolve, myReject) {
+// Producing Code (take time)
+
+    myResolve();    // when successful
+    myReject();     // when error
+});
+
+myPromise.then(
+    function(value) { /* code if successful */ },
+    function(error) { /* code if some error */ }
+);
+```
