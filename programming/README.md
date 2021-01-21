@@ -1803,3 +1803,10 @@ Request마다 thread를 생성해서 응답하는 방식이다.\
 Event가 끝났을 때, 행동을 결정하는 것이 callback이다.
 
 IO를 제외한 CPU-intensive workload는 별개의 Process로 분리하는 것을 Nodejs는 추천한다.(MSA / Daemon) 
+
+When to use Node.js
+YES -> IO intensive - Most WEB Apps
+NO -> CPU intensive - Batch Job (more suited for Go or other multithreaded systems), Aggregation (Node.js Callback hell)
+
+---
+
