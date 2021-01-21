@@ -1810,3 +1810,12 @@ NO -> CPU intensive - Batch Job (more suited for Go or other multithreaded syste
 
 ---
 
+# require VS import
+1. require - ES5, import - ES6
+2. import requires a special configuration option in package.json.
+3. import does not support importing JSON files. You'll get a Unknown file extension ".json" error if you try to import a file that ends in .json.
+4. Even though ESM modules work in both the browser and Node.js, there's no guarantee that your Node.js code will work in the browser and vice-versa.
+5. Several Node.js features don't work with ESM: NODE\_PATH, __dirname, __filename, and require.extensions don't work if you opt in to { "type": "module" }.
+
+module.exports를 사용해서 require 한다.
+export를 사용해서 import 한다.
