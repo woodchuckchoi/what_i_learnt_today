@@ -1851,7 +1851,7 @@ function resolveAfter25Seconds() {
 async function asyncCall() {
     console.log("calling");
     const result = await resolveAfter25Seconds();
-console.log(result);
+    console.log(result);
 }
 
 asyncCall();
@@ -1961,3 +1961,35 @@ async function getProcessedData(url) {
   return processDataInWorker(v)
 }
 ```
+
+Require Example
+```
+// lib.js
+const addNumbers = (a, b) => a+b;
+
+module.exports = {
+    addNumbers: addNumbers
+};
+
+// app.js
+const lib = require('./lib'); // or const { addNumbers } = require('./lib'); // destructuring
+console.log(lib.addNumbers(2, 2)); // 4 // console.log(addNumbers(2, 2));
+```
+
+Import Example
+```
+// Install Babel, configure it
+
+// lib.js
+const addNumbers = (a, b) => a+b;
+
+export { addNumbers };
+
+// app.js
+import { addNumbers } from './lib';
+consol.log(addNumbers(2, 2));
+
+// run the "babeled" version of js files in dist dir
+```
+
+
