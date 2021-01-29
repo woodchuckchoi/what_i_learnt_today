@@ -2126,4 +2126,33 @@ wrap();
 multithreading, multiprocessing 보다 덜 직관적이지만, Promise와 async/await을 활용해서 동시성을 구현할 수 있다.\
 computing intensive가 아니라면 Node를 통해서 concurrency를 구현하는 것도 좋은 선택일 것이다.
 
+async 함수 내에서 다른 async 함수를 await한다고 하면 아래와 같은 구조를 생각하기 쉽다.
+
+```
+async function someFunc() {
+    return new Promise(async (resolve, reject) => {
+        // do something
+    });
+}
+```
+
+하지만 async function 자체가 Promise를 반환하므로 위의 함수는 아래와 같이 간략하게 사용한다.
+
+```
+async function someFunc() {
+    // do something
+    // await someOtherFunc();
+    // return someValue; -> resolve의 반환값과 같다.
+    // reject는 바깥쪽 scope의 catch (error)로 잡는다.
+}
+```
+
+JavaScript async에 대한 공부를 시작한 이유가 '당연히 이럴 것이다'라고 생각하고 refactoring했던 elasticsearch 업로드 코드의 실패였다.\
+Promise가 traceback message에 보이고, 데이터는 올라가지 않으니 당연히 JavaScript의 async/await을 거의 사용 안 해본 내가 틀렸다고 생각했다.\
+오늘 async/await에 대해 몇 가지 테스트를 해보고 다시 코딩을 했는데 또 실패했다.\
+내가 정말 JS async/await에 대해 하나도 모르는구나 하면서 에러 메세지를 처음부터 끝까지 다 읽어봤다.\
+traceback 메세지를 전부 읽고보니 한 번에 수백만개의 record를 발송하려다 보니 생긴 heap error가 원인이었다.\
+데이터의 양을 줄여서 다시 테스트하니 n천개의 record가 체감상 즉시 이뤄졌다. (localhost에 es를 띄워놔서 그런 점도 있지만) Node가 빠르다는 점을 깨달았다.\
+또 async/await에 대해서 더 자세히 알게되서 좋았다.
+
 ---
