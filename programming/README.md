@@ -1992,4 +1992,138 @@ consol.log(addNumbers(2, 2));
 // run the "babeled" version of js files in dist dir
 ```
 
+---
 
+# Promise, async/await in JS
+Promise를 resolve하지 않으면 해당 Promise를 사용하는 스코프가 정상적으로 작동하지 않는다.
+
+```
+const p = new Promise((resolve, reject) => {
+    console.log('promise start');
+    setTimeout(() => {
+        console.log('inside timeout');
+    }, 500);
+    console.log('promise end');
+})
+
+function timedLog(message) {
+    return setTimeout(() => {
+        console.log(message);
+    }, 500);
+}
+
+async function wrap(promise) {
+    await promise;
+    console.log('wrap end');
+}
+
+wrap(p);
+// promise start
+// promise end
+// inside timeout
+```
+
+```
+const p = new Promise((resolve, reject) => {
+    console.log('promise start');
+    setTimeout(() => {
+        console.log('inside timeout');
+    }, 500);
+    console.log('promise end');
+    resolve();
+})
+
+function timedLog(message) {
+    return setTimeout(() => {
+        console.log(message);
+    }, 500);
+}
+
+async function wrap(promise) {
+    await promise;
+    console.log('wrap end');
+}
+
+wrap(p);
+// promise start
+// promise end
+// wrap end
+// inside timeout
+```
+or
+```
+const p = new Promise((resolve, reject) => {
+    console.log('promise start');
+    setTimeout(() => {
+        console.log('inside timeout');
+    }, 500);
+    console.log('promise end');
+    reject();
+})
+
+function timedLog(message) {
+    return setTimeout(() => {
+        console.log(message);
+    }, 500);
+}
+
+async function wrap(promise) {
+    try {
+        await promise;
+    } catch (e) {
+        console.log(e);
+    }
+    console.log('wrap end');
+}
+
+wrap(p);
+// promise start
+// promise end
+// undefined
+// wrap end
+// inside timeout
+```
+
+await Promise는 Promise가 resolve나 reject를 선언할 때까지 기다린다.\
+JavaScript Documentation
+
+```
+The await expression causes async function execution to pause until a Promise is settled (that is, fulfilled or rejected), and to resume execution of the async function after fulfillment. When resumed, the value of the await expression is that of the fulfilled Promise.
+```
+
+따라서 첫번째 예시에서 async function인 wrap에서 wrap end가 출력되지 않은 것은 Promise가 settled되지 않았기 때문에 async function이 resume되지 않은 것이다.
+
+```
+const p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('promise1 resolved');
+    }, 500);
+})
+const p2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('promise2 resolved');
+    }, 1000);
+})
+const p3 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('promise3 resolved');
+    }, 1500);
+})
+
+async function wrap() {
+    // const vals = await Promise.all([p1, p2, p3]);
+    // console.log(`wrapper received resolved values ${vals}`); // everything logs at the same time
+    await Promise.all([
+        (async () => {console.log(await p1)})(),
+        (async () => {console.log(await p2)})(),
+        (async () => {console.log(await p3)})(),
+    ]);
+}
+
+wrap();
+```
+
+multithreading, multiprocessing 보다 덜 직관적이지만, Promise와 async/await을 활용해서 동시성을 구현할 수 있다.\
+computing intensive가 아니라면 Node를 통해서 concurrency를 구현하는 것도 좋은 선택일 것이다.
+
+---
