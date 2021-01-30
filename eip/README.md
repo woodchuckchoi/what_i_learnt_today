@@ -7,3 +7,5 @@
     chapter3. 논리 데이터베이스 설계
 28th Jan
     Book1. 데이터베이스, ETL
+30th Jan
+		chapter3. 응용 SW 기초 기술 활용
