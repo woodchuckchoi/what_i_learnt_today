@@ -15,3 +15,5 @@
 		chapter4. 소프트웨어 개발 방법론 활용
 2nd Feb
 		chapter2. IT 프로젝트 정보시스템 구축관리
+4th Feb
+		chapter3. 소프트웨어 개발 보안 구축
