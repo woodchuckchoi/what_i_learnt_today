@@ -11,7 +11,7 @@
 * 내부 스키마: 실제 데이터가 저장되는 방식(Type, Size)를 명시한 스키마. 물리적인 Type이나 Size에 변화가 생겨도 개념 스키마에 영향을 끼치지 않는다.
 
 RDB, 관계형 데이터는 행과 열로 표현되는, 테이블형 데이터이다.\
-특정 Tuple(Row)를 식별하기 위해서 키를 가지며, 이 키는 반드시 Unique해서 다른 Tuple들과 구분할 수 있어야 한다. 또 키는 Foreign Key처럼 Relation간의 관계를 맺는데도 사용된다. 키를 단일 속성으로 지정할 수 없는 경우 여러 Column을 묶어서 키로 사용할 수 있다.\
+특정 Tuple(Row)를 식별하기 위해서 키를 가지며, 이 키는 반드시 Unique해서 다른 Tuple들과 구분할 수 있어야 한다. 또 키는 Foreign Key처럼 Relation간의 관계를 맺는데도 사용된다. 키를 단일 속성으로 지정할 수 없는 경우 여러 Column을 묶어서 키로 사용할 수 있다.
 
 Database의 필수적이 조건인 무결성을 유지하기 위해서 다음과 같은 조건이 필요하다.
 * 데이터 무결성: 데이터베이스에 저장된 데이터의 일관성을 유지하는 제약
@@ -114,7 +114,7 @@ Isolation - Transaction이 다른 Transaction에 의해 영향을 받을지, 받
 
 	SELECT quantity, price FROM inventory;
 	// UPDATE inventory SET price = price + 10 WHERE id == 'something'; Query run from another connection
-	SELECT quantity, price FRoM inventory;
+	SELECT quantity, price FROM inventory;
 
 위의 시나리오에서 첫번째와 두번째 SELECT는 서로 다른 값을 출력하게 된다. 이를 dirty read라고 한다.
 
@@ -145,7 +145,7 @@ eg) IG에서 query를 통해 합산한 likes와 실제 table의 likes가 다를 
 
 * Consistency in Reads
 어떤 transaction을 commit하면 새로운 transaction은 즉시 변경을 확인할 수 있는가?\
-RDS, NoSQL 모두 inconsistency in reads 문제를 가지고 있다. (Eventual Consistency)\
+	RDS, NoSQL 모두 inconsistency in reads 문제를 가지고 있다. (Eventual Consistency)
 
 eg) DB가 한 서버만 있다면, 문제가 생기지 않는다. 하지만 만약 server-replica가 구성되었을 때, server에 commit된 transaction이 바로 다음 순간에 replica로 전송된 transaction에 반영될 수 있는가?
 
@@ -266,7 +266,7 @@ MySQL을 기준으로 INNER JOIN을 한다면 가장 적은 ROW를 가지고 있
 
 ---
 
-# Query Optimisatino tips
+# Query Optimisation tips
 ```
 // Inefficient
 select * from movie;

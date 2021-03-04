@@ -229,10 +229,10 @@
 		LEN_B int = M+1
 	)
 	
-	var common int[LEN\_A][LEN\_B]
+	var common int[LEN_A][LEN_B]
 	
-	for int i = 0; i < LEN\_A; i++ {
-		for int j = 0; j < LEN\_B; j++ {
+	for int i = 0; i < LEN_A; i++ {
+		for int j = 0; j < LEN_B; j++ {
 			if i == 0 || j == 0 {
 				common[i][j] = 0
 			}
