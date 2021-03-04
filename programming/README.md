@@ -102,7 +102,7 @@ Multi-Processing, 비동기성(Async)를 사용하여 동시성을 구현할 수
 
 # Closure
 클로저는 함수가 그 밖의 스코프에 접근하는 행위를 가리킨다. Python에서 Decorator와 같다.\
-예를 들어 JS에서 for loop 안에 Timer를 설정해두고 for loop의 i값을 호출한다면, Timer가 실행되기전 모든 loop가 지나가서 마지막 i의 value만 출력이 될 것이다.\ 
+예를 들어 JS에서 for loop 안에 Timer를 설정해두고 for loop의 i값을 호출한다면, Timer가 실행되기전 모든 loop가 지나가서 마지막 i의 value만 출력이 될 것이다.\
 하지만 closure를 이용하여 i를 변수로 받는 함수를 Timer가 호출하게 된다면 i를 그대로 출력할 수 있다.
 
 	var obj = {};
@@ -915,6 +915,7 @@ Apache의 경우 pre-forking을 통해서 최대한 fork()의 overhead를 줄인
 # Python High-order wrappers
 * property decorator는 getter와 setter를 대신하는 역할을 한다.
 
+```
 	class Test():
 	    def __init__(self, score = 0):
 	        self.__score = score
@@ -934,39 +935,46 @@ Apache의 경우 pre-forking을 통해서 최대한 fork()의 overhead를 줄인
     # >>> t.score = 42
     # >>> print(t.score)
     # 42
+```
 
 위와 같이 동작한다. property.deleter도 있다.
 
 functools lib은 고계함수에 대한 지원을 하는 class, methods로 이루어져있다.\
 * functools.cache는 function에 대한 cache를 구현한다.
 
+```
     @cache
     def factorial(n):
         return n * factorial(n-1) if n else 1
     
     factorial(10) # 10까지 계산
     factorial(7)  # cache에서 retrieve
-
+```
 * functools.cached\_property는 method를 property로 만들고 그 값을 instance lifecycle 동안 cache한다.
 
+```
     @cached_property
     def stdev(self):
         return statistics.stdev(self._data)
     
     # >>>print(something.stdev)
     # some data (cached)
+```
 
 * functools.lru\_cache는 functools.cache와 같지만 bound가 없이 무한히 커지는 cache와 다르게 maxsize(default 128)를 가진다. maxsize가 None으로 설정되면 cache와 동일하게 동작한다. typed flag가 true로 설정되면 type에 따라 다른 값으로 추정되어 cache에 저장된다.
 
 * functools.partial은 partial object를 반환하며 partial object는 call 되었을 때 args와 kwargs가 설정된 함수처럼 동작한다.
 
+```
     basetwo = partial(int, base=2)
     basetwo.__doc__ = 'Convert base 2 string to an int.'
     basetwo('10001')
     # 17
+```
 
 * functools.wraps는 wrapper function에 wrapped function의 메타데이터를 전달한다.
 
+```
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
@@ -981,7 +989,7 @@ functools lib은 고계함수에 대한 지원을 하는 class, methods로 이�
     # 'example' # 사실 wrapper이지만 wraps를 통해서 변환
     # >>> print(example.__doc__)
     # 'Docstring' # 동일
-
+```
 
 ---
 
@@ -1507,7 +1515,7 @@ export const schema = makeExecutableSchema({
 
 GraphQL을 사용하면 일어나기 쉬운 1+N 문제를 1+1로 변환시키는 DataLoader의 사용이 필수적이다.\
 NodeJS에서 이벤트 루프가 돌아가는 사이클 동안 들어온 id 기반 요청을 배치로 처리한 후 값을 돌려주는 방식으로 문제를 해결한다.\
-Dataloader는 캐싱 기능을 가지고 있지만, Redis와 같은 in-memory storage와 같은 정의는 아니고, 한 요청이 처리되는 동안에 데이터를 캐싱한다는 뜻이다.\
+Dataloader는 캐싱 기능을 가지고 있지만, Redis와 같은 in-memory storage와 같은 정의는 아니고, 한 요청이 처리되는 동안에 데이터를 캐싱한다는 뜻이다.
 
 REST의 GET이 아닌 모든 Method에 해당하는 데이터의 변형을 일으키는 요청을 Mutation이라 한다.\
 mutation을 사용할 때 생길 수 있는 문제는 input type과 output type이 다른 것이다.\
@@ -1555,6 +1563,8 @@ Multiple Levels, Types of Lock for efficiently managing multi-client environment
 
 # Go internal server performance
 한줄요약: 성능, 기능(SSL 인증 등)은 걱정하지 않아도 된다. 많은 회사들은 internal Go server를 사용한다. 하지만 DevOps 편의성, Cloud에서 설정을 위해서라면 Nginx, Apache를 사용할 수도 있다.
+
+
 Go internal servers don't need another 'production' server to take requests and hand over to go servers. They can simply handle that many requests by themselves (Unless the framework's internal server completely mucked up building it)\
 Many companies directly expose their Go servers to the Internet, even Google's download server is written in Go using net/http pkg.\
 Yet there can be couple of reasons if you decided to put your go server behind a NginX server.\
@@ -2156,3 +2166,11 @@ traceback 메세지를 전부 읽고보니 한 번에 수백만개의 record를 
 또 async/await에 대해서 더 자세히 알게되서 좋았다.
 
 ---
+
+# Go GC
+JVM의 디테일한(복잡함)과 달리 Go의 GC는 아주 간단하다. (stop-the-world/concurrent hybrid, mark-and-sweep 방식)
+
+Go GC는 Compaction을 지원하지 않는다. (메모리에서 어떤 데이터를 해제하고난 후, 남은 데이터들을 모아두지 않는다.)
+대신 malloc.go라는 방식을 사용하여 남은 segmentation에 대한 원활한 배치를 수행한다.
+
+Generational 하지 않다. Go는 Pointer를 사용하므로 이에 대한 Barrier를 만들면 overhead가 너무 크므로.

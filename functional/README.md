@@ -44,5 +44,4 @@ def checkType(num):
             1
 ```
 
-위의 예시와 같이 filter, map, reduce 등의 runtime에서 지원하는 기능을 사용하여 어떤 대상이 필요한지 declarative하게 선언하기 때문에 가독성, 개발 속도에서 강점이 있다.\
-
+위의 예시와 같이 filter, map, reduce 등의 runtime에서 지원하는 기능을 사용하여 어떤 대상이 필요한지 declarative하게 선언하기 때문에 가독성, 개발 속도에서 강점이 있다.

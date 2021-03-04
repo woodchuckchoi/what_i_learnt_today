@@ -51,13 +51,14 @@ TCP/IP Layer 중 Application Layer에 Binary Framing Layer가 추가되어 아�
 * Stream은 양방향으로 통신하기때문에, Blocked, Stalled로 인해서 Progress에 영향을 끼칠 염려가 적다.
 * Flow Control은 각 Stream이 서로에게 영향을 끼치지 않도록 제어하는 역할을 한다. 예를 들어 의존성이 있는 스트림의 순서 정렬, 중요도에 의한 리소스 배정과 같은 것이다.
 * Prioritisation은 Headers Frame의 priority attribute에 따라 Resource 점유에 우선순위를 두는 것이다.
-* Multiplexing: Multiple different server requests are allowed simultaneously, on the same connection. With HTTP/1.1, each additional requests for assets would have to wait until the previous transfer in the queue completed. This decreases complexity in development, not necessitating things like asset bundling to decrease to number of server requests.\ 
+* Multiplexing: Multiple different server requests are allowed simultaneously, on the same connection. With HTTP/1.1, each additional requests for assets would have to wait until the previous transfer in the queue completed. This decreases complexity in development, not necessitating things like asset bundling to decrease to number of server requests.
+
 한 스트림 내에서 다수의 Request를 Frame으로 분할하여 다수의 Request/Response를 동시에 처리\
 \
 대부분의 브라우저는 여러 Request를 보내야 할 때, 여러 Connection을 만들어서 각 Request 사이의 Latency를 줄인다. 하지만 Connection이 많아지면 Server의 Overhead가 커진다는 단점이 있다. 그렇기 때문에 HTTP/2가 생겼다.\
 HTTP/2 역시 TCP를 기반으로 하기 때문에, Packet 레벨에서 문제가 생겨서 이 데이터를 Parsing 할 수 없다면 Blocking이 생기게 된다.
 
-"""
+```
 GET Req packet 1 O
 Get Req packet 2 O
 Get Req packet 3 X // Packet 실종, Retransmit X
@@ -65,7 +66,7 @@ POST Req packet 1 O
 POST Req packet 2 O
 POST Req packet 3 O
 // HTTP2에서 위와 같이 Multiplex가 이루어졌다면, POST Request도 멈춰버리게된다.
-"""
+```
 
 ## Frame
 프레임은 HTTP의 Request와 Response를 대체하는 HTTP/2의 통신 단위이다. 각 프레임은 TCP/IP 네트워크 모델의 Application Layer에 추가된 HTTP/2 Binary Framing Layer에서 Binary로 인코딩된다.\
@@ -193,7 +194,7 @@ HTTP 프로토콜은 연결의 상태를 유지하는 기능이 없다.\
 # 다수의 클라이언트가 어떻게 한 서버의 한 포트에 접속할 수 있을까?
 Port를 사용한다는 뜻은 패킷의 헤더에 Destination Port를 명시했을 뿐이다.\
 Stateless Protocol(UDP)를 사용할 때는 문제가 없다. 왜냐하면 Connection을 설정, 해제하지 않으므로 연결이 겹치는 상황이 생기지 않으니까.\
-Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태의 튜플로 구성된다.\ 
+Stateful Protocol(TCP)를 사용할 때, Connection은 (Source IP, Source Port, Destination IP, Destination Port) 형태의 튜플로 구성된다.\
 따라서 서로 다른 클라이언트가 동일한 서버에 접속한다고 Connection이 충돌하는 경우는 없다.\
 \
 만약 같은 클라이언트 or 서로 다른 클라이언트가 NAT이나 공유기를 통해서 한 서버에 접속한다해도, 서버가 인식하는 Source Port는 NAT Gateway나 공유기의 서로 다른  Port가 되므로 Connection은 구분이 가능하다.\
@@ -240,7 +241,7 @@ Origin이 같다고 판단하는 로직은 Protocol, Host, Port의 값이 일치
 	https://my-site.com:443 Origin에 포트가 명시되지 않았다면 브라우저마다 다른 로직을 사용하여 비교한다.
 
 CORS는 브라우저에서 구현되기 때문에, 브라우저를 통하지 않고 통신을 할 때는 해당 정책이 적용되지 않는다.\
-또한 서버 사이드에서는 정상적으로 Response를 줬다고 출력되기 때문에, CORS를 알지 못하면 에러 처리가 힘들다.\
+또한 서버 사이드에서는 정상적으로 Response를 줬다고 출력되기 때문에, CORS를 알지 못하면 에러 처리가 힘들다.
 
 	브라우저는 Request 헤더의 Origin 필드에 해당 Origin을 넣어 보낸다.
 	Origin: https://my-site.com
@@ -256,11 +257,11 @@ Preflight Request에 OPTIONS 메소드가 사용된다. 실제 Request를 보내
 Preflight에는 Origin에 대한 정보 뿐만 아니라 Access-Control-Requeset-Headers나 Access-Control-Request-Method와 같은 실제 Request에서 사용할 요청에 대한 정보도 함께 포함되어 있다.\
 이에 대한 Response의 Access-Control-Allow-Origin 필드의 값과 Request의 Origin이 다르다면 실제 Request는 CORS를 위반하여 CORS에러를 출력한다.
 2. Simple Request
-어떤 경우에는 Preflight를 보내지 않고 실제 Request를 전송하고, 이에 대한 Response의 Access-Control-Allow-Origin과 비교하여 CORS 위반을 확인하기도 한다.\
-* 이 때 Request의 Method는 GET, HEAD, POST 중 하나여야 하며,\
-* Accept, Accept-Language, Content-Language, Content-Type, DPR, Downlink, Save-Data, Viewport-Width, Width를 제외한 헤더를 사용하면 안된다.\
-* 만약 Content-Type 헤더를 사용하는 경우에는 application/x-www-form-urlencoded, multipart/form-data, text/plain만 사용할 수 있다.\
-위의 세 조건을 만족하는 경우에는 Preflight없이 실제 Request만 전송한 후 CORS 위반 여부를 판별한다.
+어떤 경우에는 Preflight를 보내지 않고 실제 Request를 전송하고, 이에 대한 Response의 Access-Control-Allow-Origin과 비교하여 CORS 위반을 확인하기도 한다.
+* 이 때 Request의 Method는 GET, HEAD, POST 중 하나여야 하며,
+* Accept, Accept-Language, Content-Language, Content-Type, DPR, Downlink, Save-Data, Viewport-Width, Width를 제외한 헤더를 사용하면 안된다.
+* 만약 Content-Type 헤더를 사용하는 경우에는 application/x-www-form-urlencoded, multipart/form-data, text/plain만 사용할 수 있다.
+위의 세 조건을 만족하는 경우에는 Preflight 없이 실제 Request만 전송한 후 CORS 위반 여부를 판별한다.
 3. Credentialed Request
 브라우저가 제공하는 비동기 요청 API인 XMLHttpRequest나 fetch는 별도의 옵션 없이 브라우저의 쿠키 정보나 인증 관련 헤더를 Request에 추가하지 않는데, 이를 가능하게 해주는 옵션이 credentials 옵션이다.\
 credentials에 같은 출처에서만 인증 정보를 담을 수 있는 기본값인 same-origin이나 모든 요청에 인증 정보를 담지않는 omit이 아닌, 항상 인증정보를 담는 include를 했을 경우, Access-Control-Allow-Origin과 함께 아래 두 가지 조건을 만족해야 한다.\
@@ -307,7 +308,7 @@ Load Balancer의 역할을 하는 것을 제외한다면 Proxy와 같다.\
 
 # Stateful VS Stateless
 Stateful은 클라이언트가 요청을 전송한 뒤, 서버가 응답을 하길 잠시 기다린다. 응답이 없다면 계속해서 요청을 전송한다.\
-TCP, FTP 등\
+TCP, FTP 등
 
 Stateless는 클라이언트 요청의 State에 따라, 서버가 응답한다. 서버가 클라이언트에 대한 정보(세션)을 기억할 필요가 없다.\
 UDP, HTTP/1, HTTP/2 등
@@ -315,7 +316,7 @@ UDP, HTTP/1, HTTP/2 등
 ---
 
 # Network Scalability
-Unix의 /proc/sys/fs/file-max는 OS에서 동시에 사용할 수 있는 fd의 갯수를 명시한다. *현재 사용중인 랩톱에서는 9223372036854775807라고 출력된다.*\
+Linux의 /proc/sys/fs/file-max는 OS에서 동시에 사용할 수 있는 fd의 갯수를 명시한다. *현재 사용중인 랩톱에서는 9223372036854775807라고 출력된다.*\
 따라서 C10M의 문제가 되는 것은 Kernel의 문제가 아니다.\
 실제로 문제가 되는 것은 CPU와 Memory이다. 프로그램 작성 시 1M+의 커넥션을 관리하기 위해서 수 GB의 메모리가 필요하다.\
 또한 Outbound TCP Connection은 한 IP에서 PORT \~65000까지로 제한되어 있으므로 이 또한 서버의 Scalability에 걸림돌이된다. *OS Kernel의 문제가 아니라, TCP의 문제이다.*\
@@ -324,7 +325,7 @@ Unix의 /proc/sys/fs/file-max는 OS에서 동시에 사용할 수 있는 fd의 �
 ---
 
 # Active/Active VS Active/Passive
-High Availability를 위한 서버 세팅\
+High Availability를 위한 서버 세팅
 * Active/Passive
 같은 VIP를 공유하는 두 Reverse Proxy(Load Balancer)를 이용하는 서버에 접근할 때, 한 RP가 ARP 요청을 수신하는 Active 역할, 다른 RP가 Passive 상태가 되는 것.\
 만약 Master RP가 죽으면, 기존의 Worker RP가 Master(Active) 역할을 하게 된다.\
@@ -370,7 +371,7 @@ ARP Table은 cached IP-MAC mapping으로, 이전에 ARP Request를 통해서 알
 # Load Balancing in Layer 4 VS Layer 7
 * Layer 4 Load-balancing
 Transport Layer는 IP, PORT에 대한 정보를 다룬다\
-따라서 Layer 4 Load Balancer는 Transport Layer에서 Request의 Source, Destination의 IP, PORT를 각각 Load Balancer와 Destination으로 바꿔서 전달한다.\
+따라서 Layer 4 Load Balancer는 Transport Layer에서 Request의 Source, Destination의 IP, PORT를 각각 Load Balancer와 Destination으로 바꿔서 전달한다.
 
 **클라이언트/로드밸런서 -> 로드밸런서/서버**
 
@@ -393,7 +394,7 @@ HTTP2를 지원하지 않는 서버에 HTTP/2 Request를 보내면 fail!\
 클라이언트는 HTTP/1로 다시 Request를 보내지만, 이미 시간/리소스의 낭비이다.\
 그렇다면 "HTTP/2 Request를 요청하고, 만약 서버가 HTTP/2를 지원하지 않는다면 HTTP/1 Response를 요청한다."를 어떻게 효율적으로 나타낼 수 있는가?\
 이 때 사용되는 것이 ALPN(Application Layer Protocol Negotiation)이다.\
-TCP Handshake 후, TLS Handshake가 진행될 때(CA로부터 공개키를 건네 받고, 대칭키를 만들어서 서버에게 돌려줄 때) HTTP/2로 통신을 원하고, 만약에 지원하지 않는다면 HTTP/1로 통신을 할 것임을 알린다.\ 
+TCP Handshake 후, TLS Handshake가 진행될 때(CA로부터 공개키를 건네 받고, 대칭키를 만들어서 서버에게 돌려줄 때) HTTP/2로 통신을 원하고, 만약에 지원하지 않는다면 HTTP/1로 통신을 할 것임을 알린다.
 
 ---
 
@@ -407,8 +408,9 @@ google은 이미 상당 부분을 HTTP/3로 포팅한 상태이다.
 
 # QUIC
 * Built-in Security
-TLS를 대체할 QUIC의 Transport Layer에서의 보안은 기존의 three-way handshake를 포함한다. 하지만 TCP/TLS1.3과는 다르게 1번의 round-trip으로 완성된다.\
+TLS를 대체할 QUIC의 Transport Layer에서의 보안은 기존의 three-way handshake를 포함한다. 하지만 TCP/TLS1.3과는 다르게 1번의 round-trip으로 완성된다.
 
+```
 	// TCP + TLS HTTP Request
 	CLIENT		TCP SYN->			SERVER
 	CLIENT		<-TCP SYN + ACK		SERVER
@@ -425,6 +427,7 @@ TLS를 대체할 QUIC의 Transport Layer에서의 보안은 기존의 three-way 
 	CLIENT		QUIC->				SERVER
 	CLIENT		HTTP Request->		SERVER
 	CLIENT		<-HTTP Response		SERVER
+```
 
 * HTTP/2와 마찬가지로 Stream을 추가 (Tranport Layer에서 처리)
 
@@ -547,7 +550,7 @@ Session Layer는 다음과 같은 서비스를 제공한다.
 일반적으로 모든 Packet은 ISP로 바로 전달되지만, Internet은 기본적으로 다른 Node를 통해서 전달되는 데이터의 흐름이므로 100% 안전하다고 할 수 없다.\
 따라서 TLS의 Goal은 Connection을 중개하는 다른 Node가 중간에서 connection(source/destination ip, port)을 제외한 데이터를 sniff(Deep-Packet Inspection) 하지 못하도록 암호화하는 것이다.\
 Certificate은 client가 접근하는 server가 실제 server가 맞는지를 확인시켜준다.\
-Client도 certificate을 가지고 server가 이를 확인하는 형태를 Mutual TLS라 한다. 이는 한 application이 여러 서비스로 나눠진 Micro Service Architecture에서 중요하다.(대부분의 MicroService는 Mutual TLS등 complexity를 피하기 위해서 K8S와 같은 cluster에 deploy한다.)\
+Client도 certificate을 가지고 server가 이를 확인하는 형태를 Mutual TLS라 한다. 이는 한 application이 여러 서비스로 나눠진 Micro Service Architecture에서 중요하다.(대부분의 MicroService는 Mutual TLS등 complexity를 피하기 위해서 K8S와 같은 cluster에 deploy한다.)
 
 ---
 

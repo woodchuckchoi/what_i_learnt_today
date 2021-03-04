@@ -259,4 +259,4 @@ k8s를 사용한다는데서 이미 훨씬 더 개발자가 사용하기 편리�
 App이 사용하는 Host의 Port를 static하게 설정하지 않는다.\
 Dynamic하게 설정된 Port는 Instance 외부의 Load Balancer에게 Port에 대한 정보를 제공하고 Load Balancer는 Health Check, Listener를 사용하여 Dynamic Port Mapping을 구현한다.
 
--- 
+---

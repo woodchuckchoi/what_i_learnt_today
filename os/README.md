@@ -41,7 +41,8 @@ ISR이 종료되면 원래의 대기상태 또는 사용자 프로그램으로 �
 따라서 사용자 프로그램은 STOP등 치명적인 명령을 사용할 수 없도록 사용자(user) 모드와 관리자(supervisor/previleged) 모드를 분리한 것이 이중 모드이다.
 
 CPU의 구성요소인 Register, ALU, CU 중에 Register는 Carry, Negative, Zero, Overflow 등의 flag를 가진다. 여기에 하나의 flag를 더 추가하여 previleged mode / user mode를 구분한다.\
-운영체제의 서비스를 실행할 때는 privileged mode에서, 사용자 프로세스를 실행할 때는user mode에서 동작한다. 사용자 프로세스가 OS에 Software Interrupt를 g혹은 하드웨어가 Interrupt를 보내면, OS가 프로세스의 주도권을 가져오고, CPU의 user mode flag는 true값을 가진다. OS가 작업을 수행한 후, 다시 사용자 프로세스를 실행할때는 user mode flag가 false가 된다.\
+운영체제의 서비스를 실행할 때는 privileged mode에서, 사용자 프로세스를 실행할 때는 user mode에서 동작한다. 사용자 프로세스가 OS에 Software Interrupt를, 혹은 하드웨어가 Interrupt를 보내면, OS가 프로세스의 주도권을 가져오고 CPU의 user mode flag는 true값을 가진다.\
+OS가 작업을 수행한 후, 다시 사용자 프로세스를 실행할때는 user mode flag가 false가 된다.\
 이와 같이 운영체제는 각 리소스를 보호한다.
 
 ## 입출력장치 보호, 메모리 보호, CPU 보호
@@ -114,7 +115,7 @@ Track과 Sector로 구성된 디스크를 파일로 추상화
 
 ## System Call
 운영체제 서비스를 받기 위한 호출\
-인터럽트는 CPU(프로세서)와 OS Kernel 사이에서 전달되며, 시스템 콜은 프로세스와 OS Kernel 사이에서 전달된다.\
+인터럽트는 CPU(프로세서)와 OS Kernel 사이에서 전달되며, 시스템 콜은 프로세스와 OS Kernel 사이에서 전달된다.
 
 ---
 
@@ -209,6 +210,7 @@ High-level language에서는 한 줄의 코드라도, 실제 컴퓨터가 동작
 ## Synchronisation Tools
 * Semaphore - Sync 문제를 해결하기 위한 소프트웨어 도구이며 정수형 변수와 두 개의 동작(P, V)을 가진 구조이다.
 
+```
 	//Go
 	queue := make(chan chan struct{})
 	type Semaphore struct {
@@ -238,6 +240,7 @@ High-level language에서는 한 줄의 코드라도, 실제 컴퓨터가 동작
 			receiver <- struct{} {}
 		}
 	}
+```
 
 대기시키는 Queue를 다른 형태의 Data Structure로 변환하거나 value가 0인 다른 Semaphore를 사용하여 Ordering을 바꿀 수 있다.
 
@@ -254,6 +257,7 @@ Buffer의 in과 out index, Producer와 Consumer가 Critical Section에 동시에
 읽기만 하는 Reader는 다수가 동시에 DB에 접근 가능해도된다. 하지만 Writer가 DB에 접근했을 때, Reader와 다른 Writer는 Block 되어야 한다.
 
 * Dining Philosopher
+```
 	// Go
 	lstick.Acquire()
 	rstick.Acquire()
@@ -262,7 +266,7 @@ Buffer의 in과 out index, Producer와 Consumer가 Critical Section에 동시에
 	
 	rstick.Release()
 	lstick.Release()
-
+```
 하지만 모든 철학자가 Deadlock에 걸릴 수도 있다.
 
 ---
@@ -412,7 +416,7 @@ Main Memory에 Page Table을 구성할 경우 크기 제한이 적지만, Addres
 
 ## Segmentation
 Process를 논리적인 내용(Paging은 무조건 같은 크기로)으로 잘라서 Memory에 배치한다.\
-Segment의 크기는 일반적으로 같지 않다.\
+Segment의 크기는 일반적으로 같지 않다.
 
 MMU의 Segment Table은 Paging Table과 비슷하다.
 
