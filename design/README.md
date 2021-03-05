@@ -324,3 +324,65 @@ API Gateway는 다중 request 전송 후 이를 모아서 모델링해서 전달
 
 위와 같이 Monolith -> MSA 패턴은 아마존, 우버, 넷플릭스 등 많은 회사에서 공통적으로 수행된다.\
 MSA를 도입함으로써 확장성 뿐만 아니라, 개발 생산성, 속도 향상, 테스트 효율성 향상, 신기술 적용 용이 등의 이점이 함께 딸려온다.\
+
+---
+
+# The Clean Architecture
+The flow comes from the outer layers, and goes into the inner layers.
+Inner layers have no information (dependency) on the outer layers.
+```
+IN
+								Entities
+										^
+										|
+								Use Cases
+										^
+										|
+					Controllers (Gateways, Presenters)
+										^
+										|
+	External Interfaces (DB, Devices, Web, UI)
+OUT
+
+
+Presenter -> Use Case Output Port
+									^
+									|
+					   Use Case Interactor
+									|
+									v
+Controller -> Use Case Input Port
+
+Flow of control: Controller -> Use Case Interactor -> presenter
+
+```
+
+* Entities
+- Represent your domain object
+- Apply only logic that is applicable in general to the whole entity (e.g., validating the format of a hostname)
+- Plain objects: no frameworks, no annotations
+
+* Use Cases
+- Represent your business action: it's what you can do with the application. Expect one use case for each business action
+- Pure business logic, plain code (except maybe some utils libraries)
+- The use case doesn't know who triggered it and how the results are going to be presented
+- Throws business exceptions
+
+* Interfaces / Adapters
+- Retrieve and store data from and to a number of sources (database, network devices, file system, etc)
+- Define interfaces for the data that they need in order to apply some logic. One or more data providers will implement the interface, but the use case doesn't know where the data is coming from
+- Implement the interfaces defined by the use case
+- There are ways to interact with the application, and typically involve a deliverymechanism (REST, GUI, etc)
+- Trigger a use case and convert the result to the appropriate format for the delivery mechanism
+- The controller for a MVC
+
+* External Interfaces
+- Use whatever framework is most appropriate (isolated)
+
+```
+src (lib)
+├	entities							// Data object
+├ external_interfaces		// Server and Endpoint 
+├ interface (adaters)		// Controller
+└	use_case							// Core Logic
+```

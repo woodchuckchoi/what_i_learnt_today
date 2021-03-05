@@ -243,6 +243,14 @@ OOP 원칙
 * ISP(Interface Segregation Principle) : 인터페이스 분리의 원칙, 자신이 사용하지 않는 인터페이스는 구현하지 말아야 한다는 원칙. 바꿔 말하면, 하나의 큰 인터페이스보다는 여러개의 작은 인터페이스를 구현하는 것이 낫다
 * DIP(Dependency Inversion Principle) : 의존 관계 역전의 원칙. 구조적 디자인에서 발생하던 하위 레벨 모듈의 변경이 상위 레벨 모듈의 변경을 요구하는 위계관계를 끊는 의미의 역전. 쉽게 말하면 코드에서는 인터페이스에서 구현하는 클래스로 그 의존 관계가 흐르지만 실행시에는 역전된다.
 
+```
+* The Single-responsibility principle: a class should only have a single responsibility, that is, only changes to one part of the software's specification should be able to affect the specification of the class.[5]
+* The Open–closed principle: "software entities ... should be open for extension, but closed for modification."[6]
+* The Liskov substitution principle: "objects in a program should be replaceable with instances of their subtypes without altering the correctness of that program." See also design by contract.[7]
+* The Interface segregation principle: "many client-specific interfaces are better than one general-purpose interface."[8][4]
+* The Dependency inversion principle: "depend upon abstractions, [not] concretions."[9][4]
+```
+
 
 ---
 
