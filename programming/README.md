@@ -2174,3 +2174,12 @@ Go GC는 Compaction을 지원하지 않는다. (메모리에서 어떤 데이터
 대신 malloc.go라는 방식을 사용하여 남은 segmentation에 대한 원활한 배치를 수행한다.
 
 Generational 하지 않다. Go는 Pointer를 사용하므로 이에 대한 Barrier를 만들면 overhead가 너무 크므로.
+
+---
+
+# GIL
+The Python Global Interpreter Lock or GIL, in simple words, is a mutex (or a lock) that allows only one thread to hold the control of the Python interpreter.
+
+Since the GIL allows only one thread to execute at a time even in a multi-threaded architecture with more than one CPU core, the GIL has gained a reputation as an “infamous” feature of Python.
+
+GIL helps Python GC to track references correctly.

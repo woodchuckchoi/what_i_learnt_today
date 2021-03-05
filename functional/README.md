@@ -45,3 +45,144 @@ def checkType(num):
 ```
 
 위의 예시와 같이 filter, map, reduce 등의 runtime에서 지원하는 기능을 사용하여 어떤 대상이 필요한지 declarative하게 선언하기 때문에 가독성, 개발 속도에서 강점이 있다.
+
+---
+
+# Functional Concepts
+
+```
+
+a is a value
+
+put it in a context
+Maybe a
+
+Now when you apply a function to this value, you'll get different results depending on the context.
+
+The Maybe data type defines two related contexts:
+	data Maybe a = Nothing | Just a (either Nothing or Just a data type)
+
+When a value is wrapped in a context, you can't apply a normal function to it
+```
+
+* Functor
+This is where fmap comes in.
+fmap knows how to apply functions to values that are wrapped in a context.
+
+```
+Suppose you want to apply +3 to Just 2.
+> fmap(+3) (Just 2)
+Just 5
+```
+
+Functor is a typeclass.
+To make a data type f a functor, that data type needs to define how fmap will work with it.
+```
+class Functor f where
+	fmap:: (a->b) -> fa -> fb
+```
+
+A functor is any data type that defines how fmap applies to it.
+```
+fmap:: (a->b) -> fa -> fb
+1. fmap takes a function (arrow)
+2. and a functor fa (like Just 2)
+3. and returns a new functor (like Just 5)
+```
+
+Above, fmap works because Maybe is a Functor. It specifies how fmap applies to Just and Nothing:
+```
+instance Functor Maybe where
+	fmap func (Just val) = Just (func val)
+	fmap func Nothing = Nothing
+```
+Lists are functors too.
+```
+instance Functor [] where
+	fmap = map
+```
+
+when apply a function to another function
+```
+> let foo = fmap (+3) (+2)
+> foo 10
+15
+```
+the result is another function.
+
+so functions are functors too.
+
+* Applicatives
+Applicatives are "one-step-further" of functor.
+Even functions can be wrapped in a context, and applicatives know how to apply wrapped functions to wrapped values.
+```
+Just (+3) <*> Just 2 == Just 5
+
+but, also, something interesting can happen.
+
+[(*2), (+3)] <*> [1,2,3]
+[2,4,6,4,5,6]
+```
+
+```
+> (+) <$> (Just 5)
+Just (+5)
+> Just (+5) <*> (Just 3)
+Just 8
+
+> (*) <$> Just 5 <*> Just 3
+Just 15
+
+```
+
+* Monads
+Monads add a new twist.
+Functors apply a function to a wrapped value.
+Applicatives apply a wrapped function to a wrapped value.
+Monads apply a function that returns a wrapped value to a wrapped value.
+
+Suppose half is a function that only works on even numbers
+```
+half x = if even x
+					then Just (x `div` 2)
+					else Nothing
+
+half 3 = Nothing
+half Just 3 // ERROR!
+
+BUT
+
+> Just 3 >>= half
+Nothing
+> JUst 4 >>= half
+Just 2
+> Nothing >>= half
+Nothing
+```
+
+Monad is another typeclass.
+```
+class Monad m where
+	(>>=) :: ma -> (a -> mb) -> mb
+
+1. >>= takes a monad (like Just 3)
+2. >>= then takes a function that returns a monad (like half)
+3. and it returns a monad
+```
+
+so Maybe is a monad when
+```
+instance Monad Maybe where
+	Nothing >>= func = Nothing
+	Just val >>= func = func val
+```
+
+---
+
+# Tail Recursion
+A recursive function is tail recursive when recursive call is the last thing executed by the function.
+The tail recursive functions considered better than non tail recursive functions as tail-recursion can be optimized by compiler. The idea used by compilers to optimize tail-recursive functions is simple, since the recursive call is the last statement, there is nothing left to do in the current function, so saving the current function’s stack frame is of no use. (Stack overhead nullified)
+
+If you want to convert non-tail recursive function to tail recursive function, you'll probably have to add another parameter to store the result.
+
+---
