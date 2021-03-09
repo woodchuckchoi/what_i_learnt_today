@@ -646,6 +646,18 @@ Unix sockets are bidirectional. This means that every side can perform both read
 Unix sockets create less overhead and communication is faster, than by localhost IP sockets. Packets don't need to go through network stack as with localhost sockets. And as they exists only locally, there is no routing.
 ```
 
+---
+
 # PID 0
 Main Process(init, responsible for starting/shutting down)는 PID 1이 할당된다. 그렇다면 0은?\
 PID 0 is reserved for swapper(or sched) which is responsible for paging. It is actually part of the kernel rather than a user process.
+
+---
+
+# Endian
+* Big - 최상위 바이트가 앞에 오는 경우, 사람이 사용하는 방식이지만, 수가 커지면 (차지하는 바이트의 수가 늘어나면) 저장된 메모리를 오른쪽으로 옮겨야한다.
+* Littel - 최상위 바이트가 앞에오지만, 그 다음 바이트가 왼쪽에 오는 방식. 디버깅이 어렵지만 수가 커지더라도 재배치에 따른 오버헤드가 발생하지 않는다.
+
+---
+
+

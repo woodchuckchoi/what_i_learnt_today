@@ -749,9 +749,34 @@ Connection을 해제할 때는 4-way-handshake이 발생한다.
 ```
 Client				Server
 				FIN->					# 먼저 끊는 쪽(active close)이 상대방으로 FIN Signal을 보낸다. 편의를 위해서 Client가 active, Server가 passive라 가정한다.
-			<-ACK						# 끊긴 쪽 (passive close)이 ACK signal을 보낸다.
-			<-FIN						# 끊긴 쪽도 FIN Signal을 보낸다.
-				ACK->					# 끊는 쪽이 ACK Signal을 보낸다.
+			<-ACK						# 끊긴 쪽 (passive close)이 ACK signal을 보낸다. ACK signal을 보내고 프로세스에 close signal을 보낸다. 이때 서버의 상태는 CLOSE_WAIT이 된다.
+			<-FIN						# 프로세스가 종료되면 끊긴 쪽에서 FIN Signal을 보낸다. 서버의 상태는 LAST_ACK가 된다.
+				ACK->					# 끊는 쪽이 ACK Signal을 보낸다. signal을 수신하면 서버는 CLOSED 상태가 된다.
 ```
+
+---
+
+# HTTPS 3-way-handshake
+
+```
+Client					Server
+					A->						# A는 TLS 정보 및 암호화 방식, 무작위 바이트 문자열
+				<-B							# B는 인증서, 무작위 바이트 문자열
+인증서 확인							# Client는 CA에 인증서가 일치하는지 확인 후 있다면 공개키를 받는다.
+					C->						# A와 B의 무작위 바이트 문자열을 조합해서 공개키로 암호화하여 전송
+												# 서버는 비밀키로 무작위 바이트 문자열을 복호화해서 session key를 만들어서 Client와의 통신에 사용한다.
+```
+
+---
+
+# Type Google.com in Chrome
+1. Local DNS Server -> Root DNS Server -> .com DNS Server -> google.com 순서대로 google.com의 IP 주소를 요청한다.
+2. TCP 통신을 위해서 OS에서 소켓 개방
+3. HTTP 프로토콜로 요청한다. (REST의 option method와 같은 역할을 하는 protocol도 있는데 이름이 기억이 안남, HTTP2가 가능할 경우 HTTP2를 사용하도록 함, etc)
+4. 라우팅 중 프록시 서버의 캐쉬에 저장된 데이터가 있다면 response를 전달 받는다.
+5. 프록시 서버 or 캐쉬가 없어서 라우터를 거치고 광케이블 등을 거쳐서 google.com의 서빙 서버까지 request가 전달되면 이에 맞는 response를 서빙 서버에서 반한다.
+6. Client에 전달된 response는 프로토콜에 맞는 Layer를 거쳐 (OSI 7: HTTP의 경우 Physical, Data Link, Network(IP), Transport(TCP), Application) 사용자에게 전달된다.
+7. 브라우져를 사용할 시 브라우져가 해당 response를 어떻게 다운로드 받고, 렌더링할지를 결정한다.
+
 
 
