@@ -735,3 +735,23 @@ Proxy는 전달받은 resp을 Client에 전달한다.
 Front는 Client의 browser에서 동작한다. 동작한 (대부분) Javascript는 API를 host(server) + api url과 같은 형식을 띄게함으로써 Proxy가 동작한다.
 
 ---
+
+# 3-way-handshake vs 4-way-handshake
+TCP connection이 연결될 때 3-way-handshake를 통해서 connection을 생성한다.
+```
+Client				Server
+				SYN->
+			<-SYN+ACK
+				ACK->
+```
+
+Connection을 해제할 때는 4-way-handshake이 발생한다.
+```
+Client				Server
+				FIN->					# 먼저 끊는 쪽(active close)이 상대방으로 FIN Signal을 보낸다. 편의를 위해서 Client가 active, Server가 passive라 가정한다.
+			<-ACK						# 끊긴 쪽 (passive close)이 ACK signal을 보낸다.
+			<-FIN						# 끊긴 쪽도 FIN Signal을 보낸다.
+				ACK->					# 끊는 쪽이 ACK Signal을 보낸다.
+```
+
+
