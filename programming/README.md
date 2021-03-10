@@ -2191,3 +2191,36 @@ The Python Global Interpreter Lock or GIL, in simple words, is a mutex (or a loc
 Since the GIL allows only one thread to execute at a time even in a multi-threaded architecture with more than one CPU core, the GIL has gained a reputation as an “infamous” feature of Python.
 
 GIL helps Python GC to track references correctly.
+
+---
+
+# C
+
+* malloc은 stdlib 헤더에서 지원하는 함수이며, void \*를 반환해서 사용할 자료형에 맡게 casting 이 필요하다. 할당된 메모리의 해제는 free를 사용한다.
+
+* C++에서는 malloc 대신 new를 사용한다. C++ 언어 자체에서 지원하는 키워드이므로 헤더 파일이 필요없으며, 할당할 객체의 크기를 자동으로 할당 및 초기화 하므로,  size를 입력할 필요가 없다. 메모리의 해제는 delete 키워드를 사용한다.
+
+* 해시테이블은 key-value로 이루어져있으며, 입력되는 키에 hash 함수를 적용해서 인덱스를 반환, 반환된 인덱스에 값을 저장하는 방식이 사용된다. 삽입 및 삭제 연산은 충돌이 적다는 가정에서(hash함수를 통해 생성된 인덱스가 겹치지 않는다.) O(1)이지만 모든 key의 인덱스가 겹치는 최악의 경우 O(N)이 된다.(linked-list) 이 경우에는 체이닝을 binary tree implementation으로 수정해서 O(log N)으로 개선한다. Array로 체이닝을 하고 인덱스를 저장하는 경우 O(1)로 개선가능하지만, 해시테이블이 커짐에따라서 Array를 복사, 이동하면서 생기는 overhead, 인덱스 저장을 겸하는 저장 공간 낭비가 장점을 넘는다.
+
+* Deep Copy VS Shallow Copy
+Shallow Copy는 모든 멤버 변수의 값을 복사한다. Deep Copy의 경우 포인터 변수가 가리키는 모든 객체에 대해서도 복사를 시행한다.
+```
+type Test struct {
+	num		int
+	obj		*SomeObject
+}
+```
+위와 같은 변수가 있을 때, shallow copy는 num을 복사하고, obj (포인터이므로 변수의 주소)를 복사하므로 복사된 Test에서도 obj는 같은 변수를 가리키게 된다. 반면 deep copy에서는 obj 객체의 값을 가지는 새로운 obj를 복사, 생성하므로 복사된 객체와 복사한 객체의 obj는 서로 다른 객체를 가리키게 된다.
+
+* volatile은 컴파일러에 변수 값이 외부에서 변경될 수 있음을 알리는 역할을 한다. 코드의 최적화를 방지함으로써, OS, 하드웨어, 다른 thread에서 변경될 수 있는 Logic의 에러를 방지한다.
+
+```
+*(unsigned int *)someVar = somevalue0;
+*(unsigned int *)someVar = somevalue1;
+*(unsigned int *)someVar = somevalue2;
+*(unsigned int *)someVar = somevalue3;
+```
+위의 코드는 컴파일러가 최적화를 통해서 중복된 가정을 제거하고, 마지막 줄만 선언할 가능성이 있다.
+하지만 위의 중복 코드가 로직에서 중요한 역할을 할 때, someVar를 volatile로 선언함으로써 최적화를 방지할 수 있다.
+
+* static global variable은 해당 파일에서만 접근 가능한 변수로 선언된다. static function 역시 파일 스코프를 가지게 된다. 만약 static local variable을 선언한다면 함수가 종료될 때, 메모리 할당이 해제되지 않고 계속 유지되는 변수를 선언하게 된다.

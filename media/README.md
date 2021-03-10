@@ -84,3 +84,20 @@ WebRTC, and SRT were designed with latency in mind.
 	* Video Codecs: H.264, VP8, VP9
 	* Compatibility: Chrome, Firefox, Safari
 
+---
+
+# WebRTC
+
+WebRTC는 크게 media capture devices와 peer-to-peer connectivity로 이루어진다.
+
+* Media Capture Devices
+```
+Media capture devices includes video cameras and microphones, but also screen capturing "devices". For cameras and microphones, we use navigator.mediaDevices.getUserMedia() to capture MediaStreams. For screen recording, we use navigator.mediaDevices.getDisplayMedia() instead.
+```
+
+* Peer-to-Peer Connectivity
+```
+The peer-to-peer connectivity is handled by the RTCPeerConnection interface. This is the central point for establishing and controlling the connection between two peers in WebRTC.
+```
+
+
