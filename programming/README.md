@@ -2276,4 +2276,20 @@ black이 된 object에서 reference되는 object를 모두 grey로 칠하고, �
 
 ---
 
-# 
+# C
+
+* malloc 과 calloc 모두 heap에 memory를 할당하는 함수이지만, calloc의 경우 할당된 메모리를 0으로 채우는 차이가 있다.
+
+* local variable은 자동적으로 auto로 설정된다. auto variable은 해당 스코프가 종료되었을 때, stack의 메모리 할당이 해제된다.
+
+* header file을 < > 로 묶어서 include하는 경우 compiler는 built-in path만을 뒤지게 된다. 반면에 header file을 " "로 묶는 경우 현재 current working directory에서 header file이 있는지를 확인하고, 없는 경우에 built-in path를 뒤지게 된다.
+
+* local scope에 갇혀있는 variable일지라도 extern을 통해서 밖의 (global) variable에 접근할 수 있다.
+
+* register specifier를 통해서 CPU가 가장 빠르게 접근할 수 있는 register 변수를 선언할 수 있다.
+
+* rvalue is assigned to lvalue. The lvalue should designate to a variable not a constant.
+
+* program은 main() 함수 없이 compile이 될 수는 있다. 하지만 program의 entrypoint 역할을 하는 main이 없다면 실행될 수 없다.
+
+* local variable은 garbage value를 가지며 global variable은 0 value를 갖게된다.
