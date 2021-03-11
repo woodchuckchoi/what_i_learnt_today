@@ -778,5 +778,39 @@ Client					Server
 6. Client에 전달된 response는 프로토콜에 맞는 Layer를 거쳐 (OSI 7: HTTP의 경우 Physical, Data Link, Network(IP), Transport(TCP), Application) 사용자에게 전달된다.
 7. 브라우져를 사용할 시 브라우져가 해당 response를 어떻게 다운로드 받고, 렌더링할지를 결정한다.
 
+---
+
+# TLS
+SSL(secure socket layer)가 deprecated되고 현재는 TLS protocol만 사용된다.\
+HTTPS는 HTTP protocol위에 TLS encryption을 적용한 것이다.
+
+TLS의 역할은 Encryption, Authentication, Integrity이다.
+* Encryption: 이동 중인 데이터의 암호화
+* Authentication: 전송, 수신하는 측의 진위 여부 확인
+* Integrity: 전달받은 데이터 무결성 확인
+
+Website나 application이 TLS를 사용하기 위해서는 TLS certificate (SSL certificate)을 가지고 있어야 한다.\
+TLS Certificate은 CA에 의해서 도메인의 소유자에게 발급되며, certificate에는 domain의 소유자에 대한 정보와 server의 public key가 포함된다.
+
+TLS는 Application Layer protocol이므로 TCP handshake가 이루어진 후에 진행된다.(사실 TLS는 OSI 모델에 들어맞지 않는다. Transport Layer와 Application Layer 사이에서 동작하지만, 그 모두에 속하면서도, 차이점이 있다.)
+
+```
+TLS Handshake는 아래와 같다.
+
+Client			Server
+				->					[Client Hello]			// specifies the highest TLS protocol version
+				<-					[Server Hello]			// specifies the chosen TLS protocol version
+				<-					[Certificate]
+				<-					[ServerKeyExchange]
+				<-					[ServerHelloDone]
+				->					[ClientKeyExchange]
+
+				->					[ChangeCipherSpec]
+				<-					[ChangeCipherSpec]
+
+				<>					[Application]
+```
+
+---
 
 

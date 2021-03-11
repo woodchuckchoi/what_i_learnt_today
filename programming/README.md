@@ -74,7 +74,7 @@ Python에서 일반적으로 Garbage Collection에 사용되는 방법은 Refere
 	a = 5 		# ref a = 1
 	b = {'key': a} 	# ref a = 2
 
-하지만 Reference Counting 시 Reference Cycle이 발생하기도 해서  General Garbage Collection 기법을 사용하기도 한다.
+하지만 Reference Counting 시 Reference Cycle이 발생하기도 해서 General Garbage Collection 기법을 사용하기도 한다.
 
 	a = TmpClass() 		# ref a = 1
 	a.key = a		# ref a = 2
@@ -2224,3 +2224,56 @@ type Test struct {
 하지만 위의 중복 코드가 로직에서 중요한 역할을 할 때, someVar를 volatile로 선언함으로써 최적화를 방지할 수 있다.
 
 * static global variable은 해당 파일에서만 접근 가능한 변수로 선언된다. static function 역시 파일 스코프를 가지게 된다. 만약 static local variable을 선언한다면 함수가 종료될 때, 메모리 할당이 해제되지 않고 계속 유지되는 변수를 선언하게 된다.
+
+---
+
+# Go String
+
+```
+A string value is a (possibly empty) sequence of bytes. The number of bytes is called the length of the string and is never negative. Strings are immutable: once created, it is impossible to change the contents of a string.
+
+A string's bytes can be accessed by integer indices 0 through len(s)-1.
+
+The expression on the right in the "range" clause is called the range expression, which may be ... [a] string ...
+
+For a string value, the "range" clause iterates over the Unicode code points in the string starting at byte index 0. On successive iterations, the index value will be the index of the first byte of successive UTF-8-encoded code points in the string, and the second value, of type rune, will be the value of the corresponding code point. If the iteration encounters an invalid UTF-8 sequence, the second value will be 0xFFFD, the Unicode replacement character, and the next iteration will advance a single byte in the string.
+```
+
+```
+Go 언어의 디자인으로 인해
+
+test := "some string"
+// test[1]의 타입은 byte가 된다.
+for _, r := range test {
+	// r의 타입은 rune이 된다. (code point)
+}
+
+len("한글") == 6 (byte([11101101 10010101 10011100 11101010 10111000 10000000])로 계산하므로) 도 같은 맥락으로 생각할 수 있다.
+
+```
+
+---
+
+# Go GC & GC algorithms
+
+Go의 GC algorithm은 stop-the-world(GC가 진행되는 동안 process의 모든 동작을 멈춤) & concurrent(GC가 process와 동시에 동작함, scanning하는 동안은 멈출 수 있음) hybrid tri-colour mark & sweep collector 이다.
+
+* Reference Count - 각 객체가 reference된 횟수를 저장하고, 이 횟수가 0이 되었을 때 해당 object에 대한 GC를 실행한다. 가장 간단한 방법이지만 cyclic structure에 대해 해결 방법이 없다는 단점이 있다. 
+A가 B를 참조하고, B가 A를 참조한다면 (cyclic) 이는 memory leak으로 이어진다.\
+또한 count는 메모리에 계속적으로 입력, 수정되므로 overhead가 높다.\
+앞서 말한 단점들 때문에 racing condition이 발생하는 threading에도 적용하는데 문제가 있어서 Reference Count를 사용하는 Python은 GIL을 적용했다.\
+ 
+* Tri-Colour Mark&Sweep - 객체 생성될 때 white로 간주한다. 프로세스가 fork()로 생성되었을 때 발생하는 root objects (stack, heap, global variables)는 grey로 간주한다.
+다음 단계에서는 grey object를 선택하고 black으로 칠한다.\
+black이 된 object에서 reference되는 object를 모두 grey로 칠하고, 이 과정을 반복하면 black과 white만 남게된다.\
+남게된 white를 gc한다.
+
+* Non-Generational - 많은 application에서 새로 할당된 객체는 대부분 일찍 죽는다는 이론을 통해서, 수명이 긴 객체일 수록 GC를 적게해서 효율을 향상시키는 방식을 generational하다고 함.
+
+* 왜 Go는 Non-Generational한가? - Generational GC는 GC를 하지 않을 때에도 overhead를 발생시킨다.
+객체가 어떤 세대에 속하는지, 만약 reference를 활용한 GC라면 reference를 통한 객체가 어떤 generation에 속하는지에 대한 정보를 보관해야한다.\
+이런 정보를 기록하고, 불러오는 처리를 write barrier라고 하며, 이 write barrier를 처리하는데 사용되는 overhead가 generation을 적용하면서 얻는 이득보다 크다고 판단했기 때문에 non-generational 한 것이다.
+
+---
+
+# 

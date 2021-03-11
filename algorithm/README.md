@@ -247,4 +247,24 @@
 
 ---
 
+# External Merge Sort
 
+For sorting 900 megabytes of data using only 100 megabytes of RAM:
+
+1. Read 100 MB of the data in main memory and sort by some conventional method, like quicksort.
+2. Write the sorted data to disk.
+3. Repeat steps 1 and 2 until all of the data is in sorted 100 MB chunks (there are 900MB / 100MB = 9 chunks), which now need to be merged into one single output file.
+4. Read the first 10 MB (= 100MB / (9 chunks + 1)) of each sorted chunk into input buffers in main memory and allocate the remaining 10 MB for an output buffer. (In practice, it might provide better performance to make the output buffer larger and the input buffers slightly smaller.)
+5. Perform a 9-way merge and store the result in the output buffer. Whenever the output buffer fills, write it to the final sorted file and empty it. Whenever any of the 9 input buffers empties, fill it with the next 10 MB of its associated 100 MB sorted chunk until no more data from the chunk is available. This is the key step that makes external merge sort work externally -- because the merge algorithm only makes one pass sequentially through each of the chunks, each chunk does not have to be loaded completely; rather, sequential parts of the chunk can be loaded as needed.
+
+---
+
+# Sort Analysis
+Quick Sort와 Merge Sort는 n log의 시간복잡도를 갖는다. 그런데 왜 Quick Sort implementation을 더 많이 사용할까?\
+심지어 Quick Sort에서 최악의 케이스는 시간복잡도가 n^2인데도. (배열이 이미 정렬되어 있거나, 모두 같은 값일 경우)
+0. Merge Sort는 왼쪽과 오른쪽을 분리(메모리에 적재)해서 사용하므로 메모리를 더 많이 사용하게 된다. 반면 Quick Sort는 In-place로 작동한다.
+1. Quick Sort는 pivot과 포인터를 사용하므로 같은 메모리에 위치한 값에 접근하는 경우가 더 잦다. 따라서 Cache에 저장된 값을 재사용해서 효율을 높일 수 있다.(지역성)
+2. Merge Sort에서 일반적으로 더 많은 Swap이 이루어진다.
+3. (내 생각) Merge Sort에서 변수를 생성하고 관리하는데서 GC overhead가 발생한다. 또한 Quick Sort는 큰 집단에서 작은 집단으로, Merge Sort는 작은 집단에서 큰 집단으로 재귀하므로 Quick Sort에서는 Tail Call Recursion 최적화가 이루어질 수 있다.
+
+---
