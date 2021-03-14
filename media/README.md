@@ -100,4 +100,30 @@ Media capture devices includes video cameras and microphones, but also screen ca
 The peer-to-peer connectivity is handled by the RTCPeerConnection interface. This is the central point for establishing and controlling the connection between two peers in WebRTC.
 ```
 
+WebRTC Protocol은 아래와 같이 이루어지지만, WebRTC의 requirements에 맞추기 위해서는 WebSocket, XHR 등의 프로토콜 역시 필요하다.
+```
+RTCPeerConnection, DataChannel
+SRTP, SCTP
+Session (DTLS: Datagram Transport Layer Security)
+ICE, STUN, TURN
+Transport(UDP)
+Network(IP)
+```
+ICE, STUN, TURN은 UDP 상에서 peer-to-peer connection을 체결하고, 유지하기 위해서 사용되며, DTLS는 WebRTC에 필수적인 encryption을 UDP 상에서 구현하기 위해서 사용되는 Protocol이다.\
+SCTP와 SRTP는 Application Layer Protocol로 여러 스트림 사이에서 multiplexing을 구현하기 위해서 사용된다.
+
+HOW ICE WORKS
+
+```
+First, it tries to connect peers directly via UDP.
+If UDP fails, it tries TCP.
+If both UDP and TCP direct connection fail, which is often the case in real scenarios because of NATs and firewalls, ICE will first use a STUN server with UDP to connect peers. A STUN server is a server that implements the STUN protocol and is used to find the public address and port of a peer behind an asymmetric NAT.
+If the STUN server fails, ICE will use a TURN server, which is a STUN server with some extra relaying functionalities that can traverse symmetric NATs.
+```
+
+```
+Media streams are encrypted using Secure Real-time Transport Protocol (SRTP) and data streams are encrypted using Datagram Transport Layer Security (DTLS).
+Access to camera and microphone has to be granted by the client. To keep the client aware, browsers show icons if the device’s camera or microphone is active.
+All WebRTC components run in the browser sandbox and use encryption, they don’t need any kind of installation, they will just work as long as the browser supports them.
+```
 

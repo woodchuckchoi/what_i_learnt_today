@@ -657,7 +657,67 @@ PID 0 is reserved for swapper(or sched) which is responsible for paging. It is a
 # Endian
 * Big - 최상위 바이트가 앞에 오는 경우, 사람이 사용하는 방식이지만, 수가 커지면 (차지하는 바이트의 수가 늘어나면) 저장된 메모리를 오른쪽으로 옮겨야한다.
 * Littel - 최상위 바이트가 앞에오지만, 그 다음 바이트가 왼쪽에 오는 방식. 디버깅이 어렵지만 수가 커지더라도 재배치에 따른 오버헤드가 발생하지 않는다.
+* Intel이 Little Endian 방식을 사용하며, Motorola가 Big Endian을 사용한다.
+
+```
+	----------------------------
+	|  |  |  |  |  |  |  |  |  |
+	----------------------------
+
+Big Endian의 경우 가장 앞의 바이트가 시작점을 차지하므로, 그 앞에 다른 바이트가 추가된다면 (수가 커진다면) 바이트의 배열 전체를 한 칸씩 옮겨야 한다는 단점이 있다.
+
+eg) 123이 메모리에 |.....321|로 저장되었을 때, 1123으로 수정된다면 |....3211|으로 저장된 모든 바이트를 옮기는 방식이 Big Endian.\
+123 메모리에 |321.....|로 저장되고, 1123으로 수정된다면 |3211....|로 수정되는 것이 Little Endian.
+
+Big-endian is an order in which the "big end" (most significant value in the sequence) is stored first (at the lowest storage address). Little-endian is an order in which the "little end" (least significant value in the sequence) is stored first. For example, in a big-endian computer, the two bytes required for the hexadecimal number 4F52 would be stored as 4F52 in storage (if 4F is stored at storage address 1000, for example, 52 will be at address 1001). In a little-endian system, it would be stored as 524F (52 at address 1000, 4F at 1001).
+
+For people who use languages that read left-to-right, big endian seems like the natural way to think of a storing a string of characters or numbers - in the same order you expect to see it presented to you. Many of us would thus think of big-endian as storing something in forward fashion, just as we read.
+
+An argument for little-endian order is that as you increase a numeric value, you may need to add digits to the left (a higher non-exponential number has more digits). Thus, an addition of two numbers often requires moving all the digits of a big-endian ordered number in storage, moving everything to the right. In a number stored in little-endian fashion, the least significant bytes can stay where they are and new digits can be added to the right at a higher address. This means that some computer operations may be simpler and faster to perform.
+```
 
 ---
 
+# Atomicity
+Single CPU machine일 경우에는 명령을 실행하는 sequence가 한 갈래를 가지며, 이 갈래가 interrupt 될 수 없다는 조건을 설정함으로써 Atomic Operation이 implement 된다.\
+반면 Multi-core CPU machine에서는 한 CPU가 atomic operation이 발생한다는 신호를 다른 CPU들에게 전달한다. 신호를 전달받은 다른 CPU들은 해당하는 캐쉬를 Ram으로 flush함으로써 atomicity를 보장하게 된다.
+
+---
+
+# Coroutine
+
+```
+A coroutine is similar to a thread (in the sense of multithreading): it is a line of execution, with its own stack, its own local variables, and its own instruction pointer; but it shares global variables and mostly anything else with other coroutines. 
+The main difference between threads and coroutines is that, conceptually (or literally, in a multiprocessor machine), a program with threads runs several threads in parallel. 
+Coroutines, on the other hand, are collaborative: at any given time, a program with coroutines is running only one of its coroutines, and this running coroutine suspends its execution only when it explicitly requests to be suspended.
+```
+
+Coroutine은 multi-core 환경에서도 오직 하나의 coroutine만 동작할 수 있다. (병렬성 X, 다중 process에 속한 thread의 경우 multi-core에서 병렬하게 동작할 수 있음)\
+즉 Coroutine은 독립적으로 실행되지 않고, 순서를 정하며 작동한다.
+
+---
+
+# Context Switching
+
+```
+Context Switching involves storing the context or state of a process so that it can be reloaded when required and execution can be resumed from the same point as earlier. This is a feature of a multitasking operating system and allows a single CPU to be shared by multiple processes.
+```
+
+## Context Switching Steps
+
+The steps involved in context switching are as follows −
+
+1. Save the context of the process that is currently running on the CPU. Update the process control block and other important fields.
+2. Move the process control block of the above process into the relevant queue such as the ready queue, I/O queue etc.
+3. Select a new process for execution.
+4. Update the process control block of the selected process. This includes updating the process state to running.
+5. Update the memory management data structures as required.
+6. Restore the context of the process that was previously running when it is loaded again on the processor. This is done by loading the previous values of the process control block and registers.
+
+## Context Switching Cost
+
+Context Switching leads to an overhead cost because of TLB flushes, sharing the cache between multiple tasks, running the task scheduler etc.\
+Context switching between two threads of the same process is faster than between two different processes as threads have the same virtual memory maps. Because of this TLB flushing is not required.
+
+---
 
