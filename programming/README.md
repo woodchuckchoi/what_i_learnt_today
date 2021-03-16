@@ -2337,3 +2337,11 @@ black이 된 object에서 reference되는 object를 모두 grey로 칠하고, �
 * It may have not have any null key or value.
 * It is synchronized.
 * It is a legacy class.
+
+---
+
+# Digital Signature
+
+Signer(Sender)의 데이터를 HashFunction을 통해서 일정한 길이의 메세지로 만든다.\
+메세지를 Private Key로 encrypt하여 실제 데이터와 함께 digital signature를 제공한다.\
+데이터를 제공받는 측은 데이터의 Hash값과 decrypted digital signature를 비교하여 데이터의 무결성과 Sender의 신원을 확인한다.
