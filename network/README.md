@@ -813,4 +813,16 @@ Client			Server
 
 ---
 
+# Diffie-Hellman
+
+거의 모든 key exchange algorithm은 Diffie-Hellman Algorithm을 기반으로 이루어진다.\
+Diffie-Hellman은 Public Variable을 교환하고, 이것을 Private Variable과 결합함으로써 양자가 동일한 암호키를 얻는 방식이다.\
+Public은 어떠한 prime number N과 secret key generator G를 가진다.\
+Public에 연결된 사용자 A와 B는 각각 secret key a, b를 가진다.\
+A, B는 a, b를 G와 합쳐 aG, bG를 생성한다. (이 Process는 되돌릴 수 없다. 즉 aG, bG로부터 a와 b를 추출할 수 없다.)\
+A는 bG를, B는 aG를 가져가서 각각의 Secret Key를 첨가하면 A와 B는 모두 abG라는 Secret Key를 얻게된다.\
+이 키는 통신의 주체가 아닌 다른 사용자가 가질 수 없으므로 안전하다.
+
+---
+
 
