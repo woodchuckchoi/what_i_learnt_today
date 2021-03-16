@@ -2293,3 +2293,47 @@ black이 된 object에서 reference되는 object를 모두 grey로 칠하고, �
 * program은 main() 함수 없이 compile이 될 수는 있다. 하지만 program의 entrypoint 역할을 하는 main이 없다면 실행될 수 없다.
 
 * local variable은 garbage value를 가지며 global variable은 0 value를 갖게된다.
+
+---
+
+# HashMap vs TreeMap vs HashTable vs LinkedHashTable
+
+* HashMap is implemented as a hash table, and there is no ordering on keys or values.
+* TreeMap is implemented based on red-black tree structure, and it is ordered by the key.
+* LinkedHashMap preserves the insertion order
+* Hashtable is synchronized in contrast to HashMap.
+
+* Hashtable은 sync에 대한 overhead가 발생하므로 thread-safe하다면 HashMap을 사용하는 편이 효과적이다.
+
+## Common
+
+1. 모두 key-value pair를 구성하며, key를 통해 iterate 할 수 있다.
+
+## Different
+
+* Map implementation 사이의 차이점은 시간 복잡도와 key의 ordering이다.
+
+1. HashMap: HashMap offers 0(1) lookup and insertion. If you iterate through the keys, though, the ordering of the keys is essentially arbitrary. It is implemented by an array of linked lists.
+* A HashMap contains values based on the key.
+* It contains only unique elements.
+* It may have one null key and multiple null values.
+* It maintains no order.
+
+2. LinkedHashMap: LinkedHashMap offers 0(1) lookup and insertion. Keys are ordered by their insertion order. It is implemented by doubly-linked buckets.
+* A LinkedHashMap contains values based on the key.
+* It contains only unique elements.
+* It may have one null key and multiple null values.
+* It is same as HashMap instead maintains insertion order.
+
+3. TreeMap: TreeMap offers O(log N) lookup and insertion. Keys are ordered, so if you need to iterate through the keys in sorted order, you can. This means that keys must implement the Comparable interface. TreeMap is implemented by a Red-Black Tree.
+* A TreeMap contains values based on the key. It implements the NavigableMap interface and extends AbstractMap class.
+* It contains only unique elements.
+* It cannot have null key but can have multiple null values.
+* It is same as HashMap instead maintains ascending order(Sorted using the natural order of its key).
+
+4. Hashtable: “Hashtable” is the generic name for hash-based maps.
+* A Hashtable is an array of list. Each list is known as a bucket. The position of bucket is identified by calling the hashcode() method. A Hashtable contains values based on the key.
+* It contains only unique elements.
+* It may have not have any null key or value.
+* It is synchronized.
+* It is a legacy class.
