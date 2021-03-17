@@ -260,3 +260,53 @@ App이 사용하는 Host의 Port를 static하게 설정하지 않는다.\
 Dynamic하게 설정된 Port는 Instance 외부의 Load Balancer에게 Port에 대한 정보를 제공하고 Load Balancer는 Health Check, Listener를 사용하여 Dynamic Port Mapping을 구현한다.
 
 ---
+
+# Service Mesh
+1. MSA를 적용한 시스템의 내부 통신이 Mesh 형태를 띄는 것을 Service Mesh라고 한다.
+2. Service Mesh는 서비스간 통신을 추상화하여 안전하고, 빠르게 만드는 infra layer이다. 추상화를 통해서 네트워크를 제어, 추적한다.
+3. Service Mesh는 URL 경로, 호스트 헤더, API 버젼 등의 규칙을 기반으로 하는 Application Layer의 서비스이다.
+
+## Why Service Mesh
+MSA와 Cloud 환경이 Norm이 되면서 시스템의 런타임 복잡성이라는 다른 문제점이 발생했다.\
+MSA/Cloud 환경에서는 많은 수의 service와 instance가 동시에 동작하면서 로깅을 처리하고, 인스턴스를 관리하거나, 한정된 Bandwidth 내에서 서비스 간의 통신을 제어해야하는 요구 사항이 있다.\
+이와 같은 문제를 해결하기 위해서 Service Mesh는 아래와 같은 기능을 제공한다.
+
+* Service Discovery
+* Load Balancing
+* Dynamic Request Routing
+* Circuit Breaking
+* Retry and Timeout
+* TLS
+* Distributed Tracing
+* metrics 수집
+
+## How Service Mesh
+Service Mesh Architecture의 구현은 보통 서비스의 앞단에 경량화 프록시를 사이드카 패턴으로 배치하여 서비스 간의 통신을 제어하는 방법으로 구현한다.\
+서비스 간의 통신은 사이트카로 배치된 경량화 Proxy를 통해서 동작한다. 이 경량화 Proxy에 Routing Rules, Retry, Timeout 등을 설정하고 Logic을 작성하여 공통 기능을 Service에서 분리한다.\
+
+```
+사이드카 패턴은 클라우드 디자인 패턴의 일종입니다.
+기본 Application 외 필요한 추가 기능을 별도의 Application으로 구현하고 이를 동일한 프로세스 또는 컨테이너 내부에 배치하는 것입니다.
+동일한 프로세스 또는 컨테이너에 배치된 사이드카 Application은 저장 공간, 네트워크 등의 리소스를 공유하며 모니터링, 로깅, 프록시 등의 동작을 합니다.
+사이드카 패턴에는 몇가지 장점이 있습니다.
+사이드카 Application은 기본 Application과 별도의 Application입니다.
+기본 Application의 로직을 수정하지 않고도 추가 기능을 수행할 수 있습니다.
+기본 Application을 polyglot 프로그래밍을 적용해 요구 사항에 최적화된 환경에서 개발을 진행할 수 있습니다.
+사이드카 Application은 기본 Application과 리소스를 공유할 수 있습니다. 이를 통해 모니터링에 필요한 Metrics 수집, 프록시 동작 등을 수행할 수 있습니다.
+```
+
+대표적인 Service Mesh의 구현체는 istio가 있다.
+
+## Service Mesh Pros and Cons
+
+### Pros
+* 기능을 어플리케이션 외부에 구현하며 재사용 가능하다.
+* MicroService Architecture를 도입하면서 발생한 런타임 복잡성 이슈를 해결한다.
+* 어플리케이션 개발시 언어와 미들웨어 등에 종속성을 제거한다.
+
+### Cons
+* 시스템의 런타임 인스턴스 수가 크게 증가한다. (최소 2배수)
+* 서비스 간 통신에 네트워크 레이어가 추가된다.
+* 신기술이다. 구현체가 Release 될 때까지 시간이 필요하다.
+
+---
