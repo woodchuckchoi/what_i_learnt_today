@@ -2345,3 +2345,36 @@ black이 된 object에서 reference되는 object를 모두 grey로 칠하고, �
 Signer(Sender)의 데이터를 HashFunction을 통해서 일정한 길이의 메세지로 만든다.\
 메세지를 Private Key로 encrypt하여 실제 데이터와 함께 digital signature를 제공한다.\
 데이터를 제공받는 측은 데이터의 Hash값과 decrypted digital signature를 비교하여 데이터의 무결성과 Sender의 신원을 확인한다.
+
+---
+
+# Set
+
+Set은 순서에 의존하지 않고 unique value를 저장하는 data type이다.\
+Set implementation에 따라 차이가 있지만 일반적으로 hash table로 이루어지며 value는 항상 null로 고정된다.\
+따라서 membership test (key in set == True // in python)의 경우 일반적으로 O(1)이 된다.
+
+따라서 크기가 m과 n인 두 set이 있을 때, 시간복잡도는 아래와 같이 정리된다.
+* Union: O(m+n)
+* Intersection: O(min(m, n))
+* difference: O(m)
+* issubset: O(m)
+
+---
+
+# WSGI vs ASGI
+
+## WSGI
+```
+WSGI is a standard interface which allows to seperate server code from the application code where you add your business logic. WSGI succeeded in allowing much more freedom and innovation in the Python web space.
+In WSGI applications takes a single request and returns response at a time. This single and synchronous callable limits WSGI for long lived connections like websocket connections. Even if we made the application asynchronous callable it only has a single path to provide request.
+
+WSGI doesn’t have the ability to officially deal with Web Sockets. Wsgi.websocket is an unofficial work around though. WSGI can’t also work with HTTP/2. We also can’t use async or await with WSGI.
+```
+
+## ASGI
+```
+There are three arguments the scope which is similar to the environ in WSGI which gives an idea about the specific connection. Receive and Send where you as an application has to receive and send messages both are asynchronous callable. This allows multiple incoming events and outgoing events for each application . The main advantage is that it allows background coroutine so the application is able to do other things such listening for events on an external trigger like a redis queue.
+```
+
+---

@@ -268,3 +268,15 @@ Quick Sort와 Merge Sort는 n log의 시간복잡도를 갖는다. 그런데 왜
 3. (내 생각) Merge Sort에서 변수를 생성하고 관리하는데서 GC overhead가 발생한다. 또한 Quick Sort는 큰 집단에서 작은 집단으로, Merge Sort는 작은 집단에서 큰 집단으로 재귀하므로 Quick Sort에서는 Tail Call Recursion 최적화가 이루어질 수 있다.
 
 ---
+
+# Diffie-Hellman Maths
+
+```
+Together Alice and Bob choose a large prime number p and a number g such that 1 < g < p. (Usually g is chosen to be quite small, for ease of computation.) 
+These numbers do not need to be secret, so they can be communicated freely over a public channel. Alice secretly chooses an integer n, and Bob secretly chooses an integer m.
+
+Now Alice sends Bob the number g^n(mod p) and Bob sends Alice g^m(mod p).
+Using her secret n, Alice computes s = g^(mn), and using his secret m, Bob also computes s = g^(mn).
+
+Let p = 191 and g = 2. Suppose Alice picks 42 and Bob picks 33. Then Alice computes (2^42)%191 == 20 and Bob computes (2^33)%191 == 103. They send the results of these computations to each other. Upon receiving 103, Alice computes (103^42)%191 == 115 and Bob computes (20^33)%191 == 115.
+```
