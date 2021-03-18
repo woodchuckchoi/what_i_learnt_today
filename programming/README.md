@@ -2378,3 +2378,39 @@ There are three arguments the scope which is similar to the environ in WSGI whic
 ```
 
 ---
+
+# Lambda Calculus
+A function takes some input(s) and process it someway and produces an output in lambda calculus.\
+Functions do not have internal states, which means they are stateless.\
+```
+lambda x. x+1 means
+func(x) { 
+	return x + 1
+}
+
+lambda x. lambda y. x+y means
+func(x, y) {
+	return x + y
+}
+
+(lambda x. x+1) 5 == 6
+```
+Simply put, variables, a way of building functions, a way of appying functions are all there are in Lambda Calculus.\
+
+## Why?
+1. Lambda functions can encode any computer codes.
+2. It is the core of functional programming.
+3. It is in most programming languages.
+
+## What can it do
+```
+True = lambda x. lambda y. x
+False = lambda x. lambda y. y
+
+Not = lambda b. b False True
+
+Not True == True (False True) = False
+Not False == False (False True) = True
+```
+
+---
