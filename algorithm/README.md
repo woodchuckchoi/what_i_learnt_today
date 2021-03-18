@@ -280,3 +280,17 @@ Using her secret n, Alice computes s = g^(mn), and using his secret m, Bob also 
 
 Let p = 191 and g = 2. Suppose Alice picks 42 and Bob picks 33. Then Alice computes (2^42)%191 == 20 and Bob computes (2^33)%191 == 103. They send the results of these computations to each other. Upon receiving 103, Alice computes (103^42)%191 == 115 and Bob computes (20^33)%191 == 115.
 ```
+
+---
+
+# Dijkstra
+Use when the problem is too sophisticated to brute force.
+
+```
+Implement a priority queue (shortest, closest one first)
+Also keep the track of the routes.
+When a node is done searching all the branching nodes, the start node is discarded from the queue.
+The key is to prioritise more optimal routes.
+```
+
+---
