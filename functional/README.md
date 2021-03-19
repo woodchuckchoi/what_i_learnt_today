@@ -186,3 +186,41 @@ The tail recursive functions considered better than non tail recursive functions
 If you want to convert non-tail recursive function to tail recursive function, you'll probably have to add another parameter to store the result.
 
 ---
+
+# Learn from Haskell 
+1. Functions can be applied to their arguments one at a time, which is called currying.
+```
+average :: Float -> Float -> Float
+average a b = (a + b) / 2.0
+
+avgWith3 = average 3
+avgWith3 5
+>> 4.0
+```
+
+2. Infix and Prefix are interchangeable
+```
+(+) 1 4
+>> 5
+(*) 21 2
+>> 42
+
+2 `average` 3
+>> 2.5
+```
+
+3. Overloading in Functional
+```
+(+) :: Int -> Int -> Int
+(+) :: Float -> Float -> Float
+
+// therefore
+
+(+) :: a -> a -> a where a == Int | Float | any Num type class(set of types) // where ... == Num a
+(+) :: Num a => a -> a -> a
+(==) :: Eq a => a -> a -> Bool
+show :: Show a => a -> String
+```
+
+
+---
