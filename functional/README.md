@@ -224,3 +224,96 @@ show :: Show a => a -> String
 
 
 ---
+
+# Monad Revisited
+```
+data Expr = Val Int | Div Expr Expr
+# building datatype Expr, which has two constructors, one called Val which takes an integer parameter and one called Div, which takes two sub-Exprs as parameters
+
+Maths => Haskell
+1 => Val 1
+6 / 2	=> Div (Val 6) (Val 2)
+6 / (3 / 1)	=> Div (Val 6) (Div (Val 3) (Val 1))
+```
+
+```
+eval :: Expr -> Int
+
+eval (Val n) = n 
+eval (Div x y) = eval x / eval y // But it will crash when y value equals 0
+```
+
+So, declare a safe version of div
+
+```
+safediv :: Int -> Int -> Maybe Int
+safediv n m = if m == 0 then Nothing else Just(n/m) // Maybe type has two constructors, one Nothing, the other Just
+```
+
+Now, rewrite the eval function
+
+```
+eval :: Expr -> Maybe Int
+eval (Val n) = Just n
+eval (Div x y) = case eval x of
+									Nothing -> Nothing
+									Just n -> case eval y of
+										Nothing -> Nothing 
+										Just m -> safediv n m
+```
+
+But this version of program is too verbose, too long due to its management of failure.\
+To decrese the complexity, shorten the case analysis
+
+```
+// Case Analysis
+case m of // m in Maybe
+	Nothing -> Nothing
+	Just x -> f x // f in function
+
+// Simpler definition will look like below
+m >>= f = case m of
+						Nothing -> Nothing
+						Just x -> f x
+```
+
+With the simpler definition, rewrite the eval function
+
+```
+eval :: Expr -> Maybe Int
+eval (Val n) = return n // return n == Just n
+eval (Div x y) = eval x >>= (lambda n -> // if eval x succeeds
+									eval y >>= (lambda m -> // if eval y succeeds
+									safediv n m))
+```
+
+Compared to the initial eval function, it is simpler, yet, still the complexity is much higher than desired/
+So Haskell supports syntactic sugar, as in below
+
+```
+data Expr = Val Int | Div Expr Expr
+
+eval :: Expr -> Maybe Int
+eval (Val n) = return n
+eval (Div x y) = do n <- eval n
+										m <- eval y
+										safediv n m
+```
+
+This is how the Maybe monad works.\
+```
+	retrun :: a -> Maybe a // return takes whatever value and makes it a Maybe value
+	>>=		 :: Maybe a -> (a -> Maybe b) -> Maybe b // if a succeeds, proceed to b
+```
+
+A monad is a kind of type constructor like Maybe that has functions with above types.\
+
+## Why Monad?
+1. Same idea works for other effects
+2. Supports pure programming with effects
+3. Use of effects explicit in types
+4. Functions that work for any effects
+
+I STILL DONT UNDERSTAND MONADS
+---
+
