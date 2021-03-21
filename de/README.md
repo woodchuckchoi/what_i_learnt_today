@@ -60,7 +60,7 @@ SparkContext uses Py4J to launch a JVM and creates a JavaSparkContext. By defaul
 ```
 # test pyspark app
 logFile = 'file:///home/hyuck/spark/README.md'
-logData = sc.textFile(logFile).cache() # keeps the data in memory
+logData = sc.textFile(logFile).cache() # keeps the assigned part of the data in memory of executor
 numAs = logData.filter(lambda x: 'a' in x).count() # has the number of lines that have 'a' in them 
 numBs = logData.filter(lambda x: 'b' in x).count() # has the number of lines that have 'b' in them
 ```
@@ -117,12 +117,32 @@ There are two types of shared variables supported by Apache Spark −
 * Broadcast - Broadcast variables are used to save the copy of data across all nodes. This variable is cached on all the machines and not sent on machines with tasks.
 
 ```
+Broadcast variables are read-only variables that will be cached in all the executors instead of shipping every time with the tasks. Basically, broadcast variables are used as lookups without any shuffle, as each executor will keep a local copy of it, so no network I/O overhead is involved here. Imagine you are executing a Spark Streaming application and for each input event, you have to use a lookup data set which is distributed across multiple partitions in multiple executors; so, each event will end up doing network I/O that will be a huge, costly operation for a streaming application with such frequency.
+
+Now, the question is how big of a lookup dataset do you want to broadcast!! The answer lies in the amount of memory you are allocating for each executor. See, if we broadly look at memory management in Spark, we'll observe that Spark keeps 75% of the total memory for its own storage and execution. Out of that 75%, 50% is allocated for storage purposes, and the other 50% is allocated for execution purposes.
+
+Spark stores broadcast variables in this memory region, along with cached data. There is a catch here. This is the initial Spark memory orientation. If Spark execution memory grows big with time, it will start evicting objects from a storage region, and as broadcast variables get stored with MEMORY_AND_DISK persistence level, there is a possibility that it also gets evicted from memory. So, you could potentially end up doing disk I/O, which is again a costly operation in terms of performance.
+```
+
+## Then what is the difference between cache and broadcast
+```
+cache() or persist() allows a dataset to be used across operations.
+
+When you persist an RDD, each node stores any partitions of it that it computes in memory and reuses them in other actions on that dataset (or datasets derived from it). This allows future actions to be much faster (often by more than 10x). Caching is a key tool for iterative algorithms and fast interactive use.
+
+Each persisted RDD can be stored using a different storage level, allowing you, for example, to persist the dataset on disk, persist it in memory but as serialized Java objects (to save space), replicate it across nodes, or store it off-heap
+
+Broadcast variables allow the programmer to keep a read-only variable cached on each machine rather than shipping a copy of it with tasks. They can be used, for example, to give every node a copy of a large input dataset in an efficient manner. Spark also attempts to distribute broadcast variables using efficient broadcast algorithms to reduce communication cost.
+```
+
+```
 words = sc.broadcast(['scala', 'java', 'hadoop', 'spark', 'akka'])
 data = words.value
 print(data) # ['scala', 'java', 'hadoop', 'spark', 'akka']
 ```
 
 * Accumulator - Accumulator variables are used for aggregating the information through associative and commutative operations. For example, you can use an accumulator for a sum operation or counters (in MapReduce).
+
 
 ```
 num = sc.accumulator(0)
