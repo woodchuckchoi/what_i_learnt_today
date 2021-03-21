@@ -51,4 +51,88 @@ GraphX is a distributed graph-processing framework on top of Spark. It provides 
 
 Spark is written in Scala, but Python, Java, R are also supported.
 
+```
+SparkContext is the entry point to any spark functionality. When we run any Spark application, a driver program starts, which has the main function and your SparkContext gets initiated here. The driver program then runs the operations inside the executors on worker nodes.
+
+SparkContext uses Py4J to launch a JVM and creates a JavaSparkContext. By default, PySpark has SparkContext available as ‘sc’, so creating a new SparkContext won't work.
+```
+
+```
+# test pyspark app
+logFile = 'file:///home/hyuck/spark/README.md'
+logData = sc.textFile(logFile).cache() # keeps the data in memory
+numAs = logData.filter(lambda x: 'a' in x).count() # has the number of lines that have 'a' in them 
+numBs = logData.filter(lambda x: 'b' in x).count() # has the number of lines that have 'b' in them
+```
+
+## RDD
+
+```
+RDD stands for Resilient Distributed Dataset, these are the elements that run and operate on multiple nodes to do parallel processing on a cluster. RDDs are immutable elements, which means once you create an RDD you cannot change it. RDDs are fault tolerant as well, hence in case of any failure, they recover automatically. You can apply multiple operations on these RDDs to achieve a certain task.
+```
+
+To apply operations on these RDD's there are two ways -
+* Transformation - Operations that are applied on a RDD to create a new RDD. Filter, groupBy and map are the examples.
+* Action - Operations that are applied on a RDD, which instructs Spark to perform computation and send the result back to the driver.
+
+To apply any operation in PySpark, we need to create a PySpark RDD first.
+
+```
+words = sc.parallelize(
+  ["scala",
+   "java",
+   "hadoop",
+   "spark",
+   "akka",
+   "spark vs hadoop",
+   "pyspark",
+   "pyspark and spark",
+   ]
+)
+counts = words.count() # num of the words variable
+collects = words.collect() # all elements of the words variable
+words.foreach(lambda x: print(x)) # map the function to all member variables
+filtered = words.filter(lambda x: len(x) < 6).collect() # filter the word variable so that only the variables shorter than 6 can be filtered
+words.map(lambda x: 'movie name: {}'.format(x)).collect() # puts the prefix before all the vars
+words.reduce(lambda x, y: x + y) # scalajavahadoop... reduces the RDD
+
+x = sc.parallelize([('spark', 1), ('hadoop', 2)])
+y = sc.parallelize([('spark', 3), ('hadoop', 4)])
+
+joined = x.join(y)
+joined.collect() # [('spark', (1, 3)), ('hadoop', (2, 4))]
+
+words.cache() # Persist RDD with the default storage level (MEMORY_ONLY)
+words.persist().is_cached == True
+```
+
+## Broadcast & Accumulator
+
+```
+For parallel processing, Apache Spark uses shared variables. A copy of shared variable goes on each node of the cluster when the driver sends a task to the executor on the cluster, so that it can be used for performing tasks.
+```
+
+There are two types of shared variables supported by Apache Spark −
+
+* Broadcast - Broadcast variables are used to save the copy of data across all nodes. This variable is cached on all the machines and not sent on machines with tasks.
+
+```
+words = sc.broadcast(['scala', 'java', 'hadoop', 'spark', 'akka'])
+data = words.value
+print(data) # ['scala', 'java', 'hadoop', 'spark', 'akka']
+```
+
+* Accumulator - Accumulator variables are used for aggregating the information through associative and commutative operations. For example, you can use an accumulator for a sum operation or counters (in MapReduce).
+
+```
+num = sc.accumulator(0)
+def f(x):
+  global num
+  num += x
+
+rdd = sc.parallelize([2, 3, 4, 5])
+rdd.foreach(f)
+print(num.value) # 14
+```
+
 ---
