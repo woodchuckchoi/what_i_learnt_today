@@ -155,4 +155,55 @@ rdd.foreach(f)
 print(num.value) # 14
 ```
 
+parallelize() splits a collection into partitions (>= 1). Each partition lives on an executor which processes it. On the other hand, broadcast copies&sends the parameter to each executor.
+
+## Storage Level
+
+StorageLevel decides how RDD should be stored. In Apache Spark, StorageLevel decides whether RDD should be stored in the memory or should it be stored over the disk, or both. It also decides whether to serialize RDD and whether to replicate RDD partitions.
+
+```
+class pyspark.StorageLevel(useDisk, useMemory, useOffHeap, deserialized, replication = 1)
+
+DISK_ONLY = StorageLevel(True, False, False, False, 1)
+
+DISK_ONLY_2 = StorageLevel(True, False, False, False, 2)
+
+MEMORY_AND_DISK = StorageLevel(True, True, False, False, 1)
+
+MEMORY_AND_DISK_2 = StorageLevel(True, True, False, False, 2)
+
+MEMORY_AND_DISK_SER = StorageLevel(True, True, False, False, 1)
+
+MEMORY_AND_DISK_SER_2 = StorageLevel(True, True, False, False, 2)
+
+MEMORY_ONLY = StorageLevel(False, True, False, False, 1)
+
+MEMORY_ONLY_2 = StorageLevel(False, True, False, False, 2)
+
+MEMORY_ONLY_SER = StorageLevel(False, True, False, False, 1)
+
+MEMORY_ONLY_SER_2 = StorageLevel(False, True, False, False, 2)
+
+OFF_HEAP = StorageLevel(True, True, True, False, 1)
+```
+
+## RDD vs DataFrame vs DataSet
+* RDD – RDD is a distributed collection of data elements spread across many machines in the cluster. RDDs are a set of Java or Scala objects representing data.
+* DataFrame – A DataFrame is a distributed collection of data organized into named columns. It is conceptually equal to a table in a relational database.
+* DataSet – It is an extension of DataFrame API that provides the functionality of – type-safe, object-oriented programming interface of the RDD API and performance benefits of the Catalyst query optimizer and off heap storage mechanism of a DataFrame API.
+
+## ETC
+
+One of the key distinctions between RDDs and other data structures is that processing is delayed until the result is requested. This is similar to a Python generator. Developers in the Python ecosystem typically use the term lazy evaluation to explain this behavior.
+
 ---
+
+collect() (or count(), etc..) requests the results to be evaluated (lazy evaluation) and collected to a single cluster node. If the dataset is too big, it will not work.
+
+---
+
+SparkContext (sc) is an entry point to any spark functionality is what we call SparkContext. While it comes to PySpark, SparkContext uses Py4J(library) in order to launch a JVM. In this way, it creates a JavaSparkContext.
+
+---
+
+
