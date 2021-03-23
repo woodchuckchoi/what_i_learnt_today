@@ -188,9 +188,38 @@ OFF_HEAP = StorageLevel(True, True, True, False, 1)
 ```
 
 ## RDD vs DataFrame vs DataSet
-* RDD – RDD is a distributed collection of data elements spread across many machines in the cluster. RDDs are a set of Java or Scala objects representing data.
-* DataFrame – A DataFrame is a distributed collection of data organized into named columns. It is conceptually equal to a table in a relational database.
-* DataSet – It is an extension of DataFrame API that provides the functionality of – type-safe, object-oriented programming interface of the RDD API and performance benefits of the Catalyst query optimizer and off heap storage mechanism of a DataFrame API.
+
+---
+
+* RDD – RDD is a distributed collection of data elements spread across many machines in the cluster. RDDs are a set of Java or Scala objects representing data. (RDD is a distributed collection of data elements without any schema)
+
+No in-built optimization engine for RDDs. Developers need to write the optimized code themselves.
+
+No in-built optimization engine for RDDs. Developers need to write the optimized code themselves.
+
+RDD is slower than both Dataframes and Datasets to perform simple operations like grouping the data.
+
+---
+
+* DataFrame – A DataFrame is a distributed collection of data organized into named columns. It is conceptually equal to a table in a relational database. (It is also the distributed collection organized into the named columns)
+
+It is also the distributed collection organized into the named columns
+
+It uses a catalyst optimizer for optimization.
+
+It provides an easy API to perform aggregation operations. It performs aggregation faster than both RDDs and Datasets.
+
+---
+
+* DataSet – It is an extension of DataFrame API that provides the functionality of – type-safe, object-oriented programming interface of the RDD API and performance benefits of the Catalyst query optimizer and off heap storage mechanism of a DataFrame API. (It is an extension of Dataframes with more features like type-safety and object-oriented interface.) (PySpark doesn't support this feature)
+
+It also uses a catalyst optimizer for optimization purposes.
+
+It will also automatically find out the schema of the dataset by using the SQL Engine.
+
+Dataset is faster than RDDs but a bit slower than Dataframes.
+
+---
 
 ## ETC
 
@@ -206,4 +235,7 @@ SparkContext (sc) is an entry point to any spark functionality is what we call S
 
 ---
 
+Computation in RDD is automatically parallelized across the cluster.
+
+---
 
