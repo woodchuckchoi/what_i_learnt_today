@@ -294,3 +294,63 @@ The key is to prioritise more optimal routes.
 ```
 
 ---
+
+# Union Find
+Find whether an undirected graph contains a cycle
+```
+type Graph struct {
+	numNodes	int
+	edges		[][]int
+}
+
+func newGraph(n int) *Graph {
+	return &Graph {
+		numNodes: n,
+		edges: [][]int {},
+	}
+}
+
+func (g *Graph)addEdge(edge []int) {
+	g.edges = append(g.edges, edge)
+}
+
+func (g *Graph)find(i int, root []int) int {
+	if root[i] == -1 {
+		return i
+	} else {
+		return g.find(root[i], root)
+	}
+}
+
+func (g *Graph)union(x, y int, root []int) {
+	root[x] = y
+}
+
+func (g *Graph)isCyclic() bool {
+
+	root := make([]int, g.numNodes)
+	for idx:=0; idx<g.numNodes; idx++ {
+		root[idx] = -1
+	}
+	
+	for _, edge := range g.edges {
+		xRoot := g.find(edge[0], root)
+		yRoot := g.find(edge[1], root)
+		
+		if xRoot == yRoot {
+			return true
+		}
+		g.union(edge[0], edge[1], root)
+	}
+	return false
+}
+
+func main() {
+	g := newGraph(3)
+	g.addEdge([]int {0, 1})
+	g.addEdge([]int {1, 2})
+	g.addEdge([]int {2, 0})
+	
+	fmt.Println(g.isCyclic()) // true
+}
+```

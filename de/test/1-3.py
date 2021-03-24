@@ -47,6 +47,10 @@ df_remove =df.filter(df['native-country'] != 'Holand-Netherlands') # remove dutc
 
 stringIndexer = StringIndexer(inputCol='workclass', outputCol='workclass-encoded') # to one-hot-encode, transform a string column
 model = stringIndexer.fit(df)
-indexed = model.fit(df) # workclass transformed to workclass-encoded (float)
+indexed = model.transform(df) # workclass transformed to workclass-encoded (float)
+
+encoder = OneHotEncoder(dropLast=False, inputCol='workclass-encoded', outputCol='workclass-vec')
+one_hot_model = encoder.fit(indexed)
+encoded_df = encoded.transform(indexed)
 
 
