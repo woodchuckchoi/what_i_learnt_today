@@ -239,3 +239,38 @@ Computation in RDD is automatically parallelized across the cluster.
 
 ---
 
+# Streaming
+
+## Checkpoints
+
+Checkpoint works similar to Checkpoints which stores the state of the systems the same as in the games. Where, in this case, Checkpoints helps in reducing the loss of resources and make the system more resilient to system breakdown. A checkpoint methodology is a better way to keep track of and save the states of the system so that at the time of recovery, it can be easily pulled back.
+
+## Broadcast Variables
+
+Instead of providing the complete copy of tasks to the network Nodes, it always catches a read-only variable which is responsible for acknowledging the nodes of different task present and thus reducing transfer and computation cost by individual nodes. So it can provide a significant input set more efficiently. It also uses advanced algorithms to distribute the broadcast variable to different nodes in the network; thus, the communication cost is reduced.
+
+## Accumulators
+
+Accumulators are variables which can be customized for different purposes. But there also exist already defined Accumulators like counter and sum Accumulators. There is also tracking Accumulators that keeps track of each node, and some extra features can also be added into it. Numeric Accumulators support many digital functions which are also supported by Spark. A custom-defined Accumulators can also be created demanded by the user.
+
+## DStream
+
+DStream means Discretized Stream. Spark Streaming offers the necessary abstraction, which is called Discretized Stream (DStream). DStream is a data which streams continuously. From a source of data, DStream is received. It may also be obtained from a stream of processed data. Transformation of input stream generates processed data stream.
+
+After a specified interval, data is contained in an RDD. Endless series of RDDs represents a DStream.
+
+## Caching
+
+Developers can use DStream to cache the stream’s data in memory. This is useful if the data is computed multiple times in the DStream. It can be achieved by using the persist() method on a DStream.
+
+Duplication of data is done to ensure the safety of having a resilient system that can resist and failure in the system thus having an ability to tolerate faults in the system (such as Kafka, Sockets, Flume etc.)
+
+## Output Modes
+
+* Append Mode: In this mode, Spark will output only newly processed rows since the last trigger.
+* Update Mode: In this mode, Spark will output only updated rows since the last trigger. If we are not using aggregation on streaming data (meaning previous records can’t be updated) then it will behave similarly to append mode.
+* Complete Mode: In this mode, Spark will output all the rows it has processed so far.
+
+
+## How does Spark Streaming work?
+The data in the stream is divided into small batches which are called DStreams in the Spark Streaming. It is a sequence of RDDs internally. The data that flows in the stream is processed within a time frame. This time frame is to be specified by the developer, and it is to be allowed by Spark Streaming. The time window is the time frame within which the work should be completed. The time window is updated within a time interval which is also known as the sliding interval in the window. 
