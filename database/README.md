@@ -384,3 +384,35 @@ SQL Query를 작성할 때, FROM [TABLE] WHERE 를 작성하는 경우가 많다
 물론 FULL JOIN이나 LEFT JOIN을 사용하게 된다면 두번째의 Performance가 더 높게 나와야겠지만, 다른 경우에도 PERFORMANCE가 더 높게나오는 건 CPU register 문제인걸까?
 
 ---
+
+# Hash Index vs B-tree Index
+HASH function을 통해서 주소를 찾음 vs Binary Tree를 통해서 주소를 찾음
+
+# Index Scan vs Seek
+Seek uses an index to pin-point a record. Index Scan has to scan the data or index pages to find the appropriate records.
+
+# Indexing NULL
+MySQL can perform the same optimization on col_name IS NULL that it can use for col_name = constant_value. For example, MySQL can use indexes and ranges to search for NULL with IS NULL.
+
+# Inserting big data into Database
+Should use batch insert instead of looping over every single record
+```
+INSERT INTO Table (Columns...)
+VALUES
+  (Record 1 values...),
+  (Record 2 values...),
+  ...
+  (Record n values...)
+```
+
+# Char vs Varchar
+
+* Char = fixed length, fastest to store and retrieve, but waste storage
+* Varchar = variable length string, is slower to store and retrieve, but does not waste space
+
+# Shared-Nothing
+
+Each node should be able to satisfy each update request in distributed-computing.
+
+--- 
+
