@@ -63,3 +63,5 @@
 		Final Revision + Tests
 7th March
 		Test Pass
+2nd April
+    Chapter1. 디자인 패턴
