@@ -416,3 +416,48 @@ Each node should be able to satisfy each update request in distributed-computing
 
 --- 
 
+# ElasticSearch
+
+## Inverted Index
+ES에서 document를 indexing하면 ES는 document가 어떤 shard에 속해야하는지를 아래 식을 통해 계산한다.
+```
+shard = hash(routing) % number_of_primary_shards
+```
+Routing의 default값으로 ES는 document의 id를 사용한다. \_id는 ES가 부여하는 unique identifier이며 아래와 같은 방식으로 직접 설정하거나, ES가 자동으로 정해주는 값을 사용한다.
+
+Inverted Index는 Document를 query해서 그 내용에 대한 값을 전달받는게 아닌, 미리 indexing된 내부의 내용을 조회하고 그에 맞는 document를 전달받는 방식이다.\
+예를 들어 "The brown fox jumps over the lazy dog"이라는 document가 indexing 된다면 {"The", "brown", "fox", "jumps", "over", "the", "lazy", "dog"}이라는 index의 mapping(schema)를 먼저 생성하고, 입력된 document는 이 데이터를 가지고 있다라는 map을 만드는 방식이다.\
+Text SearchEngine으로 적합한 방식이지만, indexing의 overhead로 데이터 입력 후 indexing이 완료되기까지 약 ~1초의 delay가 있어서 eventual consistency를 제공한다.
+
+```
+# create index with 3 shards
+curl -XPUT localhost:9200/so -d `
+{
+  "settings" : {
+    "index": {
+      "number_of_shards": 3,
+      "number_of_replicas": 0
+    }
+  }
+}`
+
+# index document
+curl -XPUT localhost:9200/so/question/1 -d `
+{
+  "number": 123456,
+  "title": "elastic search index sharding"
+}
+
+# query without routing
+curl -XGET localhost:9200/so/question/_search?pretty
+# 모든 shard(3개)를 탐색하고 결과를 리턴한다.
+
+# query with correct routing
+curl localhost:9200/so/question/_search?explain=true&routing=1&pretty
+# routing(id)를 1로 설정해서 그에 속하는 shard에 query를 보낸다.
+
+# query with uncorrect routing
+curl localhost:9200/so/question/_search?explain=true&routing=2&pretty
+# routing(id)를 2로 설정(!=1)해서 틀린 결과를 얻게 된다.
+```
+
