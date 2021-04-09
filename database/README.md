@@ -461,3 +461,18 @@ curl localhost:9200/so/question/_search?explain=true&routing=2&pretty
 # routing(id)를 2로 설정(!=1)해서 틀린 결과를 얻게 된다.
 ```
 
+---
+
+# Why Parquet?
+
+Apache Parquet is a self-describing data format that embeds the schema or structure within the data itself. Hence, it is optimized for query performance and minimizing IO.
+
+We often use Hadoop as a place to denormalise data from relational formats. But it becomes much easier since all the joins are worked out.
+
+In row-based, the DB has to query every single row (and parse the data) to find matches. On the other hand, in columnar data (like Parquet) DB only has to read a few byte for each record and fetch the i'th elements if match.
+
+```
+Columnar storage format인 parquet는 row-based storage format (CSV 등)에 비해 더 나은 성능을 보인다.
+Apache Parquet is built from the ground using the Google shredding and assembly algorithm.
+Main-stream data solutions like Amazon Athena, RedShift, etc are built to utilise Parquet's effective encoding.
+```
