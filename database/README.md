@@ -476,3 +476,25 @@ Columnar storage format인 parquet는 row-based storage format (CSV 등)에 비�
 Apache Parquet is built from the ground using the Google shredding and assembly algorithm.
 Main-stream data solutions like Amazon Athena, RedShift, etc are built to utilise Parquet's effective encoding.
 ```
+
+### Advantages
+
+```
+Organizing by column allows for better compression, as data is more homogenous. The space savings are very noticeable at the scale of a Hadoop cluster.
+
+I/O will be reduced as we can efficiently scan only a subset of the columns while reading the data. Better compression also reduces the bandwidth required to read the input.
+
+As we store data of the same type in each column, we can use encodings better suited to the modern processors’ pipeline by making instruction branching more predictable.
+```
+
+### model
+
+```
+required: exactly one occurrence
+
+optional: 0 or 1 occurrence
+
+repeated: 0 or more occurrences
+```
+
+
