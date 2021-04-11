@@ -73,3 +73,8 @@ Input packet data and the timing of interruption should match (state)
 
 resp is held by the primary until the replica acknowledges the req
 network error between master and worker -> appealing outside authority to decide which of (primary/backup) should survive
+
+---
+
+Raft only allows servers with up-to-date logs to become leaders, whereas Paxos allows any server to be leader provided it then updates its log to ensure it is up-to-date.
+Raft's approach is surprisingly efficient given its simplicity as, unlike Paxos, it does not require log entries to be exchanged during leader election. 
