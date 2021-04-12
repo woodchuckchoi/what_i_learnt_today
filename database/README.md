@@ -609,3 +609,42 @@ A, B 해쉬 함수를 준비한다.
 key가 입력되면 A, B 해쉬 함수를 통과한 값에 마킹을 한다.
 어떤 키가 있는지 확인하기 위해서 A, B 해쉬 함수를 통과시켰을 때, 두 비트 모두 마킹이 되어있다면 그 키는 Maybe 존재할 수도 있다.
 ```
+
+---
+
+# Raft shortened
+
+```
+Node는 세 가지 state를 갖는다. [Follower, Candidate, Leader]
+처음 시작할 때 node 는 모두 follower 이다.
+node 는 leader 로 부터 heartbeat 을 주기적으로 받는데,
+이때 각 노드는 election timeout (follower 가 candidate 가 되기까지 걸리는 시간, 300ms 내)을 리셋한다.
+
+각 노드가 election timeout 이전에 이 Vote 요청을 받으면 다시 election timeout 을 초기화 하고
+먼저 요청이 온 노드에 Vote 한다. (요청을 받은 노드의 로그가 candidate보다 앞서있는 경우 Vote하지 않는다.)
+
+그리고 Candidate 노드가 과반 이상의 Vote 를 받으면 이 노드가 Leader 노드가 된다.
+이제 이 leader 는  election timeout 을 초기화 시키는 heartbeat timeout 을 다른 노드에 보낸다.
+
+이렇게 선출된 노드는 모든 의사 결정권을 가지며 Client 와 통신하게 된다.
+그리고 이 노드에 문제가 생겨 heartbit timeout 이 오지 않으면 위 동작을 반복해 새로운 리더를 뽑는다.
+
+
+Log Replication
+
+일단 leader node  가 Client 로 부터 command 를 받으면 그것을 바로 수행하지 않고,
+그 command 를 log 에 적는다.
+그리고 이 변경 사항을 다음 heart bit 때 다른 node 들에게 그 command 를 날려준다.
+그럼 다른 node 들도 그 command 를 받고 log 에 적은 후에 log 를 적었다고 node A 에게 응답을 준다.
+그럼 node A 가 응답들을 보고 과반수 이상이 command 를 log 에 적었다는 것을 확인하면,
+node A 는 log 에 적어놓은 그 command 를 실제로 수행 한다. (commit)
+그리고 client 에게 응답을 준다.
+그 다음 다른 node 들에게 자신(leader) commit 했다고 알려준다.
+그럼 다른 node 들도 log 에 적어놓은 comand 를 commit 하게 된다.
+
+
+client 가 처음에 cluster 에 접근하게 되거나 leader 가 crash 되었거나 하면, 여러 node 중에 아무 node 에나 접근하게 된다. 이 때 node 는 이 client 를 무조건 reject 하고 leader 정보를 준다. 그럼 client 가 이 정보를 가지고 다시 leader 로 접근하게 된다.
+
+원래 node 가 leader node 로 부터 AppendEntries message 를 주기적으로 받는데, 이 녀석에 leader 의 network 주소도 같이 있어서 redirect 시켜주는 것은 어렵지 않다.
+
+```
