@@ -497,4 +497,115 @@ optional: 0 or 1 occurrence
 repeated: 0 or more occurrences
 ```
 
+---
 
+# LSM Tree (Log-Structured Merge Tree)
+
+Key-Value 형태의 데이터를 저장할 때 좋은 성능을 보인다. (High update rates compared to retrieval rates)
+일반적으로 Key-Value 형태의 데이터를 저장할 때는 B-Tree를 많이 사용하지만, disk에 저장되는 경우 B-Tree는 많은 random-access를 발생시켜 성능이 저조해진다. (disk header가 이 블럭 저 블럭 옮겨다니며 시간을 소모함)
+하지만 LSM Tree는 write를 append only(sequential) 방식으로 처리하기 때문에, 더 나은 성능을 보인다.
+
+```
+Log-Structured Merge-tree (LSM-tree) is a disk-based data structure designed to provide
+low-cost indexing for a file experiencing a high rate of record inserts (and deletes) over an
+extended period.
+
+The algorithm has greatly reduced disk arm
+movements compared to a traditional access methods such as B-trees, and will improve costperformance in domains where disk arm costs for inserts with traditional access methods
+overwhelm storage media costs. The LSM-tree approach also generalizes to operations other
+than insert and delete. However, indexed finds requiring immediate response will lose I/O efficiency in some cases, so the LSM-tree is most useful in applications where index inserts are
+more common than finds that retrieve the entries.
+```
+
+Motivation
+```
+As systems take on responsibility for more complex activities, the
+duration and number of events that make up a single long-lived activity will increase to a point
+where there is sometimes a need to review past transactional steps in real time to remind users
+of what has been accomplished. At the same time, the total number of active events known to a
+system will increase to the point where memory-resident data structures now used to keep
+track of active logs are no longer feasible, notwithstanding the continuing decrease in memory
+cost to be expected.
+```
+
+```
+The LSM-tree uses an algorithm that defers and batches index
+changes, migrating the changes out to disk in a particularly efficient way reminiscent of merge
+sort. As we shall see in Section 5, the function of deferring index entry placement to an ultimate disk position is of fundamental importance, and in the general LSM-tree case there is a
+cascaded series of such deferred placements. 
+```
+
+Structure
+```
+An LSM-tree is composed of two or more tree-like component data structures.
+C0 tree resides on the memory, whilst C1 tree sits on the disk. (Frequently accessed data in C1 will also remain in memory buffers)
+
+As each new History row is generated, a log record to recover this insert is first written to the
+sequential log file in the usual way. The index entry for the History row is then inserted into
+the memory resident C0 tree, after which it will in time migrate out to the C1 tree on disk; any
+search for an index entry will look first in C0 and then in C1. There is a certain amount of latency (delay) before entries in the C0 tree migrate out to the disk resident C1 tree, implying a
+need for recovery of index entries that don't get out to disk prior to a crash. 
+
+... whenever the C0 tree as a result of an insert reaches a threshold size near the maximum allotted, an ongoing rolling merge process serves to delete some contiguous segment of entries from the C0 tree and merge it into the C1
+tree on disk.
+
+The C1 tree has a comparable directory structure to a B-tree, but is optimized for sequential
+disk access, with nodes 100% full, and sequences of single-page nodes on each level below the
+root packed together in contiguous multi-page disk blocks for efficient arm use.
+
+Multi-page block I/O is used during the rolling
+merge and for long range retrievals, while single-page nodes are used for matching indexed
+finds to minimize buffering requirements
+
+
+```
+
+---
+
+# Shortened LSM Tree
+
+먼저, LSM Tree에는 총 0~L까지의 레벨이 존재합니다. 0번 레벨은 메모리에 위치하고, 1~L번 레벨은 디스크에 존재합니다. 0번 레벨에 위치한 buffer는 데이터가 저장되며, buffer의 크기가 가득 차면 그 때부터 한 칸씩 아래 레벨로 flush됩니다.
+
+Buffer에 key와 value를 모두 저장할 수도 있고, value는 다른 곳에 저장하고 key와 value에 대한 포인터만 저장하는 방법도 사용할 수 있습니다. (key-value separation)
+
+또, Size ratio T가 존재하여 각 레벨별로 사이즈가 T배씩 커집니다. 만약 T = 3이고, 0번 레벨에 최대 2개의 key-value pair가 존재할 수 있다면, 1번 레벨에는 최대 6개, 2번 레벨에는 최대 18개, …의 key-value pair들이 존재할 수 있습니다.
+
+각각의 레벨에는 run이라 불리는 객체가 있습니다. 하나의 레벨에 여러 개의 run을 유지할 수도 있고, 하나의 run만을 유지할 수도 있습니다. 여러 개의 run을 유지하는 경우 Tiered LSM Tree, 단 하나의 run만을 유지하는 경우 Leveled LSM Tree라 하는데 여기서는 Leveled LSM Tree만을 살펴보도록 하겠습니다. (각 run 내부에는 key들이 정렬된 상태로 유지되어 있습니다.)
+
+한 레벨의 run이 가득 찰 때마다, 해당 데이터를 아래의 레벨로 내려주는데, 이 때 run 내부에서 정렬된 상태를 유지하여야 하기 때문에 원래 아래 레벨에서 가지고 있던 데이터들과 합쳐 다시 한 번 정렬을 하게 됩니다. 이 과정에서 merge sort 방식이 들어가기 때문에, LSM Tree라는 이름이 붙게 되었습니다.
+
+이제 key를 이용하여 저장된 데이터를 찾는 방법에 대해 알아보겠습니다. 레벨이 높아질수록 run의 크기가 커지기 때문에, 하나의 run이 disk 내의 여러 page에 거쳐있는 경우가 발생하게 됩니다.
+
+따라서, 먼저 key가 주어졌을 때 이 key가 어떤 범위에 속해있는지(즉, 어떤 page에 들어있을 가능성이 있는지)를 판단할 수 있어야 합니다. 이를 위해 메모리에 fence pointer를 유지하여 각 page의 위치와, 해당 page에 저장된 key의 min/max값을 저장합니다. 이제 하나의 key에 대한 lookup 요청이 왔을 때, fence pointer를 binary search하여 page를 찾아낸 뒤, 해당 page를 읽어 실제로 key가 들어있는지를 확인하면 됩니다.
+
+추가적으로, 각 레벨에 bloom filter를 유지하기도 합니다.
+
+먼저 lookup에 대한 시간 복잡도를 확인해보겠습니다. 하나의 lookup에 대해, worst한 경우는 실제 key가 저장되어있지 않은데 lookup을 하게 되는 경우입니다. 이 경우, 모든 레벨을 다 찾아보아야 하므로 I/O는 최대 O(L)번 발생하게 됩니다.
+
+다음은 write 연산입니다. Write의 경우 맨 처음에 메모리에 있는 buffer에 쓰이기 때문에 추가적인 I/O를 발생시키지 않지만, 이후 buffer가 가득 차며 한 레벨씩 아래로 내려갈 때 계속해서 I/O가 발생하기 때문에, 해당 I/O를 계산해야 합니다.
+
+이에 대한 평균적인 update 비용을 Amortized하게 계산해볼 수 있습니다. 결국 모든 key들은 가장 아래의 레벨로 내려가게 되는데, 이 때까지 해당 key에 의한 update가 몇 번 발생했는지를 따져보면 쉽게 유추할 수 있습니다.
+
+먼저 한 레벨이 내려갈 때마다 해당 key를 write를 해주어야 한다는 것을 알 수 있습니다.
+
+둘째로 해당 level에 존재할 때, 윗 레벨이 가득 차서 compaction이 발생하면 정렬된 상태를 유지하기 위해 merge를 해준 뒤 데이터를 다시 저장해주어야 하기 때문에 추가적인 I/O가 발생합니다. 각 레벨별로 크기는 T배 차이가 나므로, 한 레벨이 존재할 때 compaction은 최대 T번 발생하게 됩니다.
+
+따라서 최종적으로, update 비용은 O(TL/B)임을 알 수 있습니다. 여기서 B는 하나의 단위에 저장되는 key의 개수입니다.
+
+보통 B는 T와 L에 비해 굉장히 큰 값이므로, write의 경우 그리 큰 write amplification을 발생하지 않는 것을 알 수 있습니다. 하지만, read의 경우 성능이 크게 저하될 수 있습니다.
+
+---
+
+# Bloom Filter
+
+Bloom Filter 는 집합내에 특정 원소가 존재하는지 확인하는데 사용되는 자료구조입니다.
+이러한 “membership test” 용도로 사용되는 자료구조들은 Bloom Filter 외에도 다양합니다. 대표적이고 널리 알려진 것으로는 Balanced Binary Search Tree (AVL, red-black tree 등) 과 해시 테이블등이 있습니다. 이 자료구조들의 특징은 100% 정확도로 membership test 를 수행할 수 있다는 것입니다.
+Bloom Filter 는 이러한 정확도를 희생해서 메모리 사이즈를 최소화하는 것을 목표로 합니다.
+
+간단한 예
+```
+byte[128]의 비트맵을 만든다.
+A, B 해쉬 함수를 준비한다.
+key가 입력되면 A, B 해쉬 함수를 통과한 값에 마킹을 한다.
+어떤 키가 있는지 확인하기 위해서 A, B 해쉬 함수를 통과시켰을 때, 두 비트 모두 마킹이 되어있다면 그 키는 Maybe 존재할 수도 있다.
+```
