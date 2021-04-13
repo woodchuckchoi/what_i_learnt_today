@@ -610,6 +610,16 @@ key가 입력되면 A, B 해쉬 함수를 통과한 값에 마킹을 한다.
 어떤 키가 있는지 확인하기 위해서 A, B 해쉬 함수를 통과시켰을 때, 두 비트 모두 마킹이 되어있다면 그 키는 Maybe 존재할 수도 있다.
 ```
 
+The bigger the size, the less false positives.
+
+Size를 정하기 위해서
+```
+1. Choose a ballpark value for n (num of elements that have been inserted)
+2. Choose a value for m (bits in filter)
+3. Calculate the optimal value of k (num of hash functions)
+4. Calculate the false positive error rate (1 - e ^ (-kn/m)) ^ k using previously defined values, if unacceptable, modify m, k.
+```
+
 ---
 
 # Raft shortened
