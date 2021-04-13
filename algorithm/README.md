@@ -375,3 +375,42 @@ O(n) = dn (d는 가장 큰 수의 자릿수), 하지만 n개의 storage를 차�
 이 수를 순서대로 정리한 후, 10의 자릿수에 대해 Radix Sort한다. 만약 n자릿수의 숫자가 없다면 0으로 처리한다.
 
 ---
+
+# Proof of Interval Schedule (Greedy)
+
+## Why does Finish-first work?
+Finish-first is greedy, meaning optimal solutions might be equal or better than the greedy solution.\
+So, by proving the greedy solution is as good as any optimal solution, we can safely say the G solution solves the problem optimally.
+
+We prove this by using Exchange argument.
+
+1. Greedy won't create conflicts.
+
+```
+G = {g1, ..., gm}
+O = {b1, ..., bn}
+
+observation: n >= m
+goal: n == m
+
+let k be the first different interval:
+
+G = {g1, ..., gk, ..., gm}
+O = {g1, ..., bk, ..., bn}
+
+gk (finish time) is the same or earlier than bk by definition
+
+therefore we can sub gk and bk
+
+O = {g1, ..., gk, ..., bn}
+
+repeat the steps above till m
+
+O = {g1, ..., gk, ..., gm, ..., bn}
+
+O eventually includes all G elements.
+then by definition, O cannot have more elements than G, as G excludes all the other elements (finish earlier, exclude all conflicts)
+
+hence O = {g1, ..., gm} == G
+therefore G is an optimal solution
+```
