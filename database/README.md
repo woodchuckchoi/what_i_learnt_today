@@ -658,3 +658,89 @@ client 가 처음에 cluster 에 접근하게 되거나 leader 가 crash 되었�
 원래 node 가 leader node 로 부터 AppendEntries message 를 주기적으로 받는데, 이 녀석에 leader 의 network 주소도 같이 있어서 redirect 시켜주는 것은 어렵지 않다.
 
 ```
+
+---
+
+# LSM Tree basics
+## Structure
+1. Memtable (memory)
+2. SortedString Tables (storage)
+
+## SSTables (Sorted String Tables)
+```
+Simplest and fastest way to write is linked-list. Just append at the end. O(1)
+But to read, it takes O(n)
+
+What if the log is sorted?
+Then it can be access O(log n) using binary search
+```
+
+## Memtable
+```
+Instead of writing data directly to database, accumulate the data in memory and flush it when the buffer is full.
+Less I/O calls (faster) at the price of additional memory
+```
+
+## Compaction
+```
+Worst case read time from disk: O(n log n) # n is the number of SStables
+As the number of SSTables increases, the worse case read time increases.
+Also, there may be multiple duplicate keys in multiple SSTables, so a compactor that runs in the background merges SSTables by removing redundant & deleted keys and creating compacted/merged SSTables
+```
+
+## Need of Bloom Filters
+```
+To avoid redundancy between compactions, implement Bloom filter
+```
+
+---
+
+# Algorithms behind database
+
+## Why log structured key-value storage?
+* fast writes
+
+```
+memory: fast, expensive, byte-addressable
+storage: slow, cheap, block-addressable
+
+## Historically...
+Databases would write entries in a block in memory, then write the block onto the storage
+But, by doing so, there is going to be a lot more work to do. (eg indexing in B-tree)
+
+## Now (Log-structured writes)
+Databases buffer writes in memory. When it's full, persist it in storage.
+
+fast writes, fast reads, massive data
+
+-> LSM tree (used by modern databases)
+buffer full -> sort / flush in storage -> when the a run gets too long, LSM tree sort-merges similarly sized runs and it organises them into levels of exponentially increasing capacities.
+
+simplest way to look up is to first find if the element is in buffer, if not, look for the element using binary search from the first (smallest) run to the larger ones. -> But this will require a lot of I/Os to storage for each read.
+
+So modern databases use something called a fence pointer to keep the min/max key in each block of every run.
+Then we only have to do one binary search in memory, and one I/O in storage.
+In addition to the fence pointers, modern systems also typically have a set of Bloom filters (one for each run) to see if the chosen run MIGHT have the key.
+
+The critical point of this system is the merging frequency. The more merging, the higher the cost of a write is going to be, but at the same time, it give a better read performance.
+
+There are two production ways to sort out this issue, tiering and leveling.
+
+Tiering is more write-optimized (default in Cassandra), on the other hand, leveling is more read-optimized (default in RocksDB).
+
+In tiering, only when the previous level is full, the runs are sorted / flushed onto the next level.
+In leveling, as soon as a run comes in, db merges, if the merged run is big enough flush.
+
+As the runs are not merged in tiering, the maximum number of runs is R, on the other hand, in leveling only 1.
+
+The problem is as the db grows in size, the graph is pushed upwards, which results in worse read-write performances.
+
+There are 3 papers that show better curves than the original LSM tree.
+
+1. Monkey (Monkey: Optimal Navigable Key-Value Store)
+As the data volume increases, increase the memory size and assign more bits to bloom filters on lower levels(?)
+
+2. Dostoevsky
+Lazy Leveling (mixed-optimized): tiering for smaller levels, leveling for the largest level 
+
+```
