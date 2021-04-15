@@ -721,3 +721,29 @@ Context switching between two threads of the same process is faster than between
 
 ---
 
+# File Storage vs Block Storage vs Object Storage
+
+```
+File storage organizes and represents data as a hierarchy of files in folders; block storage chunks data into arbitrarily organized, evenly sized volumes; and object storage manages data and links it to associated metadata.
+```
+
+## File Storage
+* Data is stored as a single piece of information inside a folder.
+* Computer needs to know the path to the file in order to access it.
+* Data stored in files is organized and retrieved using a limited amount of metadata that tells the computer exactly where the file itself is kept.
+* File storage has broad capabilities and can store just about anything. It’s great for storing an array of complex files and is fairly fast for users to navigate.
+* File-based storage systems must scale out by adding more systems, rather than scale up by adding more capacity.
+
+## Block Storage
+* Block storage chops data into blocks and store them as separate pieces.
+* Each block of data is given a unique identifier, which allows a storage system to place the smaller pieces of data wherever is most convenient.
+* Block storage is often configured to decouple the data from the user’s environment and spread it across multiple environments that can better serve the data.
+* Block storage doesn’t rely on a single path to data—like file storage does—it can be retrieved quickly.
+* When data is requested, the underlying storage software reassembles the blocks of data from these environments and presents them back to the user.
+
+## Object Storage
+* Object storage is a flat structure in which files are broken into pieces and spread out among hardware.
+* data is broken into discrete units called objects and is kept in a single repository, instead of being kept as files in folders or as blocks on servers.
+* To retrieve the data, the storage operating system uses the metadata and identifiers, which distributes the load better and lets administrators apply policies that perform more robust searches.
+* Object storage requires a simple HTTP API.
+* Objects can’t be modified—you have to write the object completely at once.
