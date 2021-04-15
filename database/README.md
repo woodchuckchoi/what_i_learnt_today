@@ -747,4 +747,14 @@ Lazy Leveling (mixed-optimized): tiering for smaller levels, leveling for the la
 
 ---
 
+# Set
+* Set is a collection of objects need not to be in any particular order.
+## Rule(s)
+```
+Elements should not be repeated.
+```
 
+```
+Before data enters set, the data first goes through hash function(s).
+In the same way bloom filters tell if duplicate keys exist, if there is no match, the input data enter the data structure.(map, array, bitmap, anything)
+```

@@ -414,3 +414,18 @@ then by definition, O cannot have more elements than G, as G excludes all the ot
 hence O = {g1, ..., gm} == G
 therefore G is an optimal solution
 ```
+
+---
+
+# Red Black Tree
+```
+A red-black tree is a kind of self-balancing binary search tree where each node has an extra bit, and that bit is often interpreted as the colour (red or black). These colours are used to ensure that the tree remains balanced during insertions and deletions.
+```
+
+## Rules
+1. Every node has a colour either red or black.
+2. The root of the tree is always black.
+3. There are no two adjacent red nodes (A red node cannot have a red parent or red child).
+4. Every path from a node (including root) to any of its descendants NULL nodes has the same number of black nodes.
+
+
