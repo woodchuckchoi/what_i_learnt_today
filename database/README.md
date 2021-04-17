@@ -758,3 +758,107 @@ Elements should not be repeated.
 Before data enters set, the data first goes through hash function(s).
 In the same way bloom filters tell if duplicate keys exist, if there is no match, the input data enter the data structure.(map, array, bitmap, anything)
 ```
+
+---
+
+# Column-family DB
+
+## Why?
+```
+There are 3 basic assumptions that make a column oriented database better for analytical workloads:
+
+1. The slowest thing to do in a database is read & write from disk
+2. Analytical workloads scan & write large amounts of data in a table versus OLTP which tends to read and write very small transactions 1 at a time
+3. Analytical workloads tend to have a lot of repeating values for each row (dimensions such as department name or product)
+
+Assuming the above, it makes more sense to sotre data in columns rather than rows.
+What this basically does is let you greatly compress the repeating values in the columns, hence enhances the IO speed and the read performance.
+
+The trade off here is that it takes a very long time to insert individual records into a table and even longer for updates. This is because you have to split the record into columns and then compress it into the existing table structure. Column oriented databases work best for loading data when performing a "bulk" load.
+```
+
+## Example
+* In column-family db, each column has a unique identifier and properties (k-v), such as below.
+```
+{
+  "USER":
+  {
+    "codinghorror": { "name": "Jeff", "blog": "http://codinghorror.com/" },
+    "jonskeet": { "name": "Jon Skeet", "email": "jskeet@site.com" }
+  },
+  "BOOKMARK":
+  {
+    "codinghorror":
+    {
+      "http://codinghorror.com/": "My awesome blog",
+      "http://unicorns.com/": "Weaponized ponies"
+    },
+    "jonskeet":
+    {
+      "http://msmvps.com/blogs/jon_skeet/": "Coding Blog",
+      "http://manning.com/skeet2/": "C# in Depth, Second Edition"
+    }
+  }
+}
+```
+
+---
+
+# RocksDB
+RocksDB is a persistent key-value store implementation library especially suited for storing data on flash drives.\
+It has a Log-Structured-Merge-Database (LSM) design with flexible tradeoffs between Write-Amplification-Factor (WAF), Read-Amplification-Factor (RAF) and Space-Amplification-Factor (SAF).
+
+## BlockBasedTable Format
+```
+BlockBasedTable is the default SST table format in RocksDB.
+
+<beginning_of_file>
+[data block 1]
+[data block 2]
+...
+[data block N]
+[meta block 1: filter block]                  (see section: "filter" Meta Block)
+[meta block 2: index block]
+[meta block 3: compression dictionary block]  (see section: "compression dictionary" Meta Block)
+[meta block 4: range deletion block]          (see section: "range deletion" Meta Block)
+[meta block 5: stats block]                   (see section: "properties" Meta Block)
+...
+[meta block K: future extended block]  (we may add more meta blocks in the future)
+[metaindex block]
+[Footer]                               (fixed size; starts at file_size - sizeof(Footer))
+<end_of_file>
+
+---
+
+The file contains internal pointers, called BLockHandles, containing the following information:
+offset:         varint64
+size:           varint64
+
+---
+
+1. The sequence of key/value pairs in the file are stored in sorted order and partitioned into a sequence of data blocks. These blocks come one after another at the beginning of the file.
+
+2. After the data blocks, we store a bunch of meta blocks. The supported meta block types are described below.
+
+3. A metaindex block contains one entry for every meta block, where the key is the name of the meta block and the value is a BlockHandle pointing to that meta block.
+
+4. At the very end of the file is a fixed length footer that contains the BlockHandle of the metaindex and index blocks as well as a magic number.
+
+metaindex_handle: char[p];      // Block handle for metaindex
+index_handle:     char[q];      // Block handle for index
+padding:          char[40-p-q]; // zeroed bytes to make fixed length
+                                // (40==2*BlockHandle::kMaxEncodedLength)
+magic:            fixed64;      // 0x88e241b785f4cff7 (little-endian)
+
+* IndexBlock
+Index blocks are used to look up a data block containing the range including a lookup key. It is a binary search data structure.
+
+* Filter Meta Block
+  * Full filter - In this filter there is one filter block for the entire SST file.
+  * Partitioned Filter - The full filter is partitioned into multiple blocks. A top-level index block is added to map keys to corresponding filter partitions.
+
+* Range Deletion Meta Block
+This metablock contains the range deletions in the file's key-range and seqnum-range. Range deletions cannot be inlined in the data blocks together with point data since the ranges would then not be binary searchable.
+
+```
+
