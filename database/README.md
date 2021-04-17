@@ -861,4 +861,50 @@ Index blocks are used to look up a data block containing the range including a l
 This metablock contains the range deletions in the file's key-range and seqnum-range. Range deletions cannot be inlined in the data blocks together with point data since the ranges would then not be binary searchable.
 
 ```
+---
 
+# Redis
+In-memory data structure store used as database || cache || message broker\
+Redis provides data structures such as strings, hashes, lists, sets, sorted sets, etc.
+
+```
+To achieve top performance, Redis works with an in-memory dataset. Depending on your use case, you can persist your data either by periodically dumping the dataset to disk or by appending each command to a disk-based log.
+
+
+```
+
+## Replication
+
+1. When a master and a replica instances are well-connected, the master keeps the replica updated by sending a stream of commands to the replica, in order to replicate the effects on the dataset happening in the master side due to: client writes, keys expired or evicted, any other action changing the master dataset.
+2. When the link between the master and the replica breaks, for network issues or because a timeout is sensed in the master or the replica, the replica reconnects and attempts to proceed with a partial resynchronization: it means that it will try to just obtain the part of the stream of commands it missed during the disconnection.
+3. When a partial resynchronization is not possible, the replica will ask for a full resynchronization. This will involve a more complex process in which the master needs to create a snapshot of all its data, send it to the replica, and then continue sending the stream of commands as the dataset changes.
+
+Every Redis master has a replication ID: it is a large pseudo random string that marks a given story of the dataset. Each master also takes an offset that increments for every byte of replication stream that it is produced to be sent to replicas, in order to update the state of the replicas with the new changes modifying the dataset.
+
+## How Redis Replicas deal with expire on keys
+
+Redis does not have a synchronised clock over all replicas, since it would result in race conditions and diverging data sets.\
+Redis uses instead:
+
+1. Replicas don't expire keys, instead they wait for masters to expire the keys. When a master expires a key (or evict it because of LRU), it synthesizes a DEL command which is transmitted to all the replicas.
+
+2. However because of master-driven expire, sometimes replicas may still have in memory keys that are already logically expired, since the master was not able to provide the DEL command in time. In order to deal with that the replica uses its logical clock in order to report that a key does not exist only for read operations that don't violate the consistency of the data set (as new commands from the master will arrive). In this way replicas avoid reporting logically expired keys are still existing. In practical terms, an HTML fragments cache that uses replicas to scale will avoid returning items that are already older than the desired time to live.
+
+3. During Lua scripts executions no key expiries are performed. As a Lua script runs, conceptually the time in the master is frozen, so that a given key will either exist or not for all the time the script runs. This prevents keys expiring in the middle of a script, and is needed in order to send the same script to the replica in a way that is guaranteed to have the same effects in the data set.
+
+## Redis Sentinel
+Redis Sentinel provides high availability for Redis. In practical terms this means that using Sentinel you can create a Redis deployment that resists without human intervention certain kinds of failures.
+
+Redis Sentinel watches Redis master.\
+When the master fails (or seems to have failed), sentinels vote to check if the master has indeed failed.\
+For instance, if sentinel1 thinks master has failed, then it sends a vote to the other sentinels to check if they agree.\
+The status of the master depends on the consensus (majority of the sentinels), hence the number of sentinels should always be odd.
+
+## Simple comparison between sentinel and cluster
+```
+Sentinel is a kind of hot standby solution where the slaves are kept replicated and ready to be promoted at any time. However, it won't support any multi-node writes. Slaves can be configured for read operations. It's NOT true that Sentinel won't provide HA, it has all the features of a typical active-passive cluster ( though that's not the right term to use here ).
+
+Redis cluster is more or less a distributed solution, working on top of shards. Each chunk of data is being distributed among masters and slaves nodes. A minimum replication factor of 2 ensures that you have two active shards available across master and slaves. If you know the sharding in Mongo or Elasticsearch, it will be easy to catch up.
+```
+
+---
