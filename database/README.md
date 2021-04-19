@@ -908,3 +908,53 @@ Redis cluster is more or less a distributed solution, working on top of shards. 
 ```
 
 ---
+
+# Multi-master vs Master-slave
+
+## Multi-master
+```
+Multi Master is similar to the Master/Slave topology, with the difference that both nodes are both master and replica at the same time. This means there will be circular replication between the nodes. It is advisable to configure both servers to log the transactions from the replication thread (log-slave-updates), but ignore its own already replicated transactions (set replicate-same-server-id to 0) to prevent infinite loops in the replication. This needs to be configured even with GTID enabled.
+
+Multi master topologies can be configured to have either a so called active/passive setup, where only one node is writable and the other node is a hot standby. Then there is the active/active setup, where both nodes are writable.
+
+Caution is needed with active/active as both masters are writing at the same time and this could lead to conflicts, if the same dataset is being written at the same time on both nodes. Generally this is handled on application level where the application is connecting to different schemas on the two hosts to prevent conflicts. Also as two nodes are writing data and replicating data at the same time they are limited in write capacity and the replication stream could become a bottleneck.
+```
+
+## Master-slave
+```
+Consistency is not too difficult because each piece of data has exactly one owning master. But then what do you do if you can't see that master, some kind of postponed work is needed.
+```
+
+## Summary
+```
+1. Master-Slave Replication
+
+* Pros
+
+Analytic applications can read from the slave(s) without impacting the master
+Backups of the entire database of relatively no impact on the master
+Slaves can be taken offline and sync back to the master without any downtime
+
+* Cons
+
+In the instance of a failure, a slave has to be promoted to master to take over its place. No automatic failover
+Downtime and possibly loss of data when a master fails
+All writes also have to be made to the master in a master-slave design
+Each additional slave add some load to the master since the binary log have to be read and data copied to each slave
+Application might have to be restarted
+
+---
+
+2. Master-Master Replication
+
+* Pros
+
+Applications can read from both masters
+Distributes write load across both master nodes
+Simple, automatic and quick failover
+
+* Cons
+
+Loosely consistent
+Not as simple as master-slave to configure and deploy
+```
