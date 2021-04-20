@@ -958,3 +958,35 @@ Simple, automatic and quick failover
 Loosely consistent
 Not as simple as master-slave to configure and deploy
 ```
+
+---
+
+# SILK
+
+## Intro
+```
+LSM claims to be effective for write-intensive workloads, but is it really true?
+Actually, LSM implementations might show latency spikes that go up to ~1 second, which is much higher than non-LSM based implementations.
+```
+
+## SILK
+```
+Reduces the latency spikes without negative side-effects.
+```
+
+## Why spikes?
+```
+In LSM, there are 3 types of internal operations as well as client ops:
+  1. Flushing (Memtable -> SSTable)
+  2. L0 -> L1 Compaction
+  3. Higher-level Compactions
+
+Flushing: Incoming writes are written in memory (buffer), when the buffer is full, it gets flushed into the disk.
+L0 -> L1 Compaction: Merges one level-0 SSTable with the existing level-1 SSTables, makes space for an L0 SSTable.
+Higher-level Compaction: is GC in LSM, discards duplicates, delete values. Less urgent than L0 -> L1 compactions. Can have multiple of them in parallel.
+```
+
+## HOW
+```
+
+```
