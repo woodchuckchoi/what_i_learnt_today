@@ -133,3 +133,25 @@ Timing is critical in Raft to elect and maintain a steady leader over time, in o
 Typical number for these values can be 0.5 ms to 20 ms for broadcastTime, which implies that the programmer sets the electionTimeout somewhere between 10 ms and 500 ms. It can take several weeks or months between single server failures, which means the values are sufficient for a stable cluster.
 
 ---
+
+# How to do distributed locking
+
+```
+Redlock(redis-lock)
+Redis is a good fit if the situation is 
+1. share some transient, approximate, fast-changing data between servers
+2. it's not a big deal if you occasionally lose the data for some reason
+For example, a good use case is maintaining request counters per IP address (for rate limiting purposes) and sets of distinct IP addresses per user ID (for abuse detection).
+```
+
+```
+The purpose of a lock is to ensure that amongst several nodes that might try to do the same piece of work, only one actually does it.
+At higher level, there are two reasons one might want a lock in a distributed application: for efficiency and correctness
+```
+
+```
+Making the lock safe with fencing
+The fix for this problem is actually pretty simple: you need to include a fencing token with every write request to the storage service. In this context, a fencing token is simply a number that increases (e.g. incremented by the lock service) every time a client acquires the lock.
+```
+
+---
