@@ -961,6 +961,16 @@ Not as simple as master-slave to configure and deploy
 
 ---
 
+# Column-family vs Document
+
+```
+In "insert", to use rdbms words, Document-based is more consistent and straight foward. Note than cassandra let you achieve consistency with the notion of quorum, but that won't apply to all column-based systems and that reduce availibility. On a write-once / read-often heavy system, go for MongoDB. Also consider it if you always plan to read the whole structure of the object. A document-based system is designed to return the whole document when you get it, and is not very strong at returning parts of the whole row.
+
+The column-based systems like Cassandra are way better than document-based in "updates". You can change the value of a column without even reading the row that contains it. The write doesn't actualy need to be done on the same server, a row may be contained on multiple files of multiple server. On huge fast-evolving data system, go for Cassandra. Also consider it if you plan to have very big chunk of data per key, and won't need to load all of them at each query. In "select", Cassandra let you load only the column you need.
+```
+
+---
+
 # Database
 
 ## Simple DB
