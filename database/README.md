@@ -961,6 +961,83 @@ Not as simple as master-slave to configure and deploy
 
 ---
 
+# Database
+
+## Simple DB
+```
+#!/bin/bash
+
+db_set() {
+  echo "$1,$2" >> database
+}
+
+db_get() {
+  grep "^$1," database | sed -e "s/^$1,//" | tail -n 1
+}
+```
+db_set을 호출할 때 마다 파일의 끝에 추가하므로 키를 갱신해도 값의 예전 버젼을 덮어쓰지 않는다.
+
+---
+
+많은 데이터베이스는 내부적으로 추가 전용 (append-only) 데이터 파일인 로그를 사용한다.\
+반면에 db_get은 데이터베이스에 많은 레코드가 있으면 성능이 좋지 않다.\
+매번 키를 찾을 때마다 db_get은 key가 있는지 확인하기 위해서 전체 데이터베이스를 fullscan 해야한다. O(n)\
+이렇듯 DB에서 특정 key를 효율적으로 찾기 위해서 필요한 데이터구조가 index다.
+
+## Index
+index는 기본 데이터에서 파생된 추가 구조로 질의 성능에 영향을 준다.\
+추가적인 구조의 유지보수는 쓰기 과정에서 오버헤드가 발생한다.\
+쓰기의 경우 append보다는 항상 성능이 떨어진다.\
+이것이 DB에서 중요한 trade-off다.\
+indexing을 사용하면 읽기 속도가 향상된다. 하지만 모든 indexing은 쓰기 속도를 떨어뜨린다.
+
+## Index in k-v
+가장 간단한 indexing 방법은 바이트 오프셋이다.\
+특정 k-v의 값이 시작되는 offset을 memory / disk에 저장해두고, 이를 빠르게 접근하는 방식이다.\
+
+```
+key | value | byte-offset
+123 | test  | 0
+123 | oi    | 8 123,"oi"\n (append)
+456 | hi    | ...
+
+해당 segment가 다 찼다면, 해당 segment를 디스크에 flush하고 새로운 segement에 append-only를 시작한다.
+또한 flush한 segment에는 compaction을 수행한다.
+
+# segment
+123: test | 123: oi | 456: hi | 789: something | ... | 123: haha | 456: lol
+
+# compacted sgement
+123: haha | 456: lol | 789: something
+
+Compaction은 세그먼트를 더 작게 만들기 때문에, 컴팩션을 수행할 때 동시에 여러 세그먼트를 병합할 수 있다.
+또한 compaction과 병합은 background에서 수행되며, 수행되는 동안에는 이전 (컴팩션&병합 되지 않은) 세그먼트를 사용해 읽기와 쓰기를 정상적으로 계속 수행한다.
+새로 병합한 세그먼트로 전환한 후에는 세그먼트 파일을 삭제한다.
+
+# etc
+k-v를 삭제하기 위해서는 데이터 파일에 특수한 삭제 레코드 (tombstone)을 추가한다.
+Segment가 병합될 때, tombstone은 병합 과정에서 삭제된 키의 이전 값을 무시하게 한다.
+Tombstoning(delete)에 사용되는 시간은 아래에 따라 결정된다.
+(i) the file picking policy followed by the compaction routine.
+(ii) the rate of ingestion of entries to the database.
+(iii) the size ratio of the LSM-tree, and (iv) the number of levels in the tree.
+
+DB가 재시작되면 인메모리 해시 맵은 손실된다. 모든 세그먼트를 읽고 각 세그먼트의 해시 맵을 복원할 수 있지만, resource가 많이 소요되므로, snapshot을 디스크에 저장해서 복구 속도를 높인다.
+
+DB가 log를 추가하는 도중에 죽는다면, 체크섬을 포함해서 로그의 손상된 부분을 탐지할 수 있다.
+
+쓰기를 strictly sequential하게 로그에 추가할 때 일반적인 구현 방법은 하나의 쓰기 스레드만 사용하는 것이다.
+
+디스크에 해시 맵을 유지할 수 있지만, 메모리와는 다르게 좋은 성능을 기대하기 어렵다.
+무작위 접근 IO가 많이 필요하며, 디스크가 가득 찼을 때 확장하는 비용이 비싸며, 해시 충돌을 위한 로직 구현이 필요하다.
+
+해시 테이블은 범위 스캔에 효과적이지 않다.
+```
+
+# SS Table & LSM Tree
+
+---
+
 # SILK
 
 ## Intro
