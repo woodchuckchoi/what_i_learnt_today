@@ -1045,6 +1045,14 @@ DB가 log를 추가하는 도중에 죽는다면, 체크섬을 포함해서 로�
 ```
 
 # SS Table & LSM Tree
+위의 해시테이블 indexing 방식을 발전시켜서 key로 정렬된 문자열 테이블을 SSTable(Sorted String Table)이라고 한다.\
+이름 그대로 key가 순서대로 정렬되어 있을 뿐만 아니라, 각 key는 세그먼트 파일 내에서 한번만 나타나야한다. (Compaction은 이미 이를 보장한다.)\
+SS Table은 해시테이블을 사용하는 Log Segment와 비교했을 때, 아래의 장점이 있다.
+
+1. Segment 병합을 Merge sort를 사용해서 할 수 있다. 여러 입력 Segment에 동일한 키가 있다면 가장 최신 Segment의 값을 유지하고 오래된 Segment의 값은 버린다.
+2. 파일의 특정 Key를 찾기위해서 모든 키의 index를 유지할 필요가 없다. 이전과 이후의 Key index를 안다면  수 kb는 빠르게 full scan 할 수 있다. k-v가 고정 크기라면 binary search를 통해서 빠르게 키를 검색할 수도 있다.
+3. 여러 k-v 레코드를 블록으로 그룹화하고 디스크에 압축 저장할 수 있으므로 IO의 사용을 줄일 수 있다.
+
 
 ---
 
