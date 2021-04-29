@@ -424,8 +424,18 @@ A red-black tree is a kind of self-balancing binary search tree where each node 
 
 ## Rules
 1. Every node has a colour either red or black.
-2. The root of the tree is always black.
-3. There are no two adjacent red nodes (A red node cannot have a red parent or red child).
-4. Every path from a node (including root) to any of its descendants NULL nodes has the same number of black nodes.
+2. The root and leaves(NIL) are always black.
+3. If a node is red, then its children are black.
+4. All paths from a node to its NIL descendants contain the same number of black nodes.
+
+## Observations
+1. The longest path is no more than twice the length of the shortest path.
+
+## Insertion
+1. Z = root -> color black
+2. Z.uncle = red -> recolour
+3. Z.uncle = black (triangle) -> rotate Z.parent
+4. Z.uncle = black (line) -> rotate Z.grandparent & recolour
+
 
 
