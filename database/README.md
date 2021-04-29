@@ -1053,6 +1053,19 @@ SS Table은 해시테이블을 사용하는 Log Segment와 비교했을 때, 아
 2. 파일의 특정 Key를 찾기위해서 모든 키의 index를 유지할 필요가 없다. 이전과 이후의 Key index를 안다면  수 kb는 빠르게 full scan 할 수 있다. k-v가 고정 크기라면 binary search를 통해서 빠르게 키를 검색할 수도 있다.
 3. 여러 k-v 레코드를 블록으로 그룹화하고 디스크에 압축 저장할 수 있으므로 IO의 사용을 줄일 수 있다.
 
+임의 순서로 키를 삽입하고 정렬된 순서로 해당 키를 읽어오기 위해서 저장소는 RedBlackTree와 같은 데이터 구조를 사용하는 Memtable을 가진다.\
+Memtable이 임계값보다 커지면 SStable로 디스크에 저장한다. Memtable(red-black tree)가 이미 정렬되어 있기 때문에 효율적으로 수행할 수 있다. 새로운 SStable은 DB의 가장 최신 Segment가 된다. SSTable을 저장하는 동안 쓰기는 새로운 Memtable 인스턴스에 기록한다.\
+읽기 요청이 들어오면 먼저 Memtable에서 키를 찾고, 그 후 최신에서 오래된 순으로 SSTable Segment를 검색한다.\
+Background에서 Segment 병합, 컴팩션이 수행된다.
+
+위 Flow의 문제는 DB가 고장나면 Memtable의 가장 최신 데이터는 손실된다는 점이다.\
+이런 문제를 피하기 위해서 이전과 같이 매번 쓰기를 즉시 추가하는 분리된 Log를 디스크에 유지해야 한다.\
+이 Log는 손상 후, Memtable 복원시에만 필요하기 때문에 AOF로 보관해도 괜찮다.\
+Log의 정보가 입력된 Memtable을 SSTable로 디스크에 저장한 후에는 해당 Log를 버려도 괜찮다.
+
+---
+
+
 
 ---
 
