@@ -1063,6 +1063,45 @@ Background에서 Segment 병합, 컴팩션이 수행된다.
 이 Log는 손상 후, Memtable 복원시에만 필요하기 때문에 AOF로 보관해도 괜찮다.\
 Log의 정보가 입력된 Memtable을 SSTable로 디스크에 저장한 후에는 해당 Log를 버려도 괜찮다.
 
+## Optimisation
+LSM Tree를 기반으로 한 데이터베이스에서 존재하지 않는 key를 검색하는 경우 모든 segment에 대한 스캔이 이루어져야하므로 낮은 performance를 보인다.\
+이런 종류의 접근을 최적화하기 위해서 저장소는 보통 Bloom Filter를 사용한다. (Bloom Filter는 True Negative를 알려주므로 이 경우에 효과적이다.)
+
+또한 SS Table을 압축하고 병합하는 순서와 시기를 결정하는데 tier와 level compaction 전략을 사용할 수 있다.\
+LevelDB, RocksDB는 Level, HBase는 Tier, Cassandra는 모두 지원한다.\
+Level Compaction은 이전 Level이 Upper Limit에 도달했을 때,  SSTables를 병합하여 다음 Level로 넘기는 방식이다.\
+Write에 대한 overhead가 적지만, Read Overhead가 높고 Disk Storage를 상대적으로 많이 사용하게 된다.\
+이와 반대로 Tier Compaction의 경우 각 Level에서 Indexing을 한다. 이전 Level이 Upper Limit에 도달하면, Indexing된 각 구간을 다음 Level의 동일 구간과 병합한다.\
+Read의 overhead가 적고 Disk Storage를 적게 사용하지만, Write시에 구간 설정이 필요하며, 병합시에 더 많은 Disk IO가 발생할 수 있다.
+
+일반적으로 B트리가 LSM트리보다 구현 성숙도가 더 높지만 LSM트리는 쓰기 속도가 (일반적으로) 더 빠르며, B트리는 읽기가 더 빠르다는 차이가 있다.\
+LSM 트리의 읽기가 더 느린 이유는 컴팩션 단계에 있는 여러 데이터 구조와 SS테이블을 확인해야 하기 때문이다.
+
+## LSM트리의 장점
+
+```
+B-Tree 인덱스는 모든 데이터 조각을 최소한 두 번 기록해야 한다. 쓰기 전 로그 한 번과 트리 페이지에 한 번(페이지가 분리되면 다시 기록)이다. 해당 페이지 내 몇 바이트만 바뀌어도 한 번에 전체 페이지를 기록해야 하는 오버헤드도 있다.
+
+LSM Tree 인덱스 역시 컴팩션과 병합을 거쳐 여러 번 데이터를 다시 쓴다. 데이터베이스에 쓰기 한번이 데이터베이스 수명 동안 여러 번의 디스크 쓰기를 야기하는 것을 Write Amplification이라고 한다.
+SSD는 블록 덮어쓰기 횟수가 제한되기 때문에 SSD 사용 시 Write Amplification은 특별히 주의해야한다.
+
+쓰기가 많은 애플리케이션에서 병목은 DB의 DISK IO일 수 있다. 이 경우에 Write Amplification은 성능 비용이다. 저장소 엔진이 디스크에 기록한다면 디스크 대역폭 내에서 처리할 수 있는 IO는 줄어든다.
+
+LSM트리는 압출률이 높다. 일반적인 B트리보다 디스크에 더 적은 파일을 생성하기 때문에, B트리에서 발생하는 파편화로 인한 남는 디스크의 공간 대한 오버헤드가 더 낮다.
+```
+
+## LSM트리의 단점
+
+```
+컴팩션 과정이 때로는 진행 중인 읽기와 쓰기의 성능에 영향을 준다.
+저장소 엔진은 컴팩션을 점진적으로 수행하고, 동시 접근의 영향이 없게 수행하려 하지만, 디스크 자원의 한계가 있는만큼 컴팩션 연산이 끝날 때까지 요청이 대기해야 하는 상황이 발생하기 쉽다.
+이에 따라서 LSM트리 성능 분석표의 스파이크가 발생한다.
+
+Logging과 Memtable, Compaction이 디스크 IO Bandwidth를 공유하므로 데이터베이스의 수명이 길어질수록 Compaction에 사용되는 overhead가 늘어나서 가용 IO Bandwidth는 줄어들게 된다.
+
+B Tree의 장점은 각 키가 index의 한 곳에만 존재한다는 점이다. 반면에 LSM트리는 같은 키의 다중 복사본이 존재할 수 있어서 사용하고자 하는 usecase에 따라 퍼포먼스의 문제가 발생할 수 있다.
+```
+
 ---
 
 
