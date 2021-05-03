@@ -432,10 +432,86 @@ A red-black tree is a kind of self-balancing binary search tree where each node 
 1. The longest path is no more than twice the length of the shortest path.
 
 ## Insertion
-1. Z = root -> color black
-2. Z.uncle = red -> recolour
-3. Z.uncle = black (triangle) -> rotate Z.parent
-4. Z.uncle = black (line) -> rotate Z.grandparent & recolour
+1. Insert Z and colour it red
+2. Recolour and rotate nodes to fix violation
 
+* 4 Scenarios
+1. Z == root
+2. Z.uncle == red
+3. Z.uncle == black (triangle)
+4. Z.uncle == black (line)
 
+Case 1
+```
+Scenario: Z == root
+Solution: colour Z black
+```
 
+Case 2
+```
+Scenario: Z.uncle == red
+Solution: recolour Z.parent, Z.uncle, Z.grandparent
+```
+
+Case 3
+```
+Scenario: Z.uncle == black (triangle)
+Solution: rotate Z.parent (Z takes Z.parent's place)
+```
+
+Case 4
+```
+Scenario: Z.uncle == black (line)
+Solution: rotate Z.grandparent (Z.parent takes Z.grandparent's place) && Recolour Z.grandparent and Z.parent
+```
+
+* Psuedo Code
+
+RB-INSERT(T, z) // RB-INSERT-FIXUP을 제외하고 B트리와 동일
+```
+y = T.nil
+x = T.root
+while x != T.nil {
+  y = x
+  if z.key < x.key {
+    x = x.left
+  } else {
+    x = x.right
+  }
+}
+z.p = y
+if y == T.nil {
+  T.root = z
+} else if z.key < y.key {
+  y.left = z
+} else {
+  y.right = z
+}
+z.left = T.nil
+z.right = T.nil
+z.colour = red
+RB-INSERT-FIXUP(T, z)
+```
+
+RB-INSERT-FIXUP(T, z)
+```
+while z.p.color == red {
+  if z.p == z.p.p.left [
+    y = z.p.p.right // uncle
+    if y.color == red {
+      z.p.color = black
+      y.color = black
+      z.p.p.color = red
+      z = z.p.p
+    } else if z == z.p.right {
+      z = z.p
+      LEFT-ROTATE(T, z)
+    }
+    z.p.color = black
+    z.p.p.color = red
+    RIGHT-ROTATE(T, z.p.p)
+  } else {
+    same as above with right and left exchanged
+  }
+T.root.color = black
+```
