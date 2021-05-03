@@ -155,3 +155,69 @@ The fix for this problem is actually pretty simple: you need to include a fencin
 ```
 
 ---
+
+# Master-Master VS Master-Slave Clustering
+
+## Master-Master
+```
+All nodes are masters and replicas of each other at the same time (circular replication)
+It is recommended to configure the masters to log the transactions from the replication thread, but ignores itw own already-replicated transactions to prevent infinite replication loops.
+
+Pros
+1. Masters can be distributed across multiple physical sites. (like CDN)
+2. Fault-tolerant
+
+Cons
+1. Complex system
+2. Data will be loosely consistent due to multi-master replication
+3. May cause conflicts as the number of nodes grows (or network latency grows)
+```
+
+## Master-Slave
+```
+Master controls writes data (and reads, if needed) and slaves simultaneously copies the log, hence are able to handle read requests.
+
+Pros
+1. Fast (no additional overhead)
+2. Easy to keep data consistency, Requests can be split between master(write) and slave(read)
+
+Cons
+1. if master fails, some data might not be available in slaves
+2. Hard to scale write requests.
+3. Failover process is manual in most cases.
+```
+
+## CAP theorem
+It is impossible for a distributed data store to simultaneously provide more than two out of the following three guarantees:
+* Consistency: Every read receives the most recent write or an error
+* Availability: Every request receives a (non-error) response, without the guarantee that it contains the most recent write.
+* Partition Tolerance: The system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network between nodes.
+
+When a network partition failure happens should we decide to:
+1. Cancel the operation and thus decrease the availability but ensure consistency
+2. Proceed with the operation and thus provide availability but risk inconsistency
+
+"two out of three" concept can be somewhat misleading because system designers only need to sacrifice consistency or availability
+
+## Multi-Master
+Multi master is a synchronous cluster of databases, whilst master-master replicates asynchronously in the background.\
+When a request is received by any master, it relays the request to the other masters, and find out the latest result then responds.\
+it is reliable, automatically restores from failure and read requests can be fast, scaled efficiently.\
+However, due to the consensus (relay, collect, respond) larege performance overhead is inevitable.
+
+---
+
+# Deadlocks
+
+## Phantom Deadlock
+* Phantom Deadlock
+```
+the resource release messages arrive late than the resource request messages for some specific resources. The deadlock detection algorithm treats the situation as a deadlock and may abort some processes to break the deadlock. But in actual, no deadlocks were present, the deadlock detection algorithms detected the deadlock based on outdated messages from the processes due to communication delays. Such a deadlock is called Phantom Deadlock.
+```
+
+* Solution
+```
+A solution to this problem is to introduce a coordinator to which each server forwards it's wait-for graph, the idea here is that the coordinator will be able to produce a wait-for graph for the entire system and can therefore make a decision about which process/transaction should be aborted to resolve the deadlock.
+```
+
+---

@@ -52,7 +52,11 @@ Index와 Table은 서로 다른 data structure로 서로 다른 곳에 저장된
 	select id, name from test where name = 'new test';
 	// index가 없는 table보다 훨씬 더 빠른 속도를 보인다. 하지만 int형 unique인 PRIMARY KEY id를 조건절로 주는 query보다는 느리다. 또한 일반적으로 PRIMARY KEY는 다른 index와 함께 저장되는 경우가 많으므로, id와 name을 출력하는 것은 다른 column을 query하는 것보다 훨씬 더 빠를 것이다.
 ```
-	
+
+보조 index (secondary index)를 사용하는 경우도 일반적이다.\
+RDB에서는 보통 CREATE INDEX ... 명령을 통해서 보조 index를 생성한다.\
+보조 index와 primary index의 주요 차이점은 키가 고유하지 않다는 점이다.
+
 ---
 
 # Transaction
