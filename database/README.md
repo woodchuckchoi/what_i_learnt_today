@@ -1108,7 +1108,37 @@ B Tree의 장점은 각 키가 index의 한 곳에만 존재한다는 점이다.
 
 ---
 
+## Index의 값
 
+Index의 키는 Query가 검색하는 대상이며, 값은 다음 두 가지 중 하나이다.
+1. Query의 실제 Row.
+2. 다른 곳에 저장된 Row를 가리키는 Pointer.
+
+일반적으로 Pointer를 많이 사용한다. 여러 보조 색인이 존재할 때 데이터의 중복을 피할 수 있기 때문이다.\
+또한 Pointer를 사용하는 방식은 새로운 값이 이전 값보다 많은 공간을 필요로 하지 않을때 쉽게 갱신할 수 있다는 장점이 있다.\
+만약 새로운 값이 많은 공간을 필요로 한다면 새로운 위치로 Row를 이동시키고, 1. 모든 Index가 새로운 위치를 바라보도록 갱신하거나, 2. Pointer가 가리키는 값을 Row가 아닌 Row가 저장된 주소를 가리키는 새로운 Pointer로 교체한다.
+
+Index에서 Pointer를 사용해서 읽는 것은 읽기 성능에 불이익이 많기 때문에 (DISK Read IO) 어떤 상황에서는 Index 안에 바로 Index의 값을 저장하는 편이 바람직하며 이를 clustered index라고 한다.\
+MySQL의 InnoDB는 PK가 언제나 clustered index, secondary indexes는 pk를 참조한다.
+
+---
+
+## Multi-column Index
+(성, 이름)처럼 여러 column에 대한 indexing을 하는 것을 concatenated index라고 한다.\
+순서에 따라 정렬되어있기 때문에, 성 혹은 (성, 이름)에 대해 Query를 할 수 있지만, 이름에 대한 Query를 할 수 없다.
+
+다차원 Index는 한 번에 여러 column에 Query를 하는 더 일반적인 방법이며, 특히 GIS 데이터에 중요하게 사용된다.\
+예를 들어 아래와 같은 Query가 있다면:
+```
+SELECT * FROM geo WHERE lat > 1 AND lat < 2 AND lng > 5 AND lng < 6;
+```
+B-Tree나 LSM-Tree의 index는 이렇게 여러 column에 대한 query에 효과적으로 응답할 수 없다.\
+특정 lat 혹은 lng 범위 내의 query는 효과적으로 처리하지만, 둘 다에 대해서는 효과적이지 않은 것이다.\
+한 가지 방법은 space-filling curve 등의 방법을 사용해서 여러 column에 대한 값을 한 값으로 만들어서 indexing하는 것이다.
+
+---
+
+## 
 
 ---
 
