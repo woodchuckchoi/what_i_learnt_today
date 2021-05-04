@@ -1138,7 +1138,9 @@ B-Tree나 LSM-Tree의 index는 이렇게 여러 column에 대한 query에 효과
 
 ---
 
-## 
+## In-memory Database & Memory
+일반적인 상식과는 다르게 in-memory database의 성능 우위는 디스크에서 읽지 않아도 된다는 사실 때문은 아니다.\
+오히려 디스크 기반 엔진도 충분한 메모리를 가진 경우 메모리에 캐시를 하므로 디스크에서 읽을 필요가 없으며, 오히려 인메모리 데이터 구조를 수정하는 오버헤드가 없어서 더 빠를 수도 있다.
 
 ---
 
@@ -1165,6 +1167,20 @@ In LSM, there are 3 types of internal operations as well as client ops:
 Flushing: Incoming writes are written in memory (buffer), when the buffer is full, it gets flushed into the disk.
 L0 -> L1 Compaction: Merges one level-0 SSTable with the existing level-1 SSTables, makes space for an L0 SSTable.
 Higher-level Compaction: is GC in LSM, discards duplicates, delete values. Less urgent than L0 -> L1 compactions. Can have multiple of them in parallel.
+
+1. Writes Blocking Due to L1 Being Full
+  1. No coordination between internal ops
+  2. Higher level compactions take over I/O
+  3. L0 -> L1 compaction is too slow
+  4. Not enough space on L0
+  5. Cannot flush memory -> Write block
+
+2. Write Buffer Fills Up before Flush Buffer Flushes
+  1. No coordination between internal ops
+  2. Higher level compactions take over I/O
+  3. Flushing does not have enough I/O
+  4. Flushing is slow
+  5. Write Blocks
 ```
 
 ## HOW
