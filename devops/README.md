@@ -282,7 +282,7 @@ MSA/Cloud 환경에서는 많은 수의 service와 instance가 동시에 동작�
 
 ## How Service Mesh
 Service Mesh Architecture의 구현은 보통 서비스의 앞단에 경량화 프록시를 사이드카 패턴으로 배치하여 서비스 간의 통신을 제어하는 방법으로 구현한다.\
-서비스 간의 통신은 사이트카로 배치된 경량화 Proxy를 통해서 동작한다. 이 경량화 Proxy에 Routing Rules, Retry, Timeout 등을 설정하고 Logic을 작성하여 공통 기능을 Service에서 분리한다.\
+서비스 간의 통신은 사이트카로 배치된 경량화 Proxy를 통해서 동작한다. 이 경량화 Proxy에 Routing Rules, Retry, Timeout 등을 설정하고 Logic을 작성하여 공통 기능을 Service에서 분리한다.
 
 ```
 사이드카 패턴은 클라우드 디자인 패턴의 일종입니다.

@@ -2,7 +2,7 @@
 Hadoop framework is based on a simple programming model (MapReduce) and it enables a computing solution that is scalable.
 
 As opposed to the common belief, Spark is not a modified version of Hadoop and neither is it dependent on Hadoop because Spark has its own cluster management. Hadoop is just one of the ways to implement Spark.\
-Spark uses Hadoop in two ways, one is storage and second, processing. Since Spark has its own cluster management computation abilities, dit uses Hadoop for storage purpose only (HDFS).\
+Spark uses Hadoop in two ways, one is storage and second, processing. Since Spark has its own cluster management computation abilities, it uses Hadoop for storage purpose only (HDFS).\
 
 ## HDFS
 ```

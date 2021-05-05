@@ -158,7 +158,7 @@ eg) DB가 한 서버만 있다면, 문제가 생기지 않는다. 하지만 만�
 *NoSQL은 scalability를 위해서 consistency를 희생한다.*
  
 ## Durability
-Committed Transaction은 persistent해야한다. Redis는 in-memory이므로 durable하지 않다. 
+Committed Transaction은 persistent해야한다. Redis는 in-memory이므로 durable하지 않다. (Asynchronously하게 background에서 disk-write을 한다.)
 
 ---
 
@@ -568,7 +568,7 @@ finds to minimize buffering requirements
 
 # Shortened LSM Tree
 
-먼저, LSM Tree에는 총 0~L까지의 레벨이 존재합니다. 0번 레벨은 메모리에 위치하고, 1~L번 레벨은 디스크에 존재합니다. 0번 레벨에 위치한 buffer는 데이터가 저장되며, buffer의 크기가 가득 차면 그 때부터 한 칸씩 아래 레벨로 flush됩니다.
+먼저, LSM Tree에는 총 0\~L까지의 레벨이 존재합니다. 0번 레벨은 메모리에 위치하고, 1\~L번 레벨은 디스크에 존재합니다. 0번 레벨에 위치한 buffer는 데이터가 저장되며, buffer의 크기가 가득 차면 그 때부터 한 칸씩 아래 레벨로 flush됩니다.
 
 Buffer에 key와 value를 모두 저장할 수도 있고, value는 다른 곳에 저장하고 key와 value에 대한 포인터만 저장하는 방법도 사용할 수 있습니다. (key-value separation)
 

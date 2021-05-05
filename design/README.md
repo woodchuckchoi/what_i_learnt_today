@@ -50,19 +50,6 @@ endpoint URI를 숨김으로써 얻는 이득은 공격에 대한 방어일까? 
 
 ---
 
-# Bloom Filter
-만약 a라는 user가 있는지 확인하고 싶다면, was에 request를 보내고 was는 db에 select를 통해서 a가 있는지 확인 후 response를 보내야 한다.\
-이 때 생기는 round trip을 최소한으로 처리하기 위해서 redis와 같은 메모리에 응답값을 저장한 후, 그 응답을 활용할 수 있다.\
-하지만 이와 같은 문제를 막기 위한 solution, bloom filter를 사용할 수도 있다.
-
-## Bloom Filter
-Hashing 값을 통해서 DB에 값이 해당 Hashing 값을 가지는 이름이 이미 있는지를 알 수 있다? HOW?\
-Cassandra도 내부적으로 Consistency를 체크하기 위해서 Bloom Filter를 사용한다.\
-Application이 stateful해진다, memory intensive하다, redis를 사용하는 것과 큰 차이가 없다.\
-Implementation에 따라 spec 차이가 있겠지만 지금 생각으로는 서비스 적용에 크게 이득이 없을 것이라고 예상됨
-
----
-
 # Reddit Being Slow
 New Reddit은 lazy evaluation하던 old reddit에서 모든 data를 다 load하는 웹앱으로 변경했다.\
 대부분의 overload는 static data (video, image)가 차지했지만 불필요한 javascript 역시 적지 않은 용량을 차지한다.\
@@ -323,7 +310,7 @@ API Gateway는 다중 request 전송 후 이를 모아서 모델링해서 전달
 각각의 작업을 더 작게 분할하고, 여러 작업을 동시에 수행하는 것이 기본적인 필요조건이지만, 모든 서버에 전개하고, 어떤 일이든 처리해야하는 monolith는 이 두가지를 지원하기 힘들다.(하드웨어 scaling이 유일한 방법인 경우가 많다.)
 
 위와 같이 Monolith -> MSA 패턴은 아마존, 우버, 넷플릭스 등 많은 회사에서 공통적으로 수행된다.\
-MSA를 도입함으로써 확장성 뿐만 아니라, 개발 생산성, 속도 향상, 테스트 효율성 향상, 신기술 적용 용이 등의 이점이 함께 딸려온다.\
+MSA를 도입함으로써 확장성 뿐만 아니라, 개발 생산성, 속도 향상, 테스트 효율성 향상, 신기술 적용 용이 등의 이점이 함께 딸려온다.
 
 ---
 
@@ -358,26 +345,26 @@ Flow of control: Controller -> Use Case Interactor -> presenter
 ```
 
 * Entities
-- Represent your domain object
-- Apply only logic that is applicable in general to the whole entity (e.g., validating the format of a hostname)
-- Plain objects: no frameworks, no annotations
+  - Represent your domain object
+  - Apply only logic that is applicable in general to the whole entity (e.g., validating the format of a hostname)
+  - Plain objects: no frameworks, no annotations
 
 * Use Cases
-- Represent your business action: it's what you can do with the application. Expect one use case for each business action
-- Pure business logic, plain code (except maybe some utils libraries)
-- The use case doesn't know who triggered it and how the results are going to be presented
-- Throws business exceptions
+  - Represent your business action: it's what you can do with the application. Expect one use case for each business action
+  - Pure business logic, plain code (except maybe some utils libraries)
+  - The use case doesn't know who triggered it and how the results are going to be presented
+  - Throws business exceptions
 
 * Interfaces / Adapters
-- Retrieve and store data from and to a number of sources (database, network devices, file system, etc)
-- Define interfaces for the data that they need in order to apply some logic. One or more data providers will implement the interface, but the use case doesn't know where the data is coming from
-- Implement the interfaces defined by the use case
-- There are ways to interact with the application, and typically involve a deliverymechanism (REST, GUI, etc)
-- Trigger a use case and convert the result to the appropriate format for the delivery mechanism
-- The controller for a MVC
+  - Retrieve and store data from and to a number of sources (database, network devices, file system, etc)
+  - Define interfaces for the data that they need in order to apply some logic. One or more data providers will implement the interface, but the use case doesn't know where the data is coming from
+  - Implement the interfaces defined by the use case
+  - There are ways to interact with the application, and typically involve a deliverymechanism (REST, GUI, etc)
+  - Trigger a use case and convert the result to the appropriate format for the delivery mechanism
+  - The controller for a MVC
 
 * External Interfaces
-- Use whatever framework is most appropriate (isolated)
+  - Use whatever framework is most appropriate (isolated)
 
 ```
 src (lib)

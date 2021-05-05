@@ -4,7 +4,7 @@ Thanks MIT for sharing these lectures..
 ## Intro
 The goal of any distributed System is to achieve (some level of) parallelism, tolerate faults, overcome physical limitations and secure resources.\
 Since it is always easier to build a system on one computer, rather than build a distributed system on multiple computers, one should always first try to solve his problem in a non-distributed way.\
-When distributed systems fail, the patterns vary. Some pieces might stop working, whilst the others are still functional.\
+When distributed systems fail, the patterns vary. Some pieces might stop working, whilst the others are still functional.
 
 Hence the challenges are...
 
@@ -42,7 +42,7 @@ Thread is implemented to...
 Asynchronous(event-driven) <-> Concurrency
 * Async system only has one thread of control and it keeps activities in a table with the status
 * It is often easier to write concurrent programmes using threads than async programmes
-* Async programmes might not achieve I/O concurrency. The more cores there are, the more likely it is to gain advantages using concurrent techniques
+* Async programmes might achieve I/O concurrency, but not CPU parallelism. The more cores there are, the more likely it is to gain advantages using concurrent techniques
 * Async is cheaper(lighter) than thread
 
 Differences between threads and processes
@@ -85,14 +85,14 @@ Raft's approach is surprisingly efficient given its simplicity as, unlike Paxos,
 
 Raft offers a generic way to distribute a state machine across a cluster of computing systems, ensuring that each node in the cluster agrees upon the same series of state transitions.
 
-Raft achieves consensus via an elcted leader. A server in a raft cluter is either a leader or a follower, and can be a candidate in the precise case of an elction (when leader unavailable). The timeout is reset on receiving the heartbeat. If no heartbeat is received the follower changes its status to candidate and starts a leader election.
+Raft achieves consensus via an elcted leader. A server in a raft cluter is either a leader or a follower, and can be a candidate in the precise case of an election (when leader unavailable). The timeout is reset on receiving the heartbeat. If no heartbeat is received the follower changes its status to candidate and starts a leader election.
 
 Raft implements consensus by a leader approach. The cluster has one and only one elected leader which is fully responsible for managing log replication on the other servers of the cluster. It means that the leader can decide on new entries' placement and establishment of data flow between it and the other servers without consulting other servers. A leader leads until it fails or disconnects, in which case a new leader is elected.
 The consensus problem is decomposed in Raft into two relatively independent subproblems listed below.
 
 ## Leader Election
 When the existing leader fails or when the algorithm initialises, a new leader needs to be elected.
-In this case, a new term starts in the cluster. A term is an arbitrary period of time on the server for which a new leader needs to be elected. Each term starts with a leader election. If the elction is completed successfully (a single leader is elected) the term keeps going on with normal operations orchestrated by the new leader. If the election is a failure, a new term starts, with a new election.
+In this case, a new term starts in the cluster. A term is an arbitrary period of time on the server for which a new leader needs to be elected. Each term starts with a leader election. If the election is completed successfully (a single leader is elected) the term keeps going on with normal operations orchestrated by the new leader. If the election is a failure, a new term starts, with a new election.
 
 A leader election is started by a candidate server. A server becomes a candidate if it receives no communication by the leader over a period called the election timeout, so it assumes there is no acting leader anymore. It starts the election by increasing the term counter, voting for itself as new leader, and sending a message to all other servers requesting their vote. A server will vote only once per term, on a first-come-first-served basis. If a candidate receives a message from another server with a term number larger than the candidate's current term, then the candidate's election is defeated and the candidate changes into a follower and recognises the leader as legetimate. If a candidate receives a majority of votes, then it becomes the new leaer. If neither happens (eg. split vote) then a new term starts, and a new election begins.
 
@@ -161,7 +161,7 @@ The fix for this problem is actually pretty simple: you need to include a fencin
 ## Master-Master
 ```
 All nodes are masters and replicas of each other at the same time (circular replication)
-It is recommended to configure the masters to log the transactions from the replication thread, but ignores itw own already-replicated transactions to prevent infinite replication loops.
+It is recommended to configure the masters to log the transactions from the replication thread, but ignores its own already-replicated transactions to prevent infinite replication loops.
 
 Pros
 1. Masters can be distributed across multiple physical sites. (like CDN)
@@ -175,7 +175,7 @@ Cons
 
 ## Master-Slave
 ```
-Master controls writes data (and reads, if needed) and slaves simultaneously copies the log, hence are able to handle read requests.
+Master controls writes data (and reads, if needed) and slaves asynchronously copies the log, hence are able to handle read requests.
 
 Pros
 1. Fast (no additional overhead)
@@ -186,6 +186,12 @@ Cons
 2. Hard to scale write requests.
 3. Failover process is manual in most cases.
 ```
+
+## Multi-Master
+Multi master is a synchronous cluster of databases, whilst master-master replicates asynchronously in the background.\
+When a request is received by any master, it relays the request to the other masters, and find out the latest result then responds.\
+it is reliable, automatically restores from failure and read requests can be fast, scaled efficiently.\
+However, due to the consensus (relay, collect, respond) larege performance overhead is inevitable.
 
 ## CAP theorem
 It is impossible for a distributed data store to simultaneously provide more than two out of the following three guarantees:
@@ -199,12 +205,6 @@ When a network partition failure happens should we decide to:
 
 "two out of three" concept can be somewhat misleading because system designers only need to sacrifice consistency or availability
 
-## Multi-Master
-Multi master is a synchronous cluster of databases, whilst master-master replicates asynchronously in the background.\
-When a request is received by any master, it relays the request to the other masters, and find out the latest result then responds.\
-it is reliable, automatically restores from failure and read requests can be fast, scaled efficiently.\
-However, due to the consensus (relay, collect, respond) larege performance overhead is inevitable.
-
 ---
 
 # Deadlocks
@@ -212,7 +212,7 @@ However, due to the consensus (relay, collect, respond) larege performance overh
 ## Phantom Deadlock
 * Phantom Deadlock
 ```
-the resource release messages arrive late than the resource request messages for some specific resources. The deadlock detection algorithm treats the situation as a deadlock and may abort some processes to break the deadlock. But in actual, no deadlocks were present, the deadlock detection algorithms detected the deadlock based on outdated messages from the processes due to communication delays. Such a deadlock is called Phantom Deadlock.
+The resource release messages arrive later than the resource request messages for some specific resources. The deadlock detection algorithm treats the situation as a deadlock and may abort some processes to break the deadlock. But in actual, no deadlocks were present, the deadlock detection algorithms detected the deadlock based on outdated messages from the processes due to communication delays. Such a deadlock is called Phantom Deadlock.
 ```
 
 * Solution

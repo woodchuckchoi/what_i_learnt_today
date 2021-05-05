@@ -142,7 +142,7 @@ CA는 CA의 개인키로 인터넷 사이트의 정보를 암호화하여 인증
 
 HTTPS를 사용할 경우 암호화, 복호화에 시간이 소요되므로 속도가 느려지게 되며, CA의 인증서를 생성하고 유지하는데 비용이 필요하다.\
 암호화된 데이터를 캐싱할 수 없기 때문에 이를 위한 별도의 스텝이 필요하다.\
-특정 프레임워크에서 지원하지 않는다면 기존에 존재하는 URI를 HTTPS 프로토콜로 변경해야한다.\
+특정 프레임워크에서 지원하지 않는다면 기존에 존재하는 URI를 HTTPS 프로토콜로 변경해야한다.
 
 * 공개키-개인키 방식
 TLS(Transport Layer Security)를 사용한 HTTP 통신 암호화 기법이다. SSL(Secure Socket Layer)는 2015년 Deprecated.\
@@ -169,7 +169,7 @@ HTTP는 Client만 Request를 보내고 Server는 이에 응답하는데 반해 S
 ---
 
 # Forward VS Redirect
-* Forward는 URI에 전달된 Request를 서버가 Target URI에 전달한다. 전달받은 URI에서 버는 클라이언트에게 Response를 리턴한다.
+* Forward는 URI에 전달된 Request를 서버가 Target URI에 전달한다. 전달받은 URI로부터 서버는 클라이언트에게 Response를 리턴한다.
 * Redirect는 서버가 클라이언트에게 새로운 URI로 Request를 보내라는 신호를 전달한다. 클라이언트는 새로운 URI에 새로운 Request를 보낸다.\
 *새로고침 등을 했을 때, 같은 데이터를 보내는 문제를 피하기 위해서 Redirect를 사용한다. 하지만 조회 등의 간단한 기능에는 Forward를 사용해도 된다*.
 
@@ -299,10 +299,10 @@ Connection을 재사용하기 위해서 비연결형인 HTTP/1 연결을 일정 
 Request의 Identity를 숨기기는 서버 (= 그와 동시에 해당 프록시에 연결된 사람을 인증하는 도구가 될 수도 있음)\
 Proxy가 Caching을 돕기도 한다.\
 Traffic Control (Unwanted Sites Blocking) 가능\
-GeoFencing (지리적으로 사이트 접근 차단 가능) \
+GeoFencing (지리적으로 사이트 접근 차단 가능)
 
 Reverse Proxy를 사용하는 경우 Client는 어떤 서버에 접속하는지 알 수 없다.\
-Load Balancer의 역할을 하는 것을 제외한다면 Proxy와 같다.\
+Load Balancer의 역할을 하는 것을 제외한다면 Proxy와 같다.
 
 ---
 
@@ -464,6 +464,7 @@ Linux에서 UDP의 optimization이 되어있지 않아서 2~3배의 CPU 사용�
 1. Sent with every request
 2. Cookie Scope
 
+```
 	// Domain
 	document.cookie = "test=test; domain=.test.com;";
 	// 위 코드는 .test.com과 패턴 매칭되는 모든 도메인에 test=test 쿠키를 설정한다.
@@ -471,6 +472,7 @@ Linux에서 UDP의 optimization이 되어있지 않아서 2~3배의 CPU 사용�
 	// Path
 	document.cookie = "test=test; path=/testpath";
 	// 위 코드는 코드의 path와 접근하는 웹페이지의 path가 같을 때에 쿠키를 설정한다.
+```
 
 3. Expires, Max-age
 Browser Process가 종료되면 사라지는 Session Cookie VS Browser를 종료하고 다시 실행해도 유지되는 Permanent Cookie를 구분하는 cookie\
@@ -677,7 +679,7 @@ Request의 Body에는 데이터를 Byte String으로 변경해서 담겨진다.\
 Waterfall shows not only Resource Scheduling, but also Connection Start procedures, Request, Response time.\
 TTFB(Time To First Byte) is the most important criterion there. It indicates the duration of time the server took to respond to the request.\
 Since HTTP1.1 does not support streaming, http1.1 web apps' waterfall will most likely show 5~6 resources being downloaded at any given time.\
-In order to avoid such disadvantage, many http1.1 web apps implement domain sharding.\
+In order to avoid such disadvantage, many http1.1 web apps implement domain sharding.
 
 ---
 

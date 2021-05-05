@@ -147,7 +147,7 @@ JS라면 일반적으로 request.then().catch()와 같은 방식으로 callback�
 
 이를 해결하기 위한 방법으로는
 1. 함수의 패턴을 분리하여 A함수가 종료되면서 B함수를 실행시키도록 처리
-2. JS의 Promise, Python의 Async Task처럼 아직 완료되지 않은 객체를 반환하는 방식으로 function.then() 내부의 callback function이 무한정 길어지는 callback hell을 해결할 수 있다.\
+2. JS의 Promise, Python의 Async Task처럼 아직 완료되지 않은 객체를 반환하는 방식으로 function.then() 내부의 callback function이 무한정 길어지는 callback hell을 해결할 수 있다.
 
 ---
 
@@ -180,7 +180,7 @@ HEAP은 부모 노드가 항상 자식 노드보다 크거나 (Max Heap), 작은
 # Hashmap
 Hash 함수라는 함수를 통해서 어떠한 데이터를 Index화 하여 해당 Index의 데이터에 접근하는 데이터 구조이다.\
 어떤 Data도 O(1)에 접근할 수 있다는 장점이 있지만, (Hash 함수에 정도가 다르긴 하지만) 언젠가 같은 Index를 만들 수도 있다는 단점도 있다.\
-이를 막기위해서 가장 자주 사용되는 방법은 Hashmap의 Value를 Linked-List로 만들어서 한 Index에 여러 값을 저장할 수 있도록 하는 방식이다.\
+이를 막기위해서 가장 자주 사용되는 방법은 Hashmap의 Value를 Linked-List로 만들어서 한 Index에 여러 값을 저장할 수 있도록 하는 방식이다.
 
 ---
 
@@ -2381,7 +2381,8 @@ There are three arguments the scope which is similar to the environ in WSGI whic
 
 # Lambda Calculus
 A function takes some input(s) and process it someway and produces an output in lambda calculus.\
-Functions do not have internal states, which means they are stateless.\
+Functions do not have internal states, which means they are stateless.
+
 ```
 lambda x. x+1 means
 func(x) { 
@@ -2395,7 +2396,7 @@ func(x, y) {
 
 (lambda x. x+1) 5 == 6
 ```
-Simply put, variables, a way of building functions, a way of appying functions are all there are in Lambda Calculus.\
+Simply put, variables, a way of building functions, a way of appying functions are all there are in Lambda Calculus.
 
 ## Why?
 1. Lambda functions can encode any computer codes.
