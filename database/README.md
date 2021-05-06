@@ -1187,3 +1187,17 @@ Higher-level Compaction: is GC in LSM, discards duplicates, delete values. Less 
 ```
 
 ```
+
+---
+
+# LSM & Scale
+```
+From Cockroach DB...
+LSMs are for write-heavy workloads and BTrees are for read-heavy workloads... most of them are built on top of an LSM, namely, RocksDB. You might thus conclude that this is because modern applications have shifted to more write-heavy workloads. You would be incorrect.
+
+The main motivation behind RocksDB adoption has nothing to do with its choice of LSM data structure. In our case, the compelling drivers were its rich feature set which turns out to be necessary for a complex product like a distributed database.
+```
+
+## CockroachDB /w RockDB Engine
+
+---
