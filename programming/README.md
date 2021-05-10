@@ -2415,3 +2415,23 @@ Not False == False (False True) = True
 ```
 
 ---
+
+# Channel VS Mutex
+
+```
+In most cases prefer Channels, whilst in some, Mutex.
+```
+
+* Use Channels if:
+1. Transferring ownership (transferring data itself not a pointer to it)
+2. coordination and synchronisation
+
+* Use primitives if:
+1. Guarding internal state of a struct
+2. performance critical 
+
+*Using primitives needs more care in general*
+
+---
+
+
