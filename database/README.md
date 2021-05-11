@@ -1201,3 +1201,61 @@ The main motivation behind RocksDB adoption has nothing to do with its choice of
 ## CockroachDB /w RockDB Engine
 
 ---
+
+# Distributed Data
+## Why Distributed Data?
+1. Scalability - Split load, volume between multiple devices
+2. Failover - In case a devices fails, another takes over
+3. Latency - Physically close to the origin of request
+
+```
+수직 확장을 통해서 모든 구성 요소를 단일 장비처럼 다루는 공유 메모리 아키텍쳐 구현이 가능하지만, 비용이 빠르게 증가하며, 병목 현상 때문에 N배의 장비가 \<N의 성능을 보이게 된다.
+
+또한 제한적인 내결함성을 제공하며, 지리적인 위치가 제한된다는 단점이 있다.
+
+이에 반해 비공유(shared-nothing) 아키텍쳐는 다수의 노드 사이에 코디네이션을 통해서 이루어지며, 가성비가 좋다. 지리적으로 여러 영역에 거쳐있을 수 있어 사용자 지연 시간 역시 줄일 수 있다. 
+```
+
+---
+
+## Replication VS Partitioning
+여러 노드에 데이터를 분산하는 방법은 일반적으로 아래 두 가지이다.
+
+1. Replication - 같은 데이터의 복사본을 다른 노드에 유지한다. 일부 노드가 사용 불가능 상태가 되면 다른 노드를 통해서 제공할 수 있다.
+2. Partitioning - 큰 데이터베이스를 파티션이라는 서브셋으로 나누고 각 파티션은 각기 다른 노드에 할당한다.(== 샤딩)
+
+---
+
+### Replication
+* Good
+  * 지리적으로 데이터를 사용자와 가깝게 유지해서 지연 시간을 줄인다.
+  * 시스템 장애에도 동작할 수 있어 가용성을 높인다.
+  * 읽기 처리량을 늘릴 수 있다.
+
+노드 사이의 변경을 복제하기 위해서 주로 사용되는 알고리즘은 아래와 같다:
+
+1. Single-leader - 동기 / 반동기 / 비동기 방식으로 리더가 받는 읽기 request를 팔로워가 복제한다.
+2. Multi-leader - 쓰기 역할을 하는 리더가 다수이지만 복잡도가 증가한다.
+3. Leaderless
+
+### Single-Leader
+```
+팔로워 장애
+팔로워에 장애가 발생하면, 팔로워는 리더로부터 스냅샷을 전달 받고, 가장 최신 레코드까지 복사한다.
+
+리더 장애
+리더 장애 여부를 판단하고, 가장 최신 데이터를 가진 리더를 선택한다. 시스템이 새로운 리더를 인식할 수 있게 한다.
+
+리더에 (장애가 생겨서) 연결 할 수 없는 동안에는 쓰기를 할 수 없다.
+```
+
+### Multi-Leader
+```
+각 리더는 리더임과 동시에 다른 리더의 팔로워가 된다.
+
+단점으로 동일한 데이터를 다른 두 개의 리더가 수정했을 때 쓰기 충돌이 발생하며, 이는 반드시 해소되어야 한다.
+
+increment(atomic transaction), trigger, ACID에 대한 조건을 지키게 하기 어렵다.
+
+
+```
