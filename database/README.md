@@ -1238,7 +1238,9 @@ The main motivation behind RocksDB adoption has nothing to do with its choice of
 2. Multi-leader - 쓰기 역할을 하는 리더가 다수이지만 복잡도가 증가한다.
 3. Leaderless
 
-### Single-Leader
+---
+
+## Single-Leader
 ```
 팔로워 장애
 팔로워에 장애가 발생하면, 팔로워는 리더로부터 스냅샷을 전달 받고, 가장 최신 레코드까지 복사한다.
@@ -1249,7 +1251,9 @@ The main motivation behind RocksDB adoption has nothing to do with its choice of
 리더에 (장애가 생겨서) 연결 할 수 없는 동안에는 쓰기를 할 수 없다.
 ```
 
-### Multi-Leader
+---
+
+## Multi-Leader
 ```
 각 리더는 리더임과 동시에 다른 리더의 팔로워가 된다.
 
@@ -1267,7 +1271,9 @@ increment(atomic transaction), trigger, ACID에 대한 조건을 지키게 하�
 이런 이벤트를 올바르게 정렬하기 위해서 버젼 벡터 기법을 사용할 수 있다.(하지만 많은 리더 복제 시스템에서 충돌 감지 기법은 제대로 구현되지 않았다.)
 ```
 
-### Leaderless
+---
+
+## Leaderless
 ```
 위의 복제 접근 방식들은 클라이언트의 요청을 리더에게 전송한 뒤, 데이터베이스 시스템이 쓰기를 다른 복제 서버에 복사하여 처리한다.
 
@@ -1301,6 +1307,17 @@ General Rule of Thumb은 w + r > n 이면 읽기 요청을 보냈을 때 최신�
 이 중 2를 느슨한 정족수라고 부른다. 느슨한 정족수는 쓰기 가용성을 높이는데 특히 유용하지만 w + r > n인 경우에도 키의 최신값을 읽는다고 보장할 수는 없다.
 ```
 
+### Concurrent Writes
+```
+Leaderless의 다이나모 스타일 DB에서 엄격한 정족수를 사용하더라도 여러 클라이언트가 동시에 같은 키에 쓰는 것을 허용하기 때문에 충돌이 발생한다. 이는 Multi-Master에서 발생하는 쓰기 충돌과 유사한 형태를 띈다.
+
+최종적인 일관성을 달성하기 위해서 복제본들은 동일한 값을 가져야하지만, 대부분 데이터베이스 상의 default는 그렇지 않다.
+
+이와 같은 문제를 해결하기 위한 방법 중 하나는 최종 쓰기 승리(LWW)이다.
+쓰기 요청을 Timestamp와 함께 저장하고 읽기 요청에서 DB로부터 전달받은 값들 중 가장 최신의 Timestamp를 가진 값을 사용하는 것이다.
+
+혹은 쓰기의 버젼을 저장함으로써 여러 버젼의 쓰기 대한 히스토리를 보관하기도 한다. 다중 Replication의 동시 쓰기를 받아들인다면 키당 버젼 번호 뿐만 아니라 Replica당 버젼 번호 역시 추가해서 히스토리를 추적해야 한다. 
+```
 
 ---
 
