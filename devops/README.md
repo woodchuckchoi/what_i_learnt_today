@@ -342,3 +342,76 @@ AWS에서 관리하는 NAT Gateway와는 달리 NAT Instance는 public subnet에
 
 
 ---
+
+# Docker Multi-Stage Builds
+## Before Multi-Stage Build
+```
+One of the most challenging things about building images is keeping the image size down. Each instruction in the Dockerfile adds a layer to the image, and you need to remember to clean up any artifacts you don’t need before moving on to the next layer. To write a really efficient Dockerfile, you have traditionally needed to employ shell tricks and other logic to keep the layers as small as possible and to ensure that each layer has the artifacts it needs from the previous layer and nothing else.
+
+It was actually very common to have one Dockerfile to use for development (which contained everything needed to build your application), and a slimmed-down one to use for production, which only contained your application and exactly what was needed to run it. This has been referred to as the “builder pattern”. Maintaining two Dockerfiles is not ideal.
+
+---
+
+build.sh:
+
+#!/bin/sh
+echo Building alexellis2/href-counter:build
+
+docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \  
+    -t alexellis2/href-counter:build . -f Dockerfile.build
+
+docker container create --name extract alexellis2/href-counter:build  
+docker container cp extract:/go/src/github.com/alexellis/href-counter/app ./app  
+docker container rm -f extract
+
+echo Building alexellis2/href-counter:latest
+
+docker build --no-cache -t alexellis2/href-counter:latest .
+rm ./app
+
+---
+
+Above build script first creates an image to extract the compiled application from, then copy and use the artifact to run a slim image.
+```
+
+## Multi-Stage Build
+```
+Dockerfile:
+
+# syntax=docker/dockerfile:1
+FROM golang:1.16
+WORKDIR /go/src/github.com/alexellis/href-counter/
+RUN go get -d -v golang.org/x/net/html
+COPY app.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=0 /go/src/github.com/alexellis/href-counter/app .
+CMD ["./app"]
+
+---
+each stage can be named for convenience
+---
+
+# syntax=docker/dockerfile:1
+FROM golang:1.16 AS builder
+WORKDIR /go/src/github.com/alexellis/href-counter/
+RUN go get -d -v golang.org/x/net/html
+COPY app.go    .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /go/src/github.com/alexellis/href-counter/app .
+CMD ["./app"]
+
+---
+or use an external image as a stage
+---
+COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf
+```
+
+---
