@@ -614,4 +614,68 @@ kubectl run yo-namaste --image=nginx --serviceaccount=namaste
 
 ## Multi-Container Pods
 
-* 
+* Create a pod mp-hello with image alpine,nginx and consul:1.8. Use command sleep infinity for alpine container.
+```
+kubectl run mp-hello --image=alpine --dry-run=client -o yaml -- sleep infinity > mp-hello.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: mp-hello
+  name: mp-hello
+spec:
+  containers:
+  - args:
+    - sleep
+    - infinity
+    image: alpine
+    name: alpine
+    resources: {}
+  - image: nginx
+    name: nginx
+  - image: consul:1.8
+    name: consul
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f mp-hello.yaml
+```
+
+* Create a Pod with two containers, both with image busybox and command "echo hello; sleep 3600". Connect to the second container and run 'ls'
+```
+kubectl run two-container --image=busybox --dry-run=client -o yaml -- /bin/sh -c "echo hello; sleep 3600" > two-container.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: two-container
+  name: two-container
+spec:
+  containers:
+  - args:
+    - /bin/sh
+    - -c
+    - echo hello; sleep 3600
+    image: busybox
+    name: two-container1
+    resources: {}
+  - args:
+    - /bin/sh
+    - -c
+    - echo hello; sleep 3600
+    image: busybox
+    name: two-container2
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f two-container.yaml
+
+kubectl exec -it two-container -c two-container2 -- ls
+```
+
