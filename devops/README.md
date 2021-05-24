@@ -494,3 +494,124 @@ kubectl set image po/nginx nginx=nginx:1.7.1
 ---
 
 ## Config
+
+* Create a config map called my-config in namespace called datatab. Use value confa=exvalue You may need to create namespace if it does not exists.
+```
+kubectl create ns datatab
+
+kubectl create configmap my-config -n datatab --from-literal=confa=exvalue
+```
+
+* A configmap al-conf has been created. Expose the value of al-user to a pod named al-pod as AL\_USER environment variable. Use redis image for the pod.
+```
+kubectl run al-pod --image=redis --dry-run=client -o yaml > al-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: al-pod
+  name: al-pod
+spec:
+  containers:
+  - image: redis
+    name: al-pod
+    resources: {}
+    env:
+      - name: AL_USER
+        valueFrom:
+          configMapKeyRef:
+            name: al-conf
+            key: al-user
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f al-pod.yaml
+```
+
+* Create a Pod named secure-pod. Use redis image. Run pod as user 1000 and group 2000.
+```
+kubectl run secure-pod --image=redis --dry-run=client -o yaml > secure-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: secure-pod
+  name: secure-pod
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 2000
+  containers:
+  - image: redis
+    name: secure-pod
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f secure-pod.yaml
+```
+
+* ### Create a pod manifest file at /root/limited-pod.yaml with name limited-pod and busybox image. Set memory request at 100Mi and limit at 200Mi. You do not need to create the pod.
+```
+kubectl run limited-pod --image=busybox --requests=memory=100Mi --limits=memory=200Mi --dry-run=client -o yaml > limited-pod.yaml
+```
+
+* Create a secret db-secret with value MYSQL\_ROOT\_PASSWORD=YoYoSecret and MYSQL\_PASSWORD=XoXoPassword.
+```
+kubectl create secret generic db-secret --from-literal=MYSQL_ROOT_PASSWORD=YoYoSecret --from-literal=MYSQL_PASSWORD=XoXoPassword
+```
+
+* Create a configmap db-config with value MYSQL\_USER=k8s and MYSQL\_DATABASE=newdb.
+```
+kubectl create configmap db-config --from-literal=MYSQL_USER=k8s --from-literal=MYSQL_DATABASE=newdb
+```
+
+* Create a pod named mydb with image mysql:5.7 and expose all values of db-secret and db-config as environment variable to pod.
+```
+kubectl run mydb --image=mysql:5.7 --dry-run=client -o yaml > mydb.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: mydb
+  name: mydb
+spec:
+  containers:
+  - image: mysql:5.7
+    name: mydb
+    resources: {}
+    envFrom:
+    - secretRef:
+        name: db-secret
+    - configMapRef:
+        name: db-config
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f mydb.yaml
+```
+
+* Create a service account named namaste.
+```
+kubectl create serviceaccount namaste
+```
+
+* Use the service account to create a yo-namaste pod with nginx image.
+```
+kubectl run yo-namaste --image=nginx --serviceaccount=namaste
+```
+
+---
+
+## Multi-Container Pods
+
+* 
