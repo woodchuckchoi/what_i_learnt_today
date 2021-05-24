@@ -415,3 +415,82 @@ COPY --from=nginx:latest /etc/nginx/nginx.conf /nginx.conf
 ```
 
 ---
+
+# CKAD
+
+---
+
+## CORE
+
+* Create a namespace called frontend.
+```
+kubectl create ns frontend
+```
+
+* Create a pod named nginx in frontend namespace. Use nginx image.
+```
+kubectl run nginx --image=nginx -n  frontend
+```
+
+* Get list of all pods in kube-system namespace and write the output to /root/kube-system-pods.txt file.
+```
+kubectl get pods -A > /root/kube-system-pods.txt
+```
+
+* Get the list of all services across all namespaces and write the output to /root/all-services.txt file.
+```
+kubectl get services -A > /root/all-services.txt
+```
+
+* Create a pod named hello with image busybox and command echo "Hello World". Make sure the pod do not restart automatically.
+```
+kubectl run busybox --image busybox --restart=Never -- echo "Hello World"
+```
+
+* Generate a pod manifest file at /root/mypodx.yaml. Pod name should be mypodx with image redis. Make sure you only generate the pod manifest file, you do not have to crete the pod.
+```
+kubectl run mypodx --image=redis --dry-run=client -o yaml > /root/mypodx.yaml
+```
+
+* Create a namespace called 'mynamespace' and a pod with image nginx called nginx on this namespace
+```
+kubectl create ns mynamespace
+
+kubectl run nginx --image=nginx -n mynamespace
+```
+
+* Create the pod that was just described using YAML
+```
+kubectl run --image=nginx -n mynamespace --restart=Never --dry-run=client -o yaml > pod.yam
+```
+
+* Create a busybox pod (using kubectl command) that runs the command "env". Run it and see the output
+```
+kubectl run busybox --image=busybox --restart=Never -- env
+
+kubectl logs busybox
+```
+
+* Get the YAML for a new namespace called 'myns' without creating it
+```
+kubectl create ns myns --dry-run=client -o yaml > myns.yaml
+```
+
+* Get the YAML for a new ResourceQuota called 'myrq' with hard limits of 1 CPU, 1G memory and 2 pods without creating it
+```
+kubectl create myrq --hard=cpu=1,memory=1G,pods=2 --dry-run=client -o yaml > myrq.yaml
+```
+
+* Create a pod with image nginx called nginx and expose traffic on port 80
+```
+kubectl run nginx --image=nginx --port=80
+```
+
+* Change pod's image to nginx:1.7.1. Observe that the container will be restarted as soon as the image gets pulled
+```
+kubectl set image po/nginx nginx=nginx:1.7.1
+```
+
+---
+
+## Config
