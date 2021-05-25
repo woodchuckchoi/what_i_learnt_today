@@ -849,3 +849,179 @@ kubectl apply -f cara-service.yaml
 ---
 
 ## State Persistence
+
+* Create a pod named vader with image nginx. Mount a volume named vader-vol at /var/www/html, which should live as long as pod lives.
+```
+kubectl run vader --image=nginx --restart=Never --dry-run=client -o yaml > vader.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: vader
+  name: vader
+spec:
+  containers:
+  - image: nginx
+    name: vader
+    resources: {}
+    volumeMounts:
+    - mountPath: /var/www/html
+      name: cache-volume
+  volumes:
+  - name: cache-volume
+    emptyDir: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f vader.yaml
+```
+
+* Create a persistent volume `sidious-pv` with `200Mi` at `/data/mysql` on host. Use `manual` storageClassName and `ReadWriteOnce` access mode.
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sidious-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/mysql"
+
+kubectl apply -f sidious-pv.yaml
+```
+
+* Create a persistent volume claim sidious-pvc and consume the pv sidious-pv.
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sidious-pvc
+spec:
+  storageClassName: manual
+  volumeName: sidious-pv
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+
+kubectl apply -f sidious-pvc.yaml
+```
+
+* ### Create a pod `sidious` with image `mysql` and mount the PVC at `/var/lib/mysql` using volume name `sidious-vol`. Set an environment variable `MYSQL_ROOT_PASSWORD=my-secret-pw` as well.
+```
+kubectl run sidious --image=mysql --dry-run=client --restart=Never -o yaml > sidious.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: sidious
+  name: sidious
+spec:
+  containers:
+  - image: mysql
+    name: sidious
+    resources: {}
+    volumeMounts:
+      - mountPath: "/var/lib/mysql"
+        name: mypd
+    env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "my-secret-pw"
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: sidious-pvc
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f sidious.yaml
+```
+
+* Create a pod dooku with two containers using image redis and nginx. Create a shared hostPath volume at /data/dooku named dooku-logs mounted at /var/log/dooku in both the containers.
+```
+kubectl run dooku --image=redis --image=nginx --dry-run=client -o yaml > dooku.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: dooku
+  name: dooku
+spec:
+  containers:
+  - image: nginx
+    name: dooku-nginx
+    resources: {}
+    volumeMounts:
+    - mountPath: /var/log/dooku
+      name: dooku-logs
+  - image: redis
+    name: dooku-redis
+    volumeMounts:
+    - mountPath: /var/log/dooku
+      name: dooku-logs
+  volumes:
+  - name: dooku-logs
+    hostPath:
+      path: /data/dooku
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+kubectl apply -f dooku.yaml
+```
+
+* Create busybox pod with two containers, each one will have the image busybox and will run the 'sleep 3600' command. Make both containers mount an emptyDir at '/etc/foo'.
+```
+kubectl run busybox --dry-run=client --restart=Never --image=busybox -o yaml -- sleep 3600 > busybox.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: busybox
+  name: busybox
+spec:
+  containers:
+  - args:
+    - sleep
+    - "3600"
+    image: busybox
+    name: busybox1
+    resources: {}
+    volumeMounts:
+    - mountPath: /etc/foo
+      name: cache-volume
+  - args:
+    - sleep
+    - "3600"
+    image: busybox
+    name: busybox2
+    resources: {}
+    volumeMounts:
+    - mountPath: /etc/foo
+      name: cache-volume
+  volumes:
+  - name: cache-volume
+    emptyDir: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f busybox.yaml
+```
+
+---
