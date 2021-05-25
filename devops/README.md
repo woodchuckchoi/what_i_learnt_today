@@ -827,4 +827,25 @@ kubectl create deploy nginx --image=nginx:1.18.0 --replicas=2 --port=80
 
 ## Services & Networking
 
+* Create a pod named ig-11 with image nginx and expose its port 80.
+```
+kubectl run ig-11 --image=nginx --restart=Never --port=80
+```
 
+* Create a service for pod ig-11 on using ClusterIP type service with service name greef. Map service port 8080 to container port 80.
+```
+kubectl expose pod ig-11 --name=greef --port=8080 --target-port=80
+```
+
+* Deployment cara is created. Expose port 80 of the deployment using NodePort on port 31888. Use cara as service name.
+```
+kubectl expose deploy cara --type=NodePort --port=80
+
+kubectl get service cara -o yaml > cara-service.yaml
+# NodePort 수정
+kubectl apply -f cara-service.yaml
+```
+
+---
+
+## State Persistence
