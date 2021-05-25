@@ -679,3 +679,82 @@ kubectl apply -f two-container.yaml
 kubectl exec -it two-container -c two-container2 -- ls
 ```
 
+---
+
+## Observability
+
+* Create a pod myredis with image redis. Define a liveness probe and readiness probe with an initial delay of 5 seconds and command redis-cli PING.
+```
+kubectl run myredis --image=redis --restart=Never --dry-run=client -o yaml > myredis.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: myredis
+  name: myredis
+spec:
+  containers:
+  - image: redis
+    name: myredis
+    resources: {}
+    livenessProbe:
+      exec:
+        command:
+        - redis-cli
+        - PING
+      initialDelaySeconds: 5
+    readinessProbe:
+      exec:
+        command:
+        - redis-cli
+        - PING
+      initialDelaySeconds: 5
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f myredis.yaml
+```
+
+* Create a pod httptest with image kennethreitz/httpbin. Define a readiness probe at path /status/200 on port 80 of the container.
+```
+kubectl run httptest --restart=Never --image=kennethreitz/httpbin --dry-run=client -o yaml > httptest.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: httptest
+  name: httptest
+spec:
+  containers:
+  - image: kennethreitz/httpbin
+    name: httptest
+    resources: {}
+    readinessProbe:
+      httpGet:
+        path: /status/200
+        port: 80
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f httptest.yaml
+```
+
+* Create a Pod named myenv with command sh -c "printenv && sleep 1h". Use alpine image.
+```
+kubectl run myenv --image=alpine --restart=Never -- sh -c "printenv && sleep 1h"
+```
+
+* Save the logs of the pod to /root/myenv.log file.
+```
+kubectl logs myenv > /root/myenv.log
+```
+
+---
+
+## 
