@@ -757,4 +757,74 @@ kubectl logs myenv > /root/myenv.log
 
 ---
 
-## 
+## Pod Design
+
+* Create a deployment named hoth with image httpd in planets namespace.
+```
+kubectl create ns planets
+
+kubectl create deploy hoth --image=httpd -n planets
+```
+
+* Scale the deployment to 4 replicas.
+```
+kubectl scale --replica=4 -n plants deployment hoth
+```
+
+* Update the deployment to use httpd:2.4.46 image.
+```
+kubectl set image deployment hoth httpd=httpd:2.4.46 -n planets
+```
+
+* Deployment yavin is deployed but after an upgrade, new pods are not getting created. Rollback the deployment yavin so they are working again.
+```
+kubectl rollback undo deploy yavin
+```
+
+* Deployment naboo is created. Make sure the replicas autoscale with minimum 2 and maximum 5 when at 80% CPU. Use naboo as the name of HPA resource.
+```
+kubectl autoscale deploy naboo --min=2 --max=5 --cpu-percent=80 --name=naboo
+```
+
+* Create a Cron job bespin that runs every 5 minutes(*/5 * * * *) and runs command date. Use alpine image.
+```
+kubectl create cronjob bespin --image=alpine --schedule='*/5 * * * *' -- date
+```
+
+* Label node node01 with shuttle=true.
+```
+kubectl label node node01 shuttle=true
+```
+
+* Remove annotation flagship=finalizer form node01.
+```
+kubectl label node node01 flagship-
+```
+
+* Get the name and image of all pods in skywalker namespace having label jedi=true. Write the output to /root/jedi-true.txt.
+```
+kubectl get po -n skywalker -l jedi=true > jedi-true.txt
+```
+
+* Create 3 pods with names nginx1,nginx2,nginx3. All of them should have the label app=v1
+```
+kubectl run nginx1 --image=nginx --restart=Never --labels=app=v1
+kubectl run nginx2 --image=nginx --restart=Never --labels=app=v1
+kubectl run nginx3 --image=nginx --restart=Never --labels=app=v1
+```
+
+* Change the labels of pod 'nginx2' to be app=v2
+```
+kubectl label po nginx2 app=v2 --overwrite
+```
+
+* Create a deployment with image nginx:1.18.0, called nginx, having 2 replicas, defining port 80 as the port that this container exposes
+```
+kubectl create deploy nginx --image=nginx:1.18.0 --replicas=2 --port=80
+```
+
+---
+
+## Services & Networking
+
+
