@@ -1025,3 +1025,44 @@ kubectl apply -f busybox.yaml
 ```
 
 ---
+
+## Mock Exam1
+
+* Deploy a pod named nginx-test using the nginx:alpine image.
+```
+kubectl run nginx-test --restart=Never --image=nginx:alpine
+```
+
+* Create a namespace named test
+```
+kbuectl create ns test
+```
+
+* Create a new deployment named httpd-test with 3 replicas using image httpd:2.4-alpine in test namespace.
+```
+kubectl create deployment httpd-test --replicas=3 --image=httpd:2.4-alpine -n test
+```
+
+* Deploy a messaging pod using the redis:alpine image with the labels set to tier=msg.
+```
+kubectl run messaging --restart=Never --image=redis:alpine --labels="tier=msg"
+```
+
+* Create a service httpd-service to expose the http deployment in the test namespace within the cluster on port 8080.
+```
+kubectl expose deploy httpd-test --name=httpd-service -n test --port=8080
+```
+
+* Update the environment variable on the pod env-pod to use an env key-value test=true.
+```
+kubectl get po env-pod -o yaml > toUpdate.yaml
+// modify the env varialble
+kubectl delete po env-pod --grace-period=0 --force
+
+kubectl apply -f toUpdate.yam
+```
+
+* Create a new configmap named cm-test with k-v pairs "DB_NAME=test", "DB_HOST=localhost", "DB_PORT=3306".
+```
+kubectl create configmap cm-test --from-literal=DB_NAME=test --from-literal=DB_HOST=localhost --from-literal=DB_PORT=3306
+```
