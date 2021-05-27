@@ -1062,7 +1062,140 @@ kubectl delete po env-pod --grace-period=0 --force
 kubectl apply -f toUpdate.yam
 ```
 
-* Create a new configmap named cm-test with k-v pairs "DB_NAME=test", "DB_HOST=localhost", "DB_PORT=3306".
+* Create a new configmap named cm-test with values "DB_NAME=test", "DB_HOST=localhost", "DB_PORT=3306".
 ```
 kubectl create configmap cm-test --from-literal=DB_NAME=test --from-literal=DB_HOST=localhost --from-literal=DB_PORT=3306
 ```
+
+* Create a new secret named secret-test with values "DB_HOST=my-host", "DB_USER=my-user", "DB_PASS=my-pass".
+```
+kubectl create secret generic secret-test --from-literal=DB_HOST=my-host --from-literal=DB_USER=my-user --from-literal=DB_PASS=my-pass
+```
+
+* Update pod pod-test to run as Root user and with the SYS\_TIME capability.
+```
+kubectl get po pod-test -o yaml > pod-test.yaml
+
+# add below lines
+securityContext:
+      capabilities:
+        add: ["SYS_TIME"]
+
+kubectl delete po pod-test --grace-period=0 --force
+
+kubectl apply -f pod-test.yaml
+```
+
+* Export the logs of the pod-test pod to the file ~/pod-test.logs
+```
+kubectl logs pod-test > ~/pod-test.logs
+```
+
+* Create a Persistent Volume pv-test (100Mi, ReadWriteOnce, HostPath: /tmp/pv-test)
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-test
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/pv-test"
+
+kubectl apply -f pv-test.yaml
+```
+
+* Create a redis deployment using the image redis with 1 replica and label app=redis. Expose it via a ClusterIP service called redis-svc on port 6379. Create a new Ingress Type NetworkPolicy called redis-access which allows only the pods with label access=redis to access the deployment.
+```
+kubectl create deploy redis --replicas=1 --image=redis
+
+kubectl expose deploy redis --port=6379
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-access
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          access: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+
+kubectl apply -f redis-access.yaml
+```
+
+* Create a pod called test-pod with two containers: container-a with image busybox and command sleep 3600, container-b with image nginx and variable NGINX_PORT with value 8080.
+```
+kubectl run test-pod --restart=Never --dry-run=client --image=busybox -o yaml -- sleep 3600 > test-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test-pod
+  name: test-pod
+spec:
+  containers:
+  - args:
+    - sleep
+    - "3600"
+    image: busybox
+    name: container-a
+  - image: nginx
+    name: container-b
+    env:
+    - name: NGINX_PORT
+      value: "8080"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f test-pod.yaml
+```
+
+* Create a pod called multiline-pod with busybox image and command below.
+```
+while :
+do
+  echo alive
+  sleep 1
+done
+```
+```
+kubectl run multiline-pod --dry-run=client -o yaml --image=busybox > multiline-pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: multiline-pod
+  name: multiline-pod
+spec:
+  containers:
+  - image: busybox
+    name: multiline-pod
+    command: ["/bin/sh"]
+    args: ["-c", "while :; do echo alive; sleep 1; done"]
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+
+kubectl apply -f multiline-pod.yaml
+```
+
+
