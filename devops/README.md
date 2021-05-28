@@ -1198,4 +1198,90 @@ status: {}
 kubectl apply -f multiline-pod.yaml
 ```
 
+* Create a deployment called deploy-test with image nginx, label use:frontend, with 2 replicas. Expose the deployment as a NodePort service with name service-test, port:80 and NodePort:30001.
+```
+kubectl create deploy deploy-test --image=nginx --replicas=2 --dry-run=client -o yaml > deploy-test.yaml
 
+kubectl expose deploy deploy-test --name=service-test --port=80 --type=NodePort
+
+kubectl get svc service-test -o yaml > service-test.yaml
+# modify NodePort: 30001 & selector use:frontend
+kubectl apply -f service-test.yaml
+```
+
+* Apply a label app_type=beta to node minikube. Create a new deployment called beta-apps with image nginx and replicas 3. Set node affinity to the deployment to place the pods on node02 only.
+```
+kubectl label node minikube app_type=beta
+
+kubectl create deploy beta-apps --dry-run=client -o yaml --image=nginx --replicas=3 > beta-apps.yaml
+# add node affinity
+kubectl apply -f beta-apps.yaml
+```
+
+* A pod called pod-rprob has an initial delay before it is ready. Update the pod-rporb with a readinessProbe with path /health, port 8080.
+```
+kubectl get po pod-rprob -o yaml > pod-rprob.yaml
+# add readinessProbe
+
+kubectl delete po pod-rprob --grace-period=0 --force
+
+kubectl apply -f pod-rprob.yaml
+```
+
+* Create a new pod called nginx-test with the image nginx. Add a livenessProbe to the container to restart it if the command ls /var/www/html/probe fails. This check should start after a delay of 10 seconds and run every 60 seconds.
+```
+kubectl run nginx-test --restart=Never --image=nginx --dry-run=client -o yaml > nginx-test.yaml
+# add livenessProbe
+
+kubectl apply -f nginx-test.yaml
+```
+
+* Create a job called job-test with image busybox and command echo "Good Job!" with completion: 10, backoffLimit: 6, restartPolicy: Never.
+```
+kubectl create job job-test --dry-run=client -o yaml --image=busybox -- echo 'Good Job!' > job-test.yaml
+# add backoffLimit and completions
+
+kubectl apply -f job-test.yaml
+```
+
+* Create a pod called pod-test2 with two containers, con1 with image nginx, env variable test:ok, con2 with image busybox, command sleep 3600, env variable test:fail.
+```
+kubectl run pod-test2 --restart=Never --dry-run=client -o yaml --image=busybox -- sleep 3600 > pod-test2.yaml
+# add con1 and envs
+
+kubectl apply -f pod-test2.yaml
+```
+
+* Create a PersistentVolume called volume-test with size 50Mi, reclaim policy: retain, access modes: readwriteonce and host path: /opt/data.
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: volume-test
+spec:
+  capacity:
+    storage: 50Mi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeRecalimPolicy: Retain
+  hostPath:
+    path: /opt/data
+
+kubectl apply -f volume-test.yaml
+```
+
+* Create a Pod multi-test with main container busybox and which executes this “while true; do echo ‘Hi I am from Main container’ >> /var/log/index.html; sleep 5; done” and with sidecar container with nginx image which exposes on port 80. Use emptyDir Volume and mount this volume on path /var/log for busybox and on path /usr/share/nginx/html for nginx container. Verify both containers are running.
+```
+kubectl run multi-test --image=busybox --restart=Never --dry-run=client -o yaml -- /bin/sh -c "while true; do echo 'Hi I am from Main container' >> /var/log/index.html; sleep 5; done" > multi-test.yaml
+# add another conatiner and volume
+
+kubectl apply -f multi-test
+```
+
+* Apply the autoscaling deploy-test deployment with minimum 10 and maximum 20 replicas and target CPU of 85% and verify hpa is created and replicas are increased to 10 from 1
+```
+kubectl autoscale deploy deploy-test --min=10 --max=20 --cpu-percent=85
+
+kubectl get hpa
+kubectl get deploy
+```
