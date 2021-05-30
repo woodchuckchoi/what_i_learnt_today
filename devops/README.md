@@ -1285,3 +1285,11 @@ kubectl autoscale deploy deploy-test --min=10 --max=20 --cpu-percent=85
 kubectl get hpa
 kubectl get deploy
 ```
+
+---
+
+# CKAD Pass
+```
+위의 mock exam 문제들을 풀 수 있다면, CKAD 취득이 어렵지 않을 것이라고 생각합니다.
+Once you can solve all those mock exam questions above, I believe you'll have no problem on CKAD
+```
