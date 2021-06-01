@@ -1293,3 +1293,21 @@ kubectl get deploy
 위의 mock exam 문제들을 풀 수 있다면, CKAD 취득이 어렵지 않을 것이라고 생각합니다.
 Once you can solve all those mock exam questions above, I believe you'll have no problem on CKAD
 ```
+
+---
+
+# Docker Commit
+Docker 컨테이너를 사용하던 중 application 혹은 architecture가 수정되면서 컨테이너의 내용이나 설정을 수정해야하는 경우가 종종 있다.\
+이미지를 수정하는 정도는 다양한 환경(compose, k8s 등)에서 간단하게, 다운타임 없이 진행 가능하지만, 이로 인해서 사라질 수 있는 데이터를 보존하면서 새로운 이미지를 생성하는 등 복잡한 요구사항이 있는 경우도 많다.\
+이를 해결 할 수 있는 방법이 docker commit 이다.\
+현재 container의 이미지 + 수정된 데이터(ufs의 레이어)를 새로운 이미지로 추출하고 이 이미지를 토대로 새로운 컨테이너를 생성한다.
+
+```
+# Test
+docker run busybox --name busybox-test -d touch ./shouldRemain.log
+
+docker commit busybox-test busybox-commit:1.0
+# in busybox-commit:1.0 image, shouldRemain remains
+```
+
+---
