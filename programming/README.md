@@ -2434,4 +2434,17 @@ In most cases prefer Channels, whilst in some, Mutex.
 
 ---
 
+# Is Python Single-threaded?
+```
+tl;dr;
+Python is not a single threaded language
+Multiprocessing is not the only way to implement concurrency in Python
+```
 
+Basically, if you're using only Python code to execute something, it might be the case and there might not be a way to do it concurrently due to the infamous GIL.\
+However, numpy, numba, etc, those popular Python libraries internally release GIL and compute concurrently.\
+Also, I/O heavy workloads, such as communicating via WEB, can also be dealt concurrently.
+
+Simply put, Python is single-threaded (not async, but one thread at a time), but not always.
+
+---
