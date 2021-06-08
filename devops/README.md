@@ -1311,3 +1311,18 @@ docker commit busybox-test busybox-commit:1.0
 ```
 
 ---
+
+# AirFlow
+AirFlow는 Task를 Worker에 할당하는 Scheduler, UI를 제공하는 WebServer, Task가 할당되는 방식을 정하는 Executor, Task를 할당받고 이를 수행하는 Worker 등으로 이루어진다.\
+사용자는 Task의 집합인 DAG(Directed Acyclic Graph)를 정의하고 이를 Scheduler에 전달해서 실행시킨다. 이름이 알려주듯이 Task는 방향이 있는(디펜던시를 설정할 수 있는) 노드이며, cycle을 구성할 수 없다.\
+기본적으로 각 Task는 서로 데이터나 결과를 주고받지 않기 때문에, Task사이에서 데이터를 전달하려면 Operator가 기본적으로 제공하는, 혹은 네트워크 통신을 통해 접근 가능한 (S3 같은) 저장 공간에 결과를 저장하고 다음 Task가 이를 불러와서 사용하는 방식으로 이루어진다.\
+예외적으로 Task 사이에서 Message의 전달이 필요하다면 XCom이라는 객체를 사용해서 Task간 상태를 통신할 수 있다.\
+Default 설정은 한 번에 하나의 Task를 처리하는 SequentialExecutor를 사용한다. 하지만 퍼포먼스를 위해서 CeleryExecutor를 사용하는 것을 추천하며, 더 scalable하고 cost-effective한 방식인 KubernetesExecutor를 사용하는 편도 좋다.(k8sExecutor 사용해볼 것)
+
+가장 일반적으로 사용되는 Python, Bash Operator 뿐만 아니라, Pipeline이 실패했을 때 슬랙 메세지를 보내도록 사용할 수도 있는 Slack Operator 등 여러 Provider가 제공하는 Operators가 있다.\
+내 생각에 간단한 Bash Script + Crontab으로 처리 가능하고, 중요도가 상대적으로 낮은 일이라면 Airflow를 사용하지 않느 편이 오히려 좋다.\
+하지만 여러 Task가 있으며, 이 Task 사이에 dependency가 있거나, 혹은 혹시 모를 실패를 겪었을 때 crontab의 로그를 찾아서 헤매는게 싫거나, Task의 중요도가 높거나,  GUI에서 편리하게 모니터링이 가능하다면 Airflow를 사용하는 편이 낫다고 생각한다.
+
+---
+
+
