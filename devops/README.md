@@ -1325,4 +1325,18 @@ Default 설정은 한 번에 하나의 Task를 처리하는 SequentialExecutor�
 
 ---
 
+# ACL vs Security Group
+TL;DR;
+
+```
+Security group applies to EC2 instances.
+Network ACL applies to VPC subnets.
+```
+
+Security groups support allow rules only. (All rules are denied by default)\
+Network ACLs support allow and deny rules. 
+
+Network ACL rules are process by order.
+
+---
 
