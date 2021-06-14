@@ -758,3 +758,49 @@ File storage organizes and represents data as a hierarchy of files in folders; b
 * To retrieve the data, the storage operating system uses the metadata and identifiers, which distributes the load better and lets administrators apply policies that perform more robust searches.
 * Object storage requires a simple HTTP API.
 * Objects can’t be modified—you have to write the object completely at once.
+
+# Which Thread Handles Signals?
+Linux OS에서는 실행 중인 Process에 signal을 보내서 Process에게 어떠한 행동을 지시할 수 있다.\
+일반적으로 많이 사용되는 명령어 kill -9 [pid]는 KILL 명령을 해당 process에 지시함으로써 실행 중인 프로세스를 종료시킨다.\
+갑자기 든 생각은, 그렇다면 멀티 쓰레딩 환경에서 어떤 쓰레드가 signal을 받는가?였다.\
+실험 방식은 간단하다. 아래와 같은 Go code를 작성한다.
+
+```
+package main
+
+import (
+  "os"
+  "os/signal"
+  "fmt"
+)
+
+func main() {
+  for i:=1; i<5; i++ {
+    go catchSignal(i)
+  }
+
+  catchSignal(i)
+
+}
+
+
+func catchSignal(n int) {
+  signals := make(chan os.Signal, 1)
+  signal.Notify(signals)
+  sig := <- signals
+  fmt.Printf("%vth thread received %v signal\n", n, sig)
+}
+```
+
+코드를 작성하고, foreground에서 실행한다. 가장 간편하게 signal을 보낼 수 있는 ctrl + c (interrup signal)을 프로세스에 보내본다.\
+실험 결과 매번 n개의 쓰레드가 동시에 signal을 인식하는 것으로 나왔다.\
+signal에 대한 syscall 관련된 정보는 아래와 같다.
+```
+POSIX.1 distinguishes the notions of signals that are directed to the process as a whole and signals that are directed to individual threads. According to POSIX.1, a process-directed signal (sent using kill(2), for example) should be handled by a single, arbitrarily selected thread within the process.
+```
+
+POSIX.1은 프로세스에 전달되는 시그널과 각각의 쓰레드에 전달되는 시그널을 구분한다.\
+POSIX.1의 스펙에 따라 프로세스에 전달되는 시그널은 프로세스 내 아무 쓰레드 중 하나에 의해서 다뤄져야한다.\
+멀티 쓰레딩 환경에서는 어떠한 한 쓰레드에서 시그널을 담당하면 된다.
+
+---
