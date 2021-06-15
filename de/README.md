@@ -274,3 +274,20 @@ Duplication of data is done to ensure the safety of having a resilient system th
 
 ## How does Spark Streaming work?
 The data in the stream is divided into small batches which are called DStreams in the Spark Streaming. It is a sequence of RDDs internally. The data that flows in the stream is processed within a time frame. This time frame is to be specified by the developer, and it is to be allowed by Spark Streaming. The time window is the time frame within which the work should be completed. The time window is updated within a time interval which is also known as the sliding interval in the window. 
+
+---
+
+# Airflow On K8S VS Airflow K8S Executor
+## Airflow On K8S
+기존에 프로세스로 작동되는 Scheduler, Webserver, Executor (worker)를 K8S pod으로 생성한다.\
+구성이 간단하기 때문에, 큰 K8S 클러스터를 가지고 있는 회사의 경우 각 조직에게 각각 Airflow를 배정해서 사용할 수 있다.\
+하지만 인스턴스에서 동작하던 프로세스를 POD으로 수정한게 전부이기 때문에, 자원 소요 및 관리 포인트 역시 그대로 유지된다.\
+또한 워커 및 스케쥴러 POD에서 사용되는 컨테이너가 유즈케이스가 많아질수록 유지 보수가 어려워진다는 점이 있다.
+
+## Airflow K8S Executor
+Airflow K8S Executor를 사용하는 경우 K8S Operator는 각각의 task에 worker pod을 생성하고, 이 worker pod이 해당 task를 실행하게 된다. 만약 Operator가 KubernetesPodOperator라면 K8S Executor는 worker pod으로부터 또 다른 POD을 생성하고, 생성된 새로운 pod 안에서 task를 수행하게 된다.
+
+각각의 worker가 사용할 image를 설정하기 쉽고, 관리 측면에서 Airflow ON K8S보다 용이하다는 장점이 있다.\
+하지만 K8S Executor에 대한 reference가 상대적으로 적다.
+
+---
