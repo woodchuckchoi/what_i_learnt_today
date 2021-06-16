@@ -152,29 +152,10 @@ JS라면 일반적으로 request.then().catch()와 같은 방식으로 callback�
 
 ---
 
-# Search Service
-포탈들을 검색어 추천 서비스를 소켓이 아닌 HTTP/2 통신으로 진행한다.\
-근래에 HTTPS를 사용하는 서비스는 HTTP/1.1에서 HTTP/2로 전환하려는 움직임이 있다.\
-예를 들어 Naver와 Google. curl --http2 -I URI 를 해보면 헤더에 HTTP/2 OK가 명시되어 있는 것을 볼 수 있다.\
-HTTP/2 환경은 Client의 Request에 대해 서버가 Response를 보내고 연결을 끊는 HTTP/1.1과 다르게 bi-directional한 다수의 Stream을 생성할 수 있다.\
-HTTP/1.1은 단방향 통신을 여러 Connection을 열고, 소켓 통신을 연결해서 Server Push가 가능한 실시간 양방향 통신을 했지만, HTTP/2는 기본적으로 이런 기능들의 상위 호환을 제공하는 것이다.\
-각 검색어는 한 글자 한 글자가 쳐질 때마다 Request를 보내고, 이에 대한 Request를 화면에 렌더링한다. (HTTP/2이므로 매번 연결을 생성, 해제하지 않아도 되서 Overhead가 적다.)\
-검색 엔진의 경우 인터넷 상에서 데이터를 수집하는 Crawler 로봇을 사용하며, 이 로봇이 방문한 사이트는 인덱싱되어 DB에 저장된다.\
-DB에 저장된 파일은 (아마도) 토픽을 추출하여, 해당 키워드가와 검색어가 얼마나 일치하는가를 각 검색 엔진의 알고리즘을 통해서 계산한다.\
-\
-*아마도 조건부 확률이니까 기본적으로 베이즈의 정리를 사용하지 않을까?*
-
-	P(A|B) = P(B|A) * P(A) / P(B)
-	몬티홀의 역설
-	P(당첨|바꾼다) = P(바꾼다|당첨) * P(당첨) / P(바꾼다) 당첨이 되었는데 바꿔서 당첨이 되었을 확률은 A가 스포츠카일 때 B를 선택, C를 선택이므로 확률은 2/N(어떤 상수)이라 할 수 있다.
-	P(당첨|안바꿈) = P(안바꿈|당첨) * P(당첨) / P(안바꿈) 당첨이 되었는데 안바꾸서 당첨이 되었을 확률은 A가 스포츠카이고 A를 선택했을 때 뿐이므로 확률은 1/N(어떤 상수)라고 할 수 있다. 따라서 바꾸는 편이 당첨될 확률이 2배 높다.
-
----
-
 # HEAP
 HEAP은 부모 노드가 항상 자식 노드보다 크거나 (Max Heap), 작은 (Min Heap) 데이터 구조이다.\
 한 부모 노드가 두 자식 노드를 가지는 Binary Heap이 널리 사용된다.\
-부모 노드의 Index가 n일 때, 자식 노드의 Index는 각각 2n+1, 2n+2이 되어 연산이 편하다는 장점도 있고.
+부모 노드의 Index가 n일 때, 자식 노드의 Index는 각각 2n+1, 2n+2이 되어 노드 구조체를 사용하지 않고, 단순한 배열을 사용할 수도 있으므로 연산이 편하다는 장점도 있다.
 
 ---
 
@@ -197,7 +178,7 @@ Python, Go 등에서는 어떠한 기능을 가지고 있는 Obj를 그 type으�
 예를 들어 Python에서는 type을 알 수 없지만, .append라는 기능이 있다면 그 기능을 사용하도록 할 수 있다.\
 Go의 경우에는 Interface를 사용하여 어떠한 함수가 있는 Type에 대해 공통적으로 사용할 함수를 선언 할 수 있다.\
 이처럼 Looks like a duck, sounds like a duck. Then it is a duck. 이라는 철학에 따른 방식을 Ducktyping이라 한다.\
-Go와 같은 Statically Typed Language에서 Interface 등을 사용하여 기능을 구현하는 것을 Generics라고 한다.
+Go와 같은 Statically Typed Language에서 Interface를 사용하여 위의 기능을 구현한다.
 
 ---
 
@@ -420,11 +401,11 @@ DI가 아닌 IoC의 예는 XML 등의 파일을 사용하여 프레임워크에 
 
 # Traffic Overflow
 예를 들어 서버가 초당 10만건의 요청을 수행할 수 있는데, 현재 서비스의 피크 타임에는 초당 100만건의 요청이 들어온다. 어떻게 처리할 것인가?\
-*가장 쉬운 방법은 인프라 레벨에서 처리하는 것일 것 같음*
+* 가장 직관적이면서 효과가 좋은 방법은 인프라 레벨에서 처리하는 것이다. 서버의 스케일업 혹은 로드밸런서를 통한 트래픽의 분산이 일반적인 해결책이다. *
 * 서버의 스냅샷을 만들어서 오토스케일링한다. 서버의 앞단에는 로드밸런서를 두어서 트래픽을 각 서버에 분산할 수 있도록 설정한다.
 * BE를 컨테이너로 만들어서 K8S 클러스터를 설정하고 그 안에 띄운다. 쿠버네티스는 서비스의 이름으로 (기본적으로 Round Robin 방식) 로드밸런싱이 되며, 서비스의 갯수를 자동으로 오토스케일 할 수 있으므로 위의 사항을 모두 만족할 수 있다.
 *리소스에 제한이 있다면 소프트웨어적으로 처리한다*
-* 반드시 실시간(0~1초 응답)이 아니라면 Rabbit MQ, Redis를 사용하거나 AWS SQS와 같은 서비스를 이용하여  큐를 만들어서 서버가 순차적으로 요청을 처리할 수 있도록 한다.
+* 반드시 실시간(0~1초 응답)이 아니라면 Rabbit MQ, Redis를 사용하거나 AWS SQS와 같은 서비스를 이용하여 메세지큐를 사용하도록 한다. 이를 통해서 서버가 순차적으로 요청을 처리할 수 있도록 한다.
 * 코드의 로직을 Async로 바꾸면 요청의 블로킹 부분에서 의미없이 낭비되는 시간을 줄여서 더 많은 Request를 처리할 수 있다.
 * HTTP/2는 Stream Priority를 다룰 수 있다. 더 중요한 요청을 처리하는 Stream을 따로 관리한다.
 
@@ -455,7 +436,7 @@ ASCII는 0~255에 각 알파벳 문자를 매칭하여 영어가 아닌 다른 �
 ---
 
 # 서버의 LifeCycle
-1. Socket 생성 - 소프트웨어의 데이터 송수신을 책임지는 OS의 단위. LINUX에서 모든 것은 파일이다.
+1. Socket 생성 - 소프트웨어의 데이터 송수신을 책임지는 OS의 단위. (LINUX에서 모든 것은 파일이다. 소켓 역시 읽기 쓰기를 통해 통신하는 파일이다.)
 2. Bind - 서버의 IP주소와 포트를 소켓에 할당한다.
 3. Listen - 특정 주소에 Bind된 소켓을 Request에 응답 가능한 대기 상태로 만들기
 4. Accept - 클라이언트로부터 해당 소켓에 Request가 도착했을때, 수락
@@ -520,9 +501,9 @@ Global File Table의 Entry는 inode(Index Node, 파일에 대한 정보를 포�
 ---
 
 # Maximum Number of Connections in TCP
-Whatsapp의 경우 한 서버에서 삼백만 Connection을 다룸.\
-클라이언트는 약 2^16개의 Connection이라는 한게가 있지만, 서버의 경우 리소스만 충분하다면 제한된 Connection의 수는 없다.\
-Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy가 클라이언트의 역할을 하기 때문에, 문제가 생길 수 밖에 없음(소켓을 사용한 Layer4 Proxy의 경우)\
+Whatsapp의 경우 한 서버에서 삼백만 Connection을 다룬다.\
+클라이언트는 약 2^16개의 Connection이라는 한게가 있지만(포트의 수), 서버의 경우 리소스만 충분하다면 제한된 Connection의 수는 없다.(커넥션(세션) == (clientIp, clientPort, serverIp, serverPort))\
+Proxy/Reverse Proxy를 사용하는 경우, 기술적으로 Proxy/Reverse Proxy가 클라이언트의 역할을 하기 때문에, 문제가 생길 수 밖에 없음(소켓을 사용한 Layer4 Proxy의 경우, 모든 clientIp가 단일 proxy가 되므로)\
 해결책으로 Proxy/Reverse Proxy가 HTTP2를 사용하게 한다.(Eg. Envoy Proxy) Connection 안에서 많은 Stream을 생성하여 백과 통신하게 한다.\
 
 ---
@@ -615,14 +596,14 @@ dup, dup2 함수를 통해서 기존의 fd를 복사할 수 있다. 이렇게 �
 
 # I-NODE VS V-NODE
 V-node는 모든 파일 시스템에 대해서 추상화를 제공하여 커널이 모든 파일시스템을 지원하지 않아도 OS가 해당 파일시스템과 상호작용 할 수 있도록 돕기위해 만들어졌으며 In-memory에 저장된다. 또한 V-node에 저장되는 정보는 파일에 대한 정보를 저장하지만, 파일의 lifespan에 변경되지 않는 데이터만 저장한다.(inode에 대한 정보 등)\
-반면 I-node는 on-disk에 저장되며, 사용되는 파일 시스템에 종속된다. Inode는 파일 사이즈, 소유자, 파일의 물리적  주소(포인터) 등 파일에 대한 메타데이터를 포함한다.
+반면 I-node는 on-disk에 저장되며, 사용되는 파일 시스템에 종속된다. I-node는 파일 사이즈, 소유자, 파일의 물리적  주소(포인터) 등 파일에 대한 메타데이터를 포함한다.
 
 ---
 
 # Hard Link VS Symbolic Link
 파일 시스템의 파일은 기본적으로 inode를 가리키는 링크이다.\
 하드링크는 original 파일이 가리키는 inode를 가리키는 새로운 파일이다. 같은 file system 안에서만 유효하다.\
-따라서 하드링크는 original의 데이터가 바뀌어도, 위치가 바뀌어도, 심지어 original이 삭제되어도 원래 inode가 가리키는 데이터를 보존한다.(original을 수정하면 hard 역시 수정된다. 모든 링크가 삭제되기 전에는 inode는 삭제되지 않는다.)\
+따라서 하드링크는 original의 데이터가 바뀌어도, 위치가 바뀌어도, 심지어 original이 삭제되어도 원래 inode가 가리키는 데이터를 보존한다.(original을 수정하면 hard 역시 수정된다. 모든 링크가 삭제되기 전에는 inode가 삭제되지 않는다.)\
 반면 심볼릭 링크는 파일시스템의 다른 파일 이름에 대한 링크이다.\
 따라서 original의 이름이 바뀌면 심볼릭 링크는 더 이상 해당 파일을 가리키지 못한다. inode가 아닌 다른 파일의 이름을 가리키므로, 다른 file system 안에서도 동작한다.
 
@@ -814,7 +795,7 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 
 # Golang SQL package
 다른 언어, Lib과의 차이점은 일단 Single Query의 경우 commit을 자동으로 수행하며, 여러 Query가 합쳐진 Transaction은 Transaction을 선언한 후 Exec, Commit, Rollback 과정을 거친다는 점.\
-또한 다수의 Entry가 반환되는 Query의 경우, Rows라는 Interface를 반환한다. Rows는 Next() Method를 통해서 다음 Rows에 대한 정보를 Lazy Evaluation하는데, 특이하게도 아래와 같은 Syntax를 취한다.
+또한 다수의 Entry가 반환되는 Query의 경우, Rows라는 Interface를 반환한다. Rows는 Next() Method를 통해서 다음 Rows에 대한 정보를 Lazy Evaluation하는데, ODBC와 닮은, 아래와 같은 Syntax를 취한다.
 
 	for rows.Next() {
 	    val (
@@ -830,7 +811,7 @@ OAuth 프레임워크가 많이 있지만, 스스로 Implement해도 수십 Line
 위와 같이 rows.Next()를 실행한 상태로 그 안의 scope에서 해당 row를 처리하는 것을 best practice(이자 golang의 일반적인 package가 그렇듯 유일한) 처리 방법으로 두고 있다.\
 아직 SQL pkg의 소스 코드를 까보지는 않았는데, Next()는 -1 idx에서 시작해서 늘어가는 거겠지
 
-또 MySQL의 timestamp는 time pkg의 time.Format(time.RFC3339)와 compatible하다. time.Time type이기 때문에 JSON Marshal에도 문제가 없다! 땡큐!
+또 MySQL의 timestamp는 time pkg의 time.Format(time.RFC3339)와 compatible하다. time.Time type이기 때문에 JSON Marshal에도 문제가 없다.
 
 ---
 
@@ -1445,7 +1426,6 @@ pkg가 직접 사용되지 않고 (pkg.Something처럼) 사용될 수 있는 경
 		swag.Register(swag.Name, &s{})
 	}
 ```
-이것도 일종의 dependency injection이라고 볼 수 있을까?
 
 ---
 
