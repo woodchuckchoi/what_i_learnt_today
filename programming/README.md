@@ -929,7 +929,7 @@ Apache의 경우 pre-forking을 통해서 최대한 fork()의 overhead를 줄인
 
 위와 같이 동작한다. property.deleter도 있다.
 
-functools lib은 고계함수에 대한 지원을 하는 class, methods로 이루어져있다.\
+functools lib은 고계함수에 대한 지원을 하는 class, methods로 이루어져있다.
 * functools.cache는 function에 대한 cache를 구현한다.
 
 ```
@@ -1455,7 +1455,7 @@ JOIN을 사용하지 않기 때문에 SQL Database와 궁합이 나쁠 것이라
 서버 개발자가 결정하는 것은 entity의 관계와 데이터를 어떻게 가져올 것이냐에 대한 것이다.\
 REST에서 같은 데이터를 가져오기 위해서 여러 API를 작성하는 것과 반대로 graphql은 데이터를 요청하는 측에서 데이터의 depth를 정하므로 API 개발 load가 줄어든다.\
 요청하는 데이터의 depth가 너무 깊어지는 것을 막기 위해서 query의 maxDepth를 설정하는 방식을 취하는 경우가 일반적이라고 한다.\
-GraphQL을 사용하면서도 Join을 사용하기 위해서 join-monster 등의 라이브러리도 지원하고 있다.\
+GraphQL을 사용하면서도 Join을 사용하기 위해서 join-monster 등의 라이브러리도 지원하고 있다.
 
 
 아래는 graphql-js에서 스키마 정의 예시이다.
@@ -1587,7 +1587,7 @@ type PrefixTreeNode struct {
     Nexts           []*PrefixTreeNode
 }
 ```
-Syllable은 한글일 경우 초성, 중성, 종성을 분리해서 저장하며, SyllableType이 한글(초,중,종), 영어, 그외(특수문자+숫자 등)를 분간한다. Nexts에는 현재 Node를 prefix로 가지는 다른 Node들의 Pointer를 저장한다.\
+Syllable은 한글일 경우 초성, 중성, 종성을 분리해서 저장하며, SyllableType이 한글(초,중,종), 영어, 그외(특수문자+숫자 등)를 분간한다. Nexts에는 현재 Node를 prefix로 가지는 다른 Node들의 Pointer를 저장한다.
 
 하지만 Node가 LeafNode가 아닐때에는 이 Node가 단어의 끝인지, 다음 Node의 Prefix로만 존재하는지 알 수 있는 방법이 없다.\
 Prefix Tree의 reference를 찾아보니 index를 사용하는 경우가 있다.\
@@ -1637,7 +1637,7 @@ Go Path에 pkg를 생성하고 사용하는 방식은 go mod 이후 거의 depre
 
 Go의 package는 간단하게 말하면 디렉토리를 뜻한다.\
 module을 이루는 디렉토리에서 시작해서 그 하위 디렉토리는 모두 하나의 package(sub-package?)라고 볼 수 있으며, package의 이름은 디렉토리와 일치하지 않아도 된다.(하지만 그렇게 하면 alias를 사용하지 않을 경우 상당히 사용하기가 힘들 것이다.)\
-하지만 한 package에서, 즉 한 디렉토리 내에서 모든 파일은 하나의 package를 가리켜야한다.\
+하지만 한 package에서, 즉 한 디렉토리 내에서 모든 파일은 하나의 package를 가리켜야한다.
 ```
 github.com/woodchuckchoi/something/
 | main.go - package main
@@ -1682,8 +1682,7 @@ goroutine을 생성할 경우 Go는 설정에 따라 여러 Process를 생성한
 Go에서 동시성을 구현할때는 단순화를 목표로 하고 가능하면 채널을 사용한다. 고루틴은 무한정 쓸 수 있는 자원처럼 다룬다.
 
 모든 Go 프로그램에는 적어도 하나의 Goroutine이 있다. Main Goroutine (Main Thread처럼)가 그것이다.\
-Goroutine은 Coroutine이라 불리는 높은 수준의 추상화다.\
-Coroutine은 동시에 실행되는 (병렬이 아닐 수 있다.) 서브루틴으로 인터럽트가 불가능하다. 하지만 중단하거나 재진입할 수 있는 여러 Point를 가진다.\
+(Coroutine은 동시에 실행되는 (병렬이 아닐 수 있다.) 서브루틴으로 인터럽트가 불가능하다. 하지만 중단하거나 재진입할 수 있는 여러 Point를 가진다. 또한 coroutine은 parallelism이 불가능하다. 반면 goroutine은 설정에 따라 parallelism이 가능할 수 있다.)\
 Goroutine은 중단이나 재진입 포인트를 정의하지 않고, Go runtime이 goroutine을 관리한다.\
 Goroutine을 호스팅하는 Go의 메커니즘은 M:N 스케줄러로, M개의 그린스레드를 N개의 OS 스레드에 매핑한다.\
 Goroutine은 스레드에 스케쥴링 된다. 사용가능한 그린스레드보다 더 많은 Goroutine이 있다면 스케줄러는 사용 가능한 스레드들에게 Goroutine을 분배하고, 분배된 Goroutine이 대기 상태가 되면 다른 Goroutine이 실행되도록 한다.
@@ -1803,8 +1802,8 @@ Event가 끝났을 때, 행동을 결정하는 것이 callback이다.
 
 IO를 제외한 CPU-intensive workload는 별개의 Process로 분리하는 것을 Nodejs는 추천한다.(MSA / Daemon) 
 
-When to use Node.js
-YES -> IO intensive - Most WEB Apps
+When to use Node.js\
+YES -> IO intensive - Most WEB Apps\
 NO -> CPU intensive - Batch Job (more suited for Go or other multithreaded systems), Aggregation (Node.js Callback hell)
 
 ---
@@ -2151,8 +2150,7 @@ Promise가 traceback message에 보이고, 데이터는 올라가지 않으니 �
 오늘 async/await에 대해 몇 가지 테스트를 해보고 다시 코딩을 했는데 또 실패했다.\
 내가 정말 JS async/await에 대해 하나도 모르는구나 하면서 에러 메세지를 처음부터 끝까지 다 읽어봤다.\
 traceback 메세지를 전부 읽고보니 한 번에 수백만개의 record를 발송하려다 보니 생긴 heap error가 원인이었다.\
-데이터의 양을 줄여서 다시 테스트하니 n천개의 record가 체감상 즉시 이뤄졌다. (localhost에 es를 띄워놔서 그런 점도 있지만) Node가 빠르다는 점을 깨달았다.\
-또 async/await에 대해서 더 자세히 알게되서 좋았다.
+데이터의 양을 줄여서 다시 테스트하니 n천개의 record가 체감상 즉시 이뤄졌다. (localhost에 es를 띄워놔서 그런 점도 있지만) Node가 빠르다는 점을 깨달았다.
 
 ---
 
@@ -2163,6 +2161,22 @@ Go GC는 Compaction을 지원하지 않는다. (메모리에서 어떤 데이터
 대신 malloc.go라는 방식을 사용하여 남은 segmentation에 대한 원활한 배치를 수행한다.
 
 Generational 하지 않다. Go는 Pointer를 사용하므로 이에 대한 Barrier를 만들면 overhead가 너무 크므로.
+
+Reference Counting (Python) 방식은 cycle이 발생하면 reference가 0이 될 수 없으므로 gc가 작동하지 않는다. (그래서 Python은 Generational GC를 함께 수행한다.) 하지만 mark-and-sweep 방식에서는 각 객체에 1bit의 flag를 주고 root에서 접근 가능하다면 flag를 마킹하는 Mark Stage, flag가 마킹되어있지 않은 객체의 할당을 해제하는 Sweep Stage, Sweep이 끝나면 다음 GC를 위해 모든 객체의 flag를 초기화하는 단계를 거친다.
+
+Go의 GC는 mark-and-sweep 중에서도 tri-colour mark-and-sweep이므로 설명을 첨부한다.
+```
+GC가 시작하기전에 루트 오브젝트(지역 변수에 할당된 객체 등)를 포함한 모든 객체는 white에 존재한다.
+스택(지역 변수), 힙(사용자 지정 변수), 전역 변수는 grey로 옮겨진다.
+
+이제 아래 두 step을 Black과 White 객체만 남을 때까지 반복한다.
+
+GC는 Grey 객체를 Black으로 옮긴다.
+Black이 reference하는 객체를 모두 Grey로 옮긴다.
+
+Black과 White만 남았다면 더 이상 상태 변화가 있을 수 없다.
+White의 객체를 GC한다.
+```
 
 ---
 
@@ -2242,7 +2256,7 @@ Go의 GC algorithm은 stop-the-world(GC가 진행되는 동안 process의 모든
 * Reference Count - 각 객체가 reference된 횟수를 저장하고, 이 횟수가 0이 되었을 때 해당 object에 대한 GC를 실행한다. 가장 간단한 방법이지만 cyclic structure에 대해 해결 방법이 없다는 단점이 있다. 
 A가 B를 참조하고, B가 A를 참조한다면 (cyclic) 이는 memory leak으로 이어진다.\
 또한 count는 메모리에 계속적으로 입력, 수정되므로 overhead가 높다.\
-앞서 말한 단점들 때문에 racing condition이 발생하는 threading에도 적용하는데 문제가 있어서 Reference Count를 사용하는 Python은 GIL을 적용했다.\
+앞서 말한 단점들 때문에 racing condition이 발생하는 threading에도 적용하는데 문제가 있어서 Reference Count를 사용하는 Python은 GIL을 적용했다.
  
 * Tri-Colour Mark&Sweep - 객체 생성될 때 white로 간주한다. 프로세스가 fork()로 생성되었을 때 발생하는 root objects (stack, heap, global variables)는 grey로 간주한다.
 다음 단계에서는 grey object를 선택하고 black으로 칠한다.\
