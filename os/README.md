@@ -319,7 +319,7 @@ Memory는 위의 예와 같이 주소와 데이터로 이루어져있다.
 
 Source - High Level Programming Language / Assembly (test.c)\
 Object - Compile/Assemble 결과물 (test.o)\
-Executable - Object File을 Link한 결과물 (test.o + Libraries)\
+Executable - Object File을 Link한 결과물 (test.o + Libraries)
 
 프로그램이 실행되기 위해서는 code, data(literal, static/global var), stack(local var)이 메모리에 올려져야한다.\
 또한 이것을 메모리의 어떤 위치에 올려야 하는지, Multi Process 환경에서 위치를 어떻게 바꿔야하는지를 정해야 한다.\
