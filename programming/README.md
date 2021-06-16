@@ -82,7 +82,8 @@ Python에서 일반적으로 Garbage Collection에 사용되는 방법은 Refere
 
 그렇기 때문에 어느 시점(Generation)에서 Reference의 갯수가 일정 수치(Threshold)를 넘는 순간 Garbage Collecting을 하는 Generational Garbage Collection을 병행한다. Generational Garbage Collection은 스스로를 참조하는 cycle을 찾아낼 수 있으며, 외부로 참조가 되지 않는 변수들을 제거한다.
 
-GIL은 Python Global Interpreter Lock을 뜻한다. 한 번에 한 개의 스레드만 Python 인터프리터를 사용할 수 있도록 뮤텍스가 설정되어 있기 때문에, 멀티 스레드 환경에서 보틀넥이 발생한다.
+GIL은 Python Global Interpreter Lock을 뜻한다. 한 번에 한 개의 스레드만 Python 인터프리터를 사용할 수 있도록 뮤텍스가 설정되어 있기 때문에, 순수한 파이썬만 사용하며, IO(네트워크, 디스크 등)이 없는 환경이라고 가정한다면 멀티 스레드 환경에서 보틀넥이 발생하므로 멀티 프로세싱을 해야한다.\
+하지만 대부분의 경우 numpy, pandas 등 랩퍼 역할을 하는 python lib을 사용하며, network IO 등을 기다리는 동안 다른 스레드가 진행될 수 있기때문에 python이 멀티 스레드가 안된다는 것은 이론적인 얘기일 뿐이다.
 
 ---
 
