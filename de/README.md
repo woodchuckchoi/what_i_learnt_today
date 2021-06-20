@@ -291,3 +291,37 @@ Airflow K8S Executor를 사용하는 경우 K8S Operator는 각각의 task에 wo
 하지만 K8S Executor에 대한 reference가 상대적으로 적다.
 
 ---
+
+# Data Discovery
+Data의 pattern을 찾기위해서 사용되는 프로세스로 Raw Data로부터 BI 관련 데이터를 추출하고, 제공하는 Google의 Data Catalog, Analytics를 생각하면 편리하다.\
+Lyft에서 개발한 Amundsen 역시 Data Discovery 용도로 사용되는 Open-Source 툴이다.
+
+## Without it
+```
+Work is given
+Trying to find data source -- need to get permission, connection...
+Trying to understand the data schema -- increase db loads
+
+According to Lyft, data scientists spend up to 1/3 of their work time in data discovery:
+  What data we have
+  Where the data is
+  How to use it
+  ...
+```
+
+## Data Discovery Answers 3 Questions
+```
+1. Search Based
+  Where is the table, dash board for data x? What data does it contain?
+  -> Does this analysis already exist?
+
+2. Lineage Based
+  I make modification on data, who owns the data and who uses the data the most?
+  -> I need to notify anybody related to this data table/stream.
+
+3. Network Based
+  I want to follow a power user (a senior / manager) in my team.
+  -> i want to bookmark some tables and get notified when changes are made.
+```
+
+---
