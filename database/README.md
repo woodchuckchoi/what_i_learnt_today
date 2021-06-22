@@ -1334,4 +1334,20 @@ Leaderless의 다이나모 스타일 DB에서 엄격한 정족수를 사용하�
 
 ---
 
+# How to modify production database with little or no downtime?
+```
+* Some changes have no impact on downtime. Such as adding tables... *
+* Some make minimal impact on db. Such as adding columns... *
+* Any operations that modify the current database's data size and indexing will need downtime *
+
+Usually modifying db in parallel follows below steps:
+1. Replicate db
+2. Modify the replica
+3. Apply operations on the replica
+4. Make the replica the master
+
+Just in case, always make changes that are backward-compatible, if possible.
+```
+
+---
 
