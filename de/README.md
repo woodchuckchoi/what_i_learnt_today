@@ -325,3 +325,13 @@ According to Lyft, data scientists spend up to 1/3 of their work time in data di
 ```
 
 ---
+
+# Fields of Interest in Data Engineering
+1. Programming - Mostly to write ETL scripts (python, scala, etc...)
+2. DB(SQL) - Fundamental to have a look at SQL/NoSQL data stores
+3. Cloud - Many DE solutions are cloud-based
+4. ETL Orchestration - Airflow, AWS Data Pipeline, etc..
+5. BigData Frameworks - Hadoop, Flink, Spark, Hive, Presto....
+6. Data Warehouse - RedShift, Big Query, etc...
+
+---
